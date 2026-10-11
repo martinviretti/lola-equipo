@@ -1,0 +1,125 @@
+---
+import { url, sinBase } from '../lib/url';
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import logo from '../assets/logo-lola-circulo.png';
+import Icon from '../components/Icon.astro';
+import BarraApp from '../components/BarraApp.astro';
+
+interface Props {
+  title?: string;
+  /** Muestra la barra de progreso de lectura (páginas de módulo). */
+  progreso?: boolean;
+  /** Página de impresión: sin barra superior. */
+  impresion?: boolean;
+}
+
+const { title, progreso = false, impresion = false } = Astro.props;
+const titulo0 = title;
+
+const ruta = sinBase(Astro.url.pathname);
+const actual = ruta.startsWith('/carteles') ? 'carteles' : ruta.startsWith('/manual') || ruta.startsWith('/modulos') || ruta === '/imprimir' ? 'manual' : 'guia';
+const secciones = [
+  { id: 'guia', href: url('/'), label: 'Guía' },
+  { id: 'carteles', href: url('/carteles'), label: 'Carteles' },
+  { id: 'manual', href: url('/manual'), label: 'Manual' },
+];
+const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Guía de productos | El Almacén de Lola';
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{titulo}</title>
+    <meta name="theme-color" content="#FBF8F2" />
+    <link rel="icon" type="image/png" href={url('/favicon.png')} />
+    <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} />
+    <!-- App instalable (PWA). use-credentials: el manifiesto viaja con la sesión de Cloudflare Access. -->
+    <link rel="manifest" href={url('/manifest.webmanifest')} crossorigin="use-credentials" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Lola" />
+    {
+      import.meta.env.PROD && (
+        <script is:inline define:vars={{ sw: url('/sw.js') }}>
+          if ('serviceWorker' in navigator) {
+            addEventListener('load', () => navigator.serviceWorker.register(sw));
+          }
+        </script>
+      )
+    }
+  </head>
+  <body class:list={['min-h-svh bg-crema font-sans text-texto', !impresion && 'con-barra-app']}>
+    {
+      !impresion && (
+        <>
+          <a
+            href="#contenido"
+            class="no-print fixed top-2 left-2 z-[100] -translate-y-24 rounded-full bg-profundo px-4 py-2 text-sm font-semibold text-white focus:translate-y-0"
+          >
+            Saltar al contenido
+          </a>
+          <header class="no-print sticky top-0 z-40 border-b border-profundo/8 bg-crema/85 backdrop-blur-xl">
+            <div class="mx-auto flex h-16 max-w-[1200px] items-center gap-2 px-4 lg:px-8">
+              <a href={url('/')} class="flex shrink-0 items-center gap-2 rounded-full pr-1" aria-label="Guía de productos, inicio">
+                <Image src={logo} alt="" width={36} height={36} class="size-9 rounded-full" loading="eager" />
+                <span class="hidden text-sm font-semibold text-profundo sm:inline">Lola · Equipo</span>
+              </a>
+              <nav class="ml-auto flex items-center gap-1" aria-label="Secciones">
+                {secciones.map((s) => (
+                  <a
+                    href={s.href}
+                    aria-current={actual === s.id ? 'page' : undefined}
+                    class="rounded-full px-3 py-2 text-sm font-semibold text-texto-2 hover:bg-menta-suave hover:text-profundo aria-[current=page]:bg-menta-suave aria-[current=page]:text-profundo"
+                  >
+                    {s.label}
+                  </a>
+                ))}
+                <a
+                  href={url('/buscar')}
+                  class="hidden size-10 items-center justify-center rounded-full text-profundo hover:bg-menta-suave lg:flex"
+                  aria-label="Buscar"
+                >
+                  <Icon name="magnifying-glass" class="size-5" />
+                </a>
+              </nav>
+            </div>
+            {progreso && <div class="h-0.5 origin-left scale-x-0 bg-marca" data-barra-lectura />}
+          </header>
+        </>
+      )
+    }
+    <slot />
+    {!impresion && <BarraApp />}
+    {
+      progreso && (
+        <script>
+          // Barra de progreso de lectura, actualizada con requestAnimationFrame.
+          const barra = document.querySelector<HTMLElement>('[data-barra-lectura]');
+          let pendiente = false;
+          const pintar = () => {
+            pendiente = false;
+            const max = document.documentElement.scrollHeight - innerHeight;
+            const p = max > 0 ? Math.min(1, scrollY / max) : 0;
+            if (barra) barra.style.transform = `scaleX(${p})`;
+          };
+          addEventListener(
+            'scroll',
+            () => {
+              if (!pendiente) {
+                pendiente = true;
+                requestAnimationFrame(pintar);
+              }
+            },
+            { passive: true },
+          );
+          pintar();
+        </script>
+      )
+    }
+  </body>
+</html>

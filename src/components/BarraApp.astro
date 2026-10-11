@@ -1,0 +1,43 @@
+---
+import { url, sinBase } from '../lib/url';
+// Barra de pestañas inferior, como en una app. Solo en celular y tablet.
+import Icon from './Icon.astro';
+
+const ruta = sinBase(Astro.url.pathname);
+const pestanas = [
+  { href: url('/'), icono: 'squares-four', label: 'Góndolas', activa: ruta === '/' || ruta.startsWith('/guia') },
+  { href: url('/buscar'), icono: 'magnifying-glass', label: 'Buscar', activa: ruta.startsWith('/buscar') },
+  { href: url('/estudiar'), icono: 'cards', label: 'Estudiar', activa: ruta.startsWith('/estudiar') },
+  { href: url('/guardados'), icono: 'bookmark-simple', label: 'Guardados', activa: ruta.startsWith('/guardados') },
+];
+---
+
+<nav
+  class="barra-app no-print fixed inset-x-0 bottom-0 z-50 border-t border-profundo/10 bg-crema/92 backdrop-blur-xl lg:hidden"
+  aria-label="Secciones de la app"
+>
+  <ul class="mx-auto grid max-w-[560px] grid-cols-4">
+    {
+      pestanas.map((p) => (
+        <li>
+          <a
+            href={p.href}
+            aria-current={p.activa ? 'page' : undefined}
+            class="flex flex-col items-center gap-1 pt-2 pb-1.5 text-[0.7rem] font-semibold text-texto-2 transition-colors aria-[current=page]:text-profundo"
+          >
+            <span class="flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-300 aria-[current=page]:bg-menta" aria-current={p.activa ? 'page' : undefined}>
+              <Icon name={p.icono} class="size-6" />
+            </span>
+            {p.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .barra-app {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+</style>

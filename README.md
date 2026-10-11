@@ -1,0 +1,79 @@
+# Lola · Equipo — guía de productos, carteles y manual
+
+App web instalable (PWA) para el equipo de El Almacén de Lola.
+
+## La app en el celular
+
+- **Instalar:** en Android, abrir el link en Chrome y tocar "Instalar la app" en el inicio (o menú ⋮ → Instalar). En iPhone, abrirlo en Safari → Compartir → Agregar a inicio. Queda el ícono de Lola y se abre a pantalla completa.
+- **Sin internet:** después de la primera visita, toda la guía, el manual, los carteles y el modo Estudiar funcionan sin conexión. Los PDF se bajan aparte.
+- **Pestañas:** Góndolas, Buscar, Estudiar (tarjetas para repasar) y Guardados (fichas marcadas con la estrella).
+- **Lo personal** (fichas guardadas, avance de estudio, góndolas vistas) queda en el celular de cada persona.
+- **Actualizaciones:** cada `npm run build` genera un `sw.js` nuevo; la próxima vez que la persona abra la app con internet, se baja todo lo nuevo sola.
+
+Archivos de la app: `public/manifest.webmanifest`, `public/iconos/` (regenerarlos si llega el logo en alta) y `integraciones/service-worker.mjs`.
+
+Manual de onboarding para empleados nuevos. Web pensada para el celular, con buscador, autoevaluaciones,
+progreso de lectura y versión para imprimir o descargar en PDF.
+
+Astro 7 + MDX + Tailwind CSS 4. Salida estática, publicada en **GitHub Pages**:
+https://martinviretti.github.io/lola-equipo (pública: entra cualquiera que tenga el link).
+
+## Correr en local (PowerShell)
+
+```powershell
+cd "C:\Users\martin.viretti\proyectos-claude\el-almacen-de-lola\manual"
+npm install
+npm run dev      # http://localhost:4321
+```
+
+```powershell
+npm run pdf      # build + genera public/manual-el-almacen-de-lola.pdf (usa Chrome o Edge instalados)
+```
+
+El PDF se arma desde la página `/imprimir`: portada, índice, todos los módulos, las autoevaluaciones con las
+respuestas al final y la planilla de avance para firmar. Desde el celular también se puede imprimir esa página
+con "Guardar como PDF".
+
+## Contenido
+
+Cada módulo es un archivo en `src/content/modulos/NN-slug.mdx`. El formato, el tono y las reglas están en
+[GUIA-REDACCION.md](GUIA-REDACCION.md). Antes de hacer el build, chequeá los archivos con:
+
+```powershell
+node scripts/validar-mdx.mjs
+```
+
+Recuadros especiales dentro de los módulos:
+
+| Tipo | Para qué |
+|---|---|
+| `peligro` | Riesgo para la salud del cliente o error grave |
+| `importante` | Clave para atender bien |
+| `consejo` | Truco de mostrador |
+| `local` | **Lo tiene que completar la encargada** con cómo se hace en el local |
+| `verificar` | Dato que hay que confirmar antes de dar por cerrado el manual |
+
+Para ver qué falta completar:
+
+```powershell
+Select-String -Path "src\content\modulos\*.mdx" -Pattern 'tipo="local"','tipo="verificar"' | Group-Object Filename | Select-Object Name, Count
+```
+
+## Progreso del empleado
+
+Se guarda en el navegador de cada dispositivo (localStorage): módulos leídos y mejor resultado de cada quiz.
+No hay base de datos ni cuentas: nada sale del celular. Si cambia de teléfono, empieza de cero. Para un
+registro formal está la planilla de avance de la versión impresa.
+
+## Publicar
+
+Se publica sola: cada cambio que llega a la rama `main` de
+[martinviretti/lola-equipo](https://github.com/martinviretti/lola-equipo) dispara el workflow
+`.github/workflows/pages.yml`, que hace el build y lo sube a GitHub Pages en 1 o 2 minutos.
+
+- Los PDF no se generan en GitHub (necesitan Chrome): se generan en la compu con `npm run pdf` y se suben
+  junto con el resto, desde `public/`.
+- La app vive en la subcarpeta `/lola-equipo` (`base` en `astro.config.mjs`). Toda dirección interna pasa por
+  `url()` de `src/lib/url.ts`: no escribir rutas que empiecen con `/` a mano.
+- El sitio lleva `noindex`, así que no aparece en Google, pero **no tiene login**: no cargar información
+  sensible del local (precios de proveedores, datos personales, claves).

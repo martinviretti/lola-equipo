@@ -1,0 +1,166 @@
+---
+import { url } from '../../lib/url';
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Manual from '../../layouts/Manual.astro';
+import Icon from '../../components/Icon.astro';
+import Tabla from '../../components/Tabla.astro';
+import logo from '../../assets/logo-lola-circulo.png';
+import { getGuia, reglas, porZona } from '../../data/guia';
+import { existsSync } from 'node:fs';
+
+const categorias = await getGuia();
+const zonas = porZona(categorias);
+const renderizadas = await Promise.all(categorias.map(async (c) => ({ c, ...(await render(c)) })));
+const fecha = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' }).format(new Date());
+const hayPdf = existsSync('public/guia-de-productos-lola.pdf');
+---
+
+<Manual title="Guía de productos para imprimir" impresion>
+  <div class="no-print sticky top-0 z-40 border-b border-profundo/10 bg-crema/90 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-[860px] flex-wrap items-center gap-3 px-5 py-3">
+      <a href={url('/')} class="inline-flex items-center gap-2 text-sm font-semibold text-marca hover:underline">
+        <Icon name="arrow-left" class="size-4" /> Volver a la guía
+      </a>
+      <div class="ml-auto flex flex-wrap gap-2">
+        {
+          hayPdf && (
+            <a href={url('/guia-de-productos-lola.pdf')} download class="boton boton-secundario !py-2 !text-sm">
+              <Icon name="file-pdf" class="size-5" /> Descargar PDF
+            </a>
+          )
+        }
+        <button type="button" onclick="window.print()" class="boton boton-principal !py-2 !text-sm">
+          <Icon name="printer" class="size-5" /> Imprimir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main id="contenido" class="mx-auto max-w-[860px] px-5 pb-24 print:max-w-none print:px-0 print:pb-0">
+    <section class="portada fondo-hojas mt-8 flex flex-col justify-between rounded-3xl p-10 print:mt-0 print:rounded-none">
+      <div>
+        <Image src={logo} alt="Logo de Lola" width={150} height={150} class="size-28 rounded-full shadow-[0_8px_32px_rgb(33_76_59/0.15)]" loading="eager" />
+        <p class="mt-10 text-lg font-semibold text-marca">El Almacén de Lola</p>
+        <h1 class="titulo-degrade mt-2 text-6xl font-bold tracking-tight">Guía <br />de productos</h1>
+        <p class="mt-6 max-w-[460px] text-lg text-texto-2">
+          Qué es cada cosa, para qué la busca la gente y cómo explicarla en el mostrador.
+        </p>
+      </div>
+      <p class="text-sm text-texto-2">Av. Presidente Perón 3099, Victoria · @lolasaludable · {fecha}</p>
+    </section>
+
+    <section class="hoja mt-12">
+      <h2 class="text-3xl font-bold tracking-tight text-profundo">5 reglas de mostrador</h2>
+      <p class="mt-1 text-base text-texto-2">Lo único que no se negocia.</p>
+      <ol class="mt-6 flex flex-col gap-3">
+        {
+          reglas.map((r, i) => (
+            <li class="flex gap-4 rounded-2xl bg-menta-suave p-4 break-inside-avoid">
+              <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-profundo font-bold text-white">{i + 1}</span>
+              <span>
+                <span class="block text-lg font-semibold text-profundo">{r.titulo}</span>
+                <span class="mt-1 block text-base text-texto">{r.texto}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <h2 class="mt-12 text-3xl font-bold tracking-tight text-profundo">Las góndolas</h2>
+      <div class="mt-4 grid grid-cols-2 gap-x-8 gap-y-5">
+        {
+          zonas.map((z) => (
+            <div class="break-inside-avoid">
+              <p class="text-xs font-bold tracking-wide text-marca uppercase">{z.nombre}</p>
+              <ol class="mt-1">
+                {z.categorias.map((c) => (
+                  <li class="flex items-center gap-3 border-b border-profundo/10 py-1.5">
+                    <Icon name={c.data.icono} class="size-5 shrink-0 text-marca" />
+                    <a href={`#g-${c.id}`} class="font-semibold text-profundo">{c.data.titulo}</a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    {
+      renderizadas.map(({ c, Content }) => (
+        <section id={`g-${c.id}`} class="hoja mt-16">
+          <header class="flex items-center gap-4">
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-menta text-profundo">
+              <Icon name={c.data.icono} class="size-7" />
+            </span>
+            <div>
+              <h2 class="titulo-degrade text-4xl font-bold tracking-tight">{c.data.titulo}</h2>
+              <p class="text-base text-texto-2">{c.data.bajada}</p>
+            </div>
+          </header>
+          <div class="mt-5 rounded-2xl bg-menta-suave p-4 break-inside-avoid">
+            <p class="text-sm font-bold tracking-wide text-profundo uppercase">Lo que tenés que saber</p>
+            <ul class="mt-2 flex flex-col gap-2">
+              {c.data.claves.map((k) => (
+                <li class="flex gap-2">
+                  <Icon name="check-circle" class="mt-0.5 size-5 shrink-0 text-marca" />
+                  {k}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="prosa guia mt-6">
+            <Content components={{ table: Tabla }} />
+          </div>
+        </section>
+      ))
+    }
+  </main>
+</Manual>
+
+<style>
+  .portada {
+    min-height: 900px;
+  }
+  @media screen {
+    .hoja {
+      border-radius: 24px;
+      background: var(--color-crema);
+      padding: 40px;
+      box-shadow: 0 0 0 1px rgb(33 76 59 / 0.08);
+    }
+  }
+  @media screen and (max-width: 640px) {
+    .hoja {
+      padding: 20px;
+    }
+    .portada {
+      min-height: 600px;
+      padding: 28px;
+    }
+  }
+  @media print {
+    .portada {
+      page: portada;
+      height: 297mm;
+      min-height: 0;
+      padding: 22mm 20mm;
+      break-after: page;
+    }
+    .hoja {
+      break-before: page;
+      margin-top: 0;
+    }
+    .hoja :global(.prosa.guia h3 + ul) {
+      break-inside: avoid;
+    }
+    .hoja :global(.prosa.guia h3) {
+      break-after: avoid;
+      background: #fbf8f2;
+    }
+    .hoja :global(.prosa.guia h3 + ul) {
+      background: #fbf8f2;
+    }
+  }
+</style>

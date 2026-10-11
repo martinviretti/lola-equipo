@@ -1,0 +1,194 @@
+---
+import { url } from '../lib/url';
+import { Image } from 'astro:assets';
+import Manual from '../layouts/Manual.astro';
+import Icon from '../components/Icon.astro';
+import logo from '../assets/logo-lola-circulo.png';
+import { getGuia, urlCategoria, reglas, porZona } from '../data/guia';
+import { existsSync } from 'node:fs';
+
+const categorias = await getGuia();
+const zonas = porZona(categorias);
+const pdfGuia = existsSync('public/guia-de-productos-lola.pdf');
+---
+
+<Manual>
+  <main id="contenido">
+    <section class="fondo-hojas px-5 pt-10 pb-12 lg:px-8 lg:pt-16 lg:pb-16">
+      <div class="mx-auto max-w-[1200px]">
+        <Image src={logo} alt="Logo de Lola" width={88} height={88} class="size-16 rounded-full shadow-[0_8px_32px_rgb(33_76_59/0.12)] sm:size-20" loading="eager" />
+        <p class="mt-5 text-sm font-semibold text-marca">El Almacén de Lola</p>
+        <h1 class="titulo-degrade mt-1 text-4xl font-bold tracking-tight sm:text-6xl">Guía de productos</h1>
+        <p class="mt-3 max-w-[600px] text-lg text-texto-2">
+          Qué es cada cosa, para qué la busca la gente y cómo explicarla. Elegí una góndola y arrancá.
+        </p>
+
+        <div id="buscar" class="relative mt-6 max-w-[640px]">
+          <label for="buscador" class="sr-only">Buscar un producto</label>
+          <span class="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-texto-2">
+            <Icon name="magnifying-glass" class="size-5" />
+          </span>
+          <input
+            id="buscador"
+            type="search"
+            autocomplete="off"
+            placeholder="Buscá un producto: chía, boldo, stevia…"
+            class="w-full rounded-2xl bg-white py-4 pr-4 pl-12 text-base text-texto ring-1 ring-profundo/15 outline-none placeholder:text-texto-2/70 focus:ring-2 focus:ring-marca"
+          />
+        </div>
+        <p class="mt-3 hidden text-sm text-texto-2" data-buscador-estado aria-live="polite"></p>
+        <ol class="mt-3 flex max-w-[640px] flex-col gap-2" data-resultados></ol>
+
+        <div class="mt-6 grid max-w-[640px] gap-3 sm:grid-cols-2">
+          <a href={url('/estudiar')} class="flex items-center gap-3 rounded-2xl bg-profundo px-4 py-3 text-white hover:bg-profundo-2">
+            <Icon name="cards" class="size-7 text-menta" />
+            <span>
+              <span class="block font-semibold">Estudiar con tarjetas</span>
+              <span class="block text-sm text-white/75" data-resumen-estudio>Repasá los productos</span>
+            </span>
+          </a>
+          <button
+            type="button"
+            data-instalar
+            class="solo-navegador hidden items-center gap-3 rounded-2xl bg-white px-4 py-3 text-left ring-1 ring-profundo/12 hover:bg-menta-suave"
+          >
+            <Icon name="device-mobile" class="size-7 text-marca" />
+            <span>
+              <span class="block font-semibold text-profundo">Instalar la app</span>
+              <span class="block text-sm text-texto-2">Queda en tu pantalla de inicio</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="solo-navegador mt-3 hidden max-w-[640px] rounded-2xl bg-white p-4 ring-1 ring-profundo/12" data-instrucciones-ios>
+          <p class="font-semibold text-profundo">Instalala en tu iPhone</p>
+          <ol class="mt-2 flex flex-col gap-1.5 text-sm text-texto">
+            <li class="flex items-center gap-2">1. Tocá <Icon name="export" class="size-5 text-marca" /> <strong>Compartir</strong> abajo en Safari.</li>
+            <li class="flex items-center gap-2">2. Elegí <Icon name="plus-square" class="size-5 text-marca" /> <strong>Agregar a inicio</strong>.</li>
+            <li>3. Tocá <strong>Agregar</strong>. Listo: aparece el ícono de Lola.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-5 py-10 lg:px-8" aria-labelledby="titulo-gondolas">
+      <div class="mx-auto max-w-[1200px]">
+        <h2 id="titulo-gondolas" class="text-2xl font-bold tracking-tight text-profundo sm:text-3xl">Las góndolas</h2>
+        <p class="mt-1 text-base text-texto-2">{categorias.length} góndolas, agrupadas como están en el local.</p>
+        <div class="mt-6 flex flex-col gap-8">
+          {
+            zonas.map((z) => (
+              <div>
+                <h3 class="text-sm font-bold tracking-wide text-marca uppercase">{z.nombre}</h3>
+                <ul class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {z.categorias.map((c) => (
+                    <li>
+                      <a
+                        href={urlCategoria(c)}
+                        data-gondola={c.id}
+                        class="group relative flex h-full flex-col rounded-3xl bg-white p-4 ring-1 ring-profundo/8 transition-transform duration-500 ease-fluid hover:-translate-y-1 sm:p-5"
+                      >
+                        <span class="absolute top-3 right-3 hidden size-6 items-center justify-center rounded-full bg-menta text-profundo" data-vista aria-label="Ya la viste">
+                          <Icon name="check" class="size-4" />
+                        </span>
+                        <span class="flex size-11 items-center justify-center rounded-2xl bg-menta-suave text-profundo group-hover:bg-menta sm:size-12">
+                          <Icon name={c.data.icono} class="size-6" />
+                        </span>
+                        <span class="mt-3 text-base leading-snug font-semibold text-profundo sm:text-lg">{c.data.titulo}</span>
+                        <span class="mt-1 hidden text-sm text-texto-2 sm:block">{c.data.bajada}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="px-5 py-10 lg:px-8" aria-labelledby="titulo-reglas">
+      <div class="mx-auto max-w-[1200px] rounded-3xl bg-profundo p-5 text-white sm:p-8">
+        <h2 id="titulo-reglas" class="text-2xl font-bold tracking-tight sm:text-3xl">5 reglas de mostrador</h2>
+        <p class="mt-1 text-base text-white/75">Lo único que no se negocia. Leelas antes que nada.</p>
+        <ol class="mt-6 grid gap-3 lg:grid-cols-5">
+          {
+            reglas.map((r, i) => (
+              <li class="rounded-2xl bg-white/8 p-4 ring-1 ring-white/10">
+                <span class="flex items-center gap-2 text-menta">
+                  <Icon name={r.icono} class="size-5" />
+                  <span class="text-sm font-bold tabular-nums">{i + 1}</span>
+                </span>
+                <p class="mt-2 font-semibold">{r.titulo}</p>
+                <p class="mt-1 text-sm text-white/75">{r.texto}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="px-5 pt-6 pb-24 lg:px-8" aria-labelledby="titulo-papel">
+      <div class="mx-auto max-w-[1200px]">
+        <h2 id="titulo-papel" class="text-2xl font-bold tracking-tight text-profundo sm:text-3xl">Para imprimir y para profundizar</h2>
+        <div class="mt-5 grid gap-3 sm:grid-cols-3">
+          <a href={url(pdfGuia ? '/guia-de-productos-lola.pdf' : '/guia/imprimir')} class="rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
+            <Icon name="file-pdf" class="size-7 text-marca" />
+            <p class="mt-3 text-lg font-semibold text-profundo">La guía en PDF</p>
+            <p class="mt-1 text-sm text-texto-2">Toda esta guía para tener impresa en el local o guardada en el celular.</p>
+          </a>
+          <a href={url('/carteles')} class="rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
+            <Icon name="storefront" class="size-7 text-marca" />
+            <p class="mt-3 text-lg font-semibold text-profundo">Carteles para las góndolas</p>
+            <p class="mt-1 text-sm text-texto-2">Hojas A4 con datos curiosos para el cliente. Se imprimen, se plastifican y se pegan.</p>
+          </a>
+          <a href={url('/manual')} class="rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
+            <Icon name="book-open-text" class="size-7 text-marca" />
+            <p class="mt-3 text-lg font-semibold text-profundo">Manual completo</p>
+            <p class="mt-1 text-sm text-texto-2">La versión larga, con todo en detalle, para cuando quieras saber más.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</Manual>
+
+<script>
+  import { initBuscador } from '../scripts/buscador';
+  import { app, cargarFichas } from '../scripts/app';
+  initBuscador();
+
+  // Góndolas ya vistas
+  const { vistas, sabidas } = app.estado();
+  document.querySelectorAll<HTMLElement>('[data-gondola]').forEach((a) => {
+    if (!vistas.includes(a.dataset.gondola!)) return;
+    const tilde = a.querySelector<HTMLElement>('[data-vista]');
+    tilde?.classList.remove('hidden');
+    tilde?.classList.add('flex');
+  });
+
+  // Resumen del modo estudio
+  if (sabidas.length) {
+    cargarFichas().then((f) => {
+      const el = document.querySelector('[data-resumen-estudio]');
+      if (el) el.textContent = `Sabés ${sabidas.length} de ${f.length} fichas`;
+    });
+  }
+
+  // Instalar la app: Android y escritorio con el aviso del navegador; iPhone con instrucciones.
+  const instalar = document.querySelector<HTMLButtonElement>('[data-instalar]');
+  let aviso: (Event & { prompt: () => Promise<void> }) | null = null;
+  addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    aviso = e as typeof aviso;
+    instalar?.classList.remove('hidden');
+    instalar?.classList.add('flex');
+  });
+  instalar?.addEventListener('click', async () => {
+    await aviso?.prompt();
+    instalar.classList.add('hidden');
+  });
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const instalada = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone;
+  if (esIOS && !instalada) document.querySelector('[data-instrucciones-ios]')?.classList.remove('hidden');
+</script>
