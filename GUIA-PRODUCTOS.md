@@ -15,67 +15,77 @@ Ya existe un manual largo en `src/content/modulos/` con todo verificado. **Tu pr
 
 ---
 
-## 1. Guía de productos (para la empleada)
+## 1. Guía de productos (para la empleada) — versión 2, fichas completas
 
-Un archivo MDX por categoría en `src/content/guia/NN-slug.mdx`.
+Un archivo MDX por categoría (góndola) en `src/content/guia/NN-slug.mdx`.
+
+**Por qué cambió (pedido de Martín, 2026-10-11):** las fichas eran un mensajito ("Sabor: suave. La buscan para: la noche"). Quedaban flojas. Ahora cada ficha tiene que contar **bien** el producto: qué es, de dónde sale, cómo es, cómo se prepara o usa, por qué lo busca la gente, con qué combina y qué cuidar. **El equilibrio:** ni una Wikipedia ni un mensajito. Una ficha se lee en 30 a 60 segundos y la empleada sale sabiendo explicarle el producto a un cliente.
 
 ```mdx
 ---
-numero: 1
-titulo: "Yerbas"
-bajada: "Con palo, sin palo, suave, compuesta: cómo ayudar a elegir la yerba de cada uno."
-icono: "leaf"
+numero: 2
+titulo: "Yuyos y hierbas"
+bajada: "Una frase que se ve en el índice."
+icono: "plant"
 modulo: 9
 claves:
-  - "El palo suaviza: la yerba con palo es más suave, la despalada es más intensa."
-  - "Barbacuá es la yerba secada con humo de leña: tiene gusto ahumado."
-  - "Si al cliente la yerba le cae pesada o amarga, ofrecé una suave o con palo."
+  - "De 3 a 5 frases cortas: lo que hay que saber sí o sí."
 ---
+
+## Lo básico
+
+Dos a cuatro párrafos cortos (entre 90 y 200 palabras en total) que explican la góndola entera:
+qué agrupa, cómo se clasifican los productos, cómo se preparan o usan en general,
+cómo se conservan y qué tiene que tener en la cabeza la empleada.
 
 ## De un vistazo
 
-| Tipo | Sabor | Para quién |
+| Hierba | Sabor | Cómo la toma la gente |
 |---|---|---|
-| Con palo | Suave y parejo | El que toma mate todo el día |
-| Despalada | Intensa, amarga | El que lo toma fuerte |
+| Manzanilla | Suave, floral | De noche o de sobremesa |
 
 ## Los productos
 
-### Yerba con palo
+### Manzanilla
 
-- **Qué es:** la yerba común, con hojas y palitos.
-- **Cómo es:** sabor suave y parejo, dura más en el mate.
-- **Tip de mostrador:** es la que más se vende, la opción segura si no sabe cuál elegir.
+Son las flores secas de una planta parecida a una margarita chiquita, y es de las hierbas más antiguas para infusión. Tiene un sabor suave, floral y apenas dulce, sin nada de amargor, por eso la toma casi todo el mundo, incluso quien no está acostumbrado a los yuyos.
 
-### Yerba despalada
+Es la infusión clásica de la noche y de la sobremesa, y por tradición se la asocia con la tranquilidad y con la digestión. Se prepara con una cucharadita por taza y agua caliente sin hervir, tapada de 5 a 7 minutos. Combina muy bien con tilo, melisa o un poco de miel.
 
-- **Qué es:** ...
+- **Tip:** si el cliente nunca tomó yuyos, es la puerta de entrada ideal.
+- **Ojo:** quien es alérgico a la margarita o al crisantemo puede reaccionar. Embarazadas y personas con medicación, que lo consulten con su médico.
 
 ## Lo que más te van a preguntar
 
-**"¿Cuál es la más suave?"**
-La con palo o una suave. Si quiere algo distinto, una compuesta con hierbas.
-
-**"¿Tienen sin TACC?"**
-Mostrale las que tienen el logo sin TACC en el paquete.
+**"¿Qué me llevo para tomar a la noche?"**
+Manzanilla, tilo o melisa: no tienen cafeína y son suaves.
 ```
 
 ### Reglas
 
-- `claves`: de 3 a 5 frases cortas (máximo 25 palabras cada una). Es lo primero que se lee: lo que hay que saber sí o sí.
-- `## De un vistazo`: **una** tabla de 3 columnas como máximo, con los productos principales. Si la categoría no se presta a tabla, omitila.
-- `## Los productos`: **un `###` por cada tipo de producto** (no agrupes varios en una sola ficha: "Avellanas", "Pistachos" y "Nuez pecán" van separados), con **3 a 4 viñetas** de este estilo (elegí las que apliquen):
-  - **Qué es:** (obligatoria)
-  - **Cómo es / Sabor:**
-  - **Cómo se usa:** (preparación o uso en la cocina, simple)
-  - **La buscan para:** (uso cotidiano, nunca efectos de salud)
-  - **Tip de mostrador:** (cómo ofrecerlo, con qué combina, qué preguntar)
-  - **Ojo:** (solo si es importante: sin TACC, alergia, cafeína, heladera)
-  - Cada viñeta: **máximo 25 palabras**.
-- `## Lo que más te van a preguntar`: de **6 a 10** preguntas reales de clientes, en negrita y entre comillas, con la respuesta modelo en 1 o 2 líneas debajo (en la línea siguiente, sin línea en blanco entre pregunta y respuesta; con una línea en blanco entre cada par).
-- Extensión total: **entre 700 y 1.800 palabras** por categoría, según cuántos tipos tenga. Las fichas siguen siendo cortas: crece la cantidad de fichas, no el largo de cada una.
+- `claves`: de 3 a 5 frases cortas (máximo 25 palabras cada una).
+- `## Lo básico`: **obligatoria**, primera sección. De 2 a 4 párrafos cortos, entre 90 y 200 palabras. Es la "clase" de la góndola: qué hay, cómo se ordena, cómo se prepara o conserva en general. Si ayuda, puede incluir una lista corta.
+- `## De un vistazo`: **una** tabla de 3 columnas como máximo, con los productos principales.
+- `## Los productos`: **un `###` por cada tipo de producto** (no agrupes). **Mantené todos los productos que ya existen, con el mismo título del `###`** (las fichas guardadas por las empleadas dependen de ese título). Podés agregar productos que falten y que se vendan habitualmente en una dietética argentina.
+- **Cada ficha se lee como una explicación, no como un formulario** (pedido de Martín: "no pongas literal Qué es, Para qué... sino para leerlo bien"). Formato:
+  - **De 1 a 3 párrafos cortos de texto corrido** (entre 50 y 140 palabras en total) que cuentan, con naturalidad y en este orden aproximado: qué es y de dónde sale; cómo es (sabor, aroma, textura, en qué se diferencia de sus parecidos); para qué lo busca la gente (para yuyos, tés y suplementos, el uso tradicional contado como costumbre, nunca como efecto prometido); cómo se prepara o se usa en la cocina (cantidad culinaria, tiempo, recetas) y con qué combina. Un dato curioso, si es verdadero y suma, va metido en el texto.
+  - **Prohibido arrancar párrafos con etiquetas** tipo "Qué es:", "Sabor:", "Para qué:". Nada de negritas de etiqueta dentro de los párrafos.
+  - **Después, las viñetas destacadas, en este orden** (máximo 3):
+    - `- **Propiedades:** ...` **obligatoria** (pedido de Martín, 2026-10-11: "propiedades, por ejemplo el trigo sarraceno tiene tantas proteínas, grasas, a diferencia de..., resumido"). Máximo 50 palabras. Qué aporta y en qué se diferencia de sus parecidos:
+      - **Alimentos** (harinas, cereales, legumbres, frutos secos, semillas, desecadas, pastas, panes, snacks, chocolates, endulzantes, aceites, leches, yogures, veganos, congelados, sin TACC, bebidas): lo que se destaca, con valores aproximados cada 100 g cuando sirvan ("alrededor de 13 g de proteína cada 100 g, casi el doble que el arroz blanco"), y lo que no tiene (sin gluten, sin lactosa, sin cafeína). Usá tablas de composición confiables (USDA FoodData Central, tablas argentinas) y redondeá: son referencias, el envase manda. Para endulzantes: calorías y poder endulzante. Para aceites: tipo de grasa (omega 3, monoinsaturadas, saturadas).
+      - **Yuyos, tés, cafés y especias:** qué contiene (cafeína o no, aceites esenciales, mucílagos, taninos) y **qué propiedades se le atribuyen por tradición**, siempre con "se le atribuyen", "popularmente se la considera" o "la tradición la usa como". Nunca como efecto seguro.
+      - **Suplementos:** qué aporta por porción según el envase típico (proteína, vitamina, mineral) y para qué se usa ese nutriente en el cuerpo, en una frase y sin promesas.
+      - **Cosmética:** propiedades cosméticas (hidrata, nutre, limpia, suaviza), que son válidas.
+    - `- **Tip:** ...` (cómo ofrecerlo, qué preguntarle al cliente).
+    - `- **Ojo:** ...` (precauciones reales: embarazo, lactancia, niños, medicación, alergias, cafeína, sin TACC, heladera, confusiones). Obligatorio cuando hay una precaución real.
+    - Tip y Ojo: máximo 35 palabras cada uno.
+  - Total por ficha: **entre 80 y 220 palabras**.
+  - Prohibido igual en Propiedades: "cura", "desinflama", "adelgaza", "baja el azúcar", "desintoxica", "quema grasa", "previene" una enfermedad. Lo que dice la tradición se cuenta como tradición.
+- `## Lo que más te van a preguntar`: de **8 a 12** preguntas reales de clientes, en negrita y entre comillas, con la respuesta modelo en 1 a 3 líneas debajo (en la línea siguiente, sin línea en blanco entre pregunta y respuesta; con una línea en blanco entre cada par).
+- Extensión total orientativa: **entre 1.500 y 5.500 palabras** por categoría, según cuántos productos tenga.
 - No uses `<Alerta>` ni ningún otro componente. No uses `####`. No uses `<`, `>`, `{` ni `}` en el texto.
 - No pongas sección "Para recordar" ni "En el mostrador" ni fuentes.
+- **Exactitud:** la empleada va a repetir esto a clientes. Si un dato (origen, precaución, interacción) no lo sabés con seguridad, buscalo con WebSearch o sacalo. Nunca inventes.
 
 ### Valores
 

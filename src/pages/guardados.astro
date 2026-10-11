@@ -61,10 +61,14 @@ import Icon from '../components/Icon.astro';
         ul.className = 'mt-3 flex flex-col gap-1.5 text-[0.95rem]';
         for (const l of f.lineas) {
           const item = document.createElement('li');
-          const b = document.createElement('strong');
-          b.className = 'text-profundo';
-          b.textContent = `${l.etiqueta}: `;
-          item.append(b, document.createTextNode(l.texto));
+          if (l.etiqueta) {
+            item.className = `rounded-xl px-3 py-2 ${l.etiqueta === 'Ojo' ? 'bg-ambar-suave' : l.etiqueta === 'Propiedades' ? 'bg-arena-suave' : 'bg-menta-suave'}`;
+            const b = document.createElement('strong');
+            b.className = 'text-profundo';
+            b.textContent = `${l.etiqueta}: `;
+            item.append(b);
+          }
+          item.append(document.createTextNode(l.texto));
           ul.append(item);
         }
         li.append(cab, ul);

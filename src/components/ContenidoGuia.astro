@@ -1,0 +1,53 @@
+---
+// Arma los bloques de una góndola sobre el HTML ya renderizado del MDX, para darles estilo:
+//   "## Lo básico"                       → <section class="lo-basico">
+//   cada "### Producto" de Los productos → <section class="ficha">, con las viñetas
+//                                          "Propiedades", "Tip" y "Ojo" marcadas como destacados
+//   "## Lo que más te van a preguntar"   → <section class="preguntas">
+// Uso: <ContenidoGuia><Content components={{ table: Tabla }} /></ContenidoGuia>
+const SECCIONES: Record<string, string> = { 'Lo básico': 'lo-basico', 'Lo que más te van a preguntar': 'preguntas' };
+
+const sinEtiquetas = (s: string) => s.replace(/<[^>]+>/g, '').trim();
+
+const marcarDestacados = (html: string) =>
+  html
+    .replace(/<ul>/g, '<ul class="destacados">')
+    .replace(/<li>(\s*(?:<p>)?\s*<strong>)(Propiedades|Tip|Ojo)/g, (_, antes, etiqueta) => `<li class="${etiqueta.toLowerCase()}">${antes}${etiqueta}`);
+
+function armarBloques(html: string) {
+  let h2 = '';
+  let salida = '';
+  let abierta = false;
+  const cerrar = () => {
+    if (abierta) salida += '</section>';
+    abierta = false;
+  };
+  // Cada parte arranca en un <h2> o <h3> y llega hasta el próximo.
+  for (const parte of html.split(/(?=<h[23][\s>])/)) {
+    const titulo = parte.match(/^<h([23])[^>]*>([\s\S]*?)<\/h\1>/);
+    if (!titulo) {
+      salida += parte;
+    } else if (titulo[1] === '2') {
+      cerrar();
+      h2 = sinEtiquetas(titulo[2]);
+      if (SECCIONES[h2]) {
+        salida += `<section class="${SECCIONES[h2]}">`;
+        abierta = true;
+      }
+      salida += parte;
+    } else if (h2 === 'Los productos') {
+      cerrar();
+      salida += `<section class="ficha">${marcarDestacados(parte)}`;
+      abierta = true;
+    } else {
+      salida += parte;
+    }
+  }
+  cerrar();
+  return salida;
+}
+
+const html = armarBloques(await Astro.slots.render('default'));
+---
+
+<Fragment set:html={html} />

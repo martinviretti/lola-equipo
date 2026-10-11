@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import Manual from '../../layouts/Manual.astro';
 import Icon from '../../components/Icon.astro';
 import Tabla from '../../components/Tabla.astro';
+import ContenidoGuia from '../../components/ContenidoGuia.astro';
 import { getGuia, urlCategoria, type Categoria } from '../../data/guia';
 import { getModulos, urlModulo } from '../../data/modulos';
 
@@ -73,23 +74,27 @@ const modulo = d.modulo ? (await getModulos()).find((m) => m.data.numero === d.m
 
       {
         productos.length > 3 && (
-          <nav class="no-print mt-6" aria-label="Productos de esta góndola">
-            <p class="text-sm font-semibold text-texto-2">Ir a:</p>
-            <ul class="mt-2 flex flex-wrap gap-2">
+          <details class="no-print group mt-4 rounded-2xl bg-white ring-1 ring-profundo/10 lg:hidden">
+            <summary class="flex cursor-pointer list-none items-center gap-3 px-4 py-3 font-semibold text-profundo [&::-webkit-details-marker]:hidden">
+              <Icon name="list" class="size-5 text-marca" />
+              <span class="flex-1">Los {productos.length} productos de esta góndola</span>
+              <Icon name="caret-down" class="size-5 text-marca transition-transform group-open:rotate-180" />
+            </summary>
+            <ul class="flex flex-wrap gap-2 px-4 pb-4">
               {productos.map((h) => (
                 <li>
-                  <a href={`#${h.slug}`} class="inline-block rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-profundo ring-1 ring-profundo/10 hover:bg-menta-suave">
+                  <a href={`#${h.slug}`} class="inline-block rounded-full bg-menta-suave px-3 py-1.5 text-sm font-semibold text-profundo hover:bg-menta">
                     {h.text}
                   </a>
                 </li>
               ))}
             </ul>
-          </nav>
+          </details>
         )
       }
 
       <div class="prosa guia mt-8" data-gondola-id={categoria.id}>
-        <Content components={{ table: Tabla }} />
+        <ContenidoGuia><Content components={{ table: Tabla }} /></ContenidoGuia>
       </div>
 
       {
@@ -134,11 +139,6 @@ const modulo = d.modulo ? (await getModulos()).find((m) => m.data.numero === d.m
 </Manual>
 
 <style>
-  :global(.prosa.guia h3) {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
   :global(.boton-guardar) {
     margin-left: auto;
     display: inline-flex;
@@ -185,9 +185,7 @@ const modulo = d.modulo ? (await getModulos()).find((m) => m.data.numero === d.m
   const gondolaId = contenedor?.dataset.gondolaId;
   if (contenedor && gondolaId) {
     app.marcarVista(gondolaId);
-    contenedor.querySelectorAll<HTMLHeadingElement>('h3[id]').forEach((h3) => {
-      // Solo las fichas de producto (las que tienen viñetas abajo).
-      if (h3.nextElementSibling?.tagName !== 'UL') return;
+    contenedor.querySelectorAll<HTMLHeadingElement>('.ficha > h3[id]').forEach((h3) => {
       const id = `${gondolaId}#${h3.id}`;
       const b = document.createElement('button');
       b.type = 'button';

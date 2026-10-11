@@ -89,7 +89,7 @@ const gondolas = await getGuia();
     position: relative;
     display: block;
     width: 100%;
-    min-height: 340px;
+    min-height: 440px;
     transform-style: preserve-3d;
     transition: transform 600ms var(--ease-fluid);
     text-align: left;
@@ -135,8 +135,16 @@ const gondolas = await getGuia();
     color: var(--color-menta);
   }
   .dorso :global(.linea span) {
-    font-size: 1rem;
-    line-height: 1.5;
+    font-size: 0.975rem;
+    line-height: 1.55;
+  }
+  .dorso :global(.linea.destacada) {
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.09);
+    padding: 8px 12px;
+  }
+  .dorso :global(.linea.ojo strong) {
+    color: #f3d58a;
   }
   [data-respuestas] {
     visibility: hidden;
@@ -200,12 +208,15 @@ const gondolas = await getGuia();
     lineas.replaceChildren(
       ...actual.lineas.map((l) => {
         const div = document.createElement('span');
-        div.className = 'linea';
-        const s = document.createElement('strong');
-        s.textContent = l.etiqueta;
+        div.className = l.etiqueta ? `linea destacada ${l.etiqueta === 'Ojo' ? 'ojo' : ''}` : 'linea';
         const t = document.createElement('span');
         t.textContent = l.texto;
-        div.append(s, t);
+        if (l.etiqueta) {
+          const s = document.createElement('strong');
+          s.textContent = l.etiqueta;
+          div.append(s);
+        }
+        div.append(t);
         return div;
       }),
     );

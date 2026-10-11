@@ -7,7 +7,7 @@ import path from 'node:path';
 const palabras = (s) => s.split(/\s+/).filter(Boolean).length;
 // Lo que el dueño pidió dejar afuera: normativa y organismos.
 const PROHIBIDO = /\b(art\.|artículo|ley \d|ley n|resoluci[oó]n|decreto|disposici[oó]n|CAA|ANMAT|SENASA|C[oó]digo Alimentario|RNPA|RNE)\b/i;
-const SALUD = /\b(cura|curan|desinflama|adelgaza|baja el azúcar|desintoxica)\b/i;
+const SALUD = /\b(cura|curan|desinflama|adelgaza|baja el azúcar|desintoxica|quema grasas?)\b/i;
 let errores = 0;
 const mal = (archivo, msgs) => {
   if (!msgs.length) return false;
@@ -27,7 +27,26 @@ for (const f of archivos) {
   else for (const c of ['numero:', 'titulo:', 'bajada:', 'icono:', 'claves:']) if (!fm[1].includes(c)) p.push(`falta ${c}`);
   const cuerpo = fm ? texto.slice(fm[0].length) : texto;
   const total = palabras(cuerpo) + (fm ? palabras(fm[1]) : 0);
-  if (total > 1950) p.push(`demasiado largo: ${total} palabras (máximo orientativo 1.800)`);
+  if (total > 6000) p.push(`demasiado largo: ${total} palabras (máximo orientativo 5.500)`);
+  if (!/^## Lo básico\s*$/m.test(cuerpo)) p.push('falta la sección "## Lo básico"');
+  // Fichas: cada "### " dentro de "## Los productos". Se leen como texto corrido:
+  // de 1 a 3 párrafos sin etiquetas y, como máximo, las viñetas "Tip" y "Ojo".
+  const productos = cuerpo.split(/^## /m).find((s) => s.startsWith('Los productos'));
+  for (const ficha of (productos ?? '').split(/^### /m).slice(1)) {
+    const [titulo, ...resto] = ficha.split(/\r?\n/);
+    const lineas = resto.map((l) => l.trim()).filter(Boolean);
+    const vinetas = lineas.filter((l) => l.startsWith('- '));
+    const parrafos = lineas.filter((l) => !l.startsWith('- '));
+    const largo = palabras(resto.join(' '));
+    if (parrafos.length < 1 || parrafos.length > 3) p.push(`ficha "${titulo}": ${parrafos.length} párrafos (de 1 a 3)`);
+    if (parrafos.some((l) => /^\*\*[^*]+:\*\*/.test(l))) p.push(`ficha "${titulo}": un párrafo arranca con etiqueta en negrita`);
+    if (vinetas.length > 3) p.push(`ficha "${titulo}": ${vinetas.length} viñetas (máximo 3: Propiedades, Tip y Ojo)`);
+    for (const v of vinetas) if (!/^-\s+\*\*(Propiedades|Tip|Ojo):\*\*/.test(v)) p.push(`ficha "${titulo}": viñeta que no es Propiedades, Tip ni Ojo: "${v.slice(0, 40)}"`);
+    if (!/^-\s+\*\*Propiedades:\*\*/.test(vinetas[0] ?? '')) p.push(`ficha "${titulo}": falta "Propiedades" como primera viñeta`);
+    const prop = vinetas.find((v) => v.includes('**Propiedades:**'));
+    if (prop && palabras(prop) > 56) p.push(`ficha "${titulo}": Propiedades de ${palabras(prop)} palabras (máximo 50)`);
+    if (largo < 75 || largo > 235) p.push(`ficha "${titulo}": ${largo} palabras (de 80 a 220)`);
+  }
   if (/^#{1}\s|^####/m.test(cuerpo)) p.push('usa # o ####');
   cuerpo.split(/\r?\n/).forEach((l, i) => {
     const n = i + 1;
@@ -35,7 +54,7 @@ for (const f of archivos) {
     if (PROHIBIDO.test(l)) p.push(`línea ${n}: menciona normativa u organismos: "${l.trim().slice(0, 70)}"`);
     if (SALUD.test(l) && !/nunca|no digas|no prometas|no es que/i.test(l)) p.push(`línea ${n}: posible promesa de salud: "${l.trim().slice(0, 70)}"`);
     const vineta = l.match(/^\s*-\s+\*\*[^*]+\*\*\s*(.*)$/);
-    if (vineta && palabras(vineta[1]) > 30) p.push(`línea ${n}: viñeta de ${palabras(vineta[1])} palabras (máximo 25)`);
+    if (vineta && palabras(vineta[1]) > 55) p.push(`línea ${n}: viñeta de ${palabras(vineta[1])} palabras (máximo 50)`);
   });
   if (!mal(f, p)) console.log(`✓ ${f} (${total} palabras)`);
 }

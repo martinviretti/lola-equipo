@@ -30,7 +30,7 @@ const secciones = headings.filter((h) => h.depth === 2);
 
 <Manual title={d.titulo} progreso>
   <main id="contenido" class="px-5 pt-8 pb-24 lg:px-8 lg:pt-12">
-    <div class="mx-auto grid max-w-[1200px] gap-12 lg:grid-cols-[1fr_260px]">
+    <div class="mx-auto grid max-w-[1200px] gap-12 xl:grid-cols-[1fr_240px]">
       <article class="min-w-0 max-w-[720px]">
         <a href={url('/manual')} class="no-print inline-flex items-center gap-2 text-sm font-semibold text-marca hover:underline">
           <Icon name="arrow-left" class="size-4" />
@@ -150,7 +150,7 @@ const secciones = headings.filter((h) => h.depth === 2);
         </nav>
       </article>
 
-      <aside class="no-print hidden lg:block">
+      <aside class="no-print hidden xl:block">
         <div class="sticky top-24">
           <p class="text-sm font-bold text-profundo">En este módulo</p>
           <ol class="mt-3 flex flex-col gap-1 border-l border-profundo/10" data-toc>

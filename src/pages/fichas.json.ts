@@ -13,7 +13,7 @@ export interface Ficha {
   icono: string;
   titulo: string;
   url: string;
-  /** Viñetas de la ficha, ya sin Markdown: [{ etiqueta: 'Qué es', texto: '...' }]. */
+  /** Texto de la ficha, ya sin Markdown: párrafos con etiqueta vacía y después Tip/Ojo. */
   lineas: { etiqueta: string; texto: string }[];
 }
 
@@ -33,13 +33,20 @@ export const GET: APIRoute = async () => {
     let k = 0;
     let actual: Ficha | null = null;
 
-    // Toda sección "### Nombre" con viñetas "**Etiqueta:** texto" es una ficha.
+    // Toda sección "### Nombre" de "## Los productos" es una ficha: sus párrafos van sin
+    // etiqueta y sus viñetas "**Tip:** texto" / "**Ojo:** texto", con la etiqueta.
+    let seguido = false;
     for (const linea of (c.body ?? '').split(SALTO)) {
       if (/^##\s/.test(linea)) {
         actual = null;
         continue;
       }
+      if (!linea.trim()) {
+        seguido = false;
+        continue;
+      }
       if (/^###\s/.test(linea)) {
+        seguido = false;
         const h = titulos[k++];
         if (!h) {
           actual = null;
@@ -57,9 +64,18 @@ export const GET: APIRoute = async () => {
         fichas.push(actual);
         continue;
       }
+      if (!actual) continue;
       const vineta = linea.match(/^\s*-\s+\*\*([^*]+?):?\*\*:?\s*(.*)$/);
-      if (actual && vineta) {
+      if (vineta) {
         actual.lineas.push({ etiqueta: vineta[1].replace(/:$/, '').trim(), texto: sinMarkdown(vineta[2]) });
+        seguido = false;
+      } else if (seguido) {
+        // Un párrafo escrito en varias líneas seguidas.
+        const ultima = actual.lineas[actual.lineas.length - 1];
+        ultima.texto = `${ultima.texto} ${sinMarkdown(linea)}`;
+      } else if (!/^\s*[-|]/.test(linea)) {
+        actual.lineas.push({ etiqueta: '', texto: sinMarkdown(linea) });
+        seguido = true;
       }
     }
   }

@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import Manual from '../../layouts/Manual.astro';
 import Icon from '../../components/Icon.astro';
 import Tabla from '../../components/Tabla.astro';
+import ContenidoGuia from '../../components/ContenidoGuia.astro';
 import logo from '../../assets/logo-lola-circulo.png';
 import { getGuia, reglas, porZona } from '../../data/guia';
 import { existsSync } from 'node:fs';
@@ -111,7 +112,7 @@ const hayPdf = existsSync('public/guia-de-productos-lola.pdf');
             </ul>
           </div>
           <div class="prosa guia mt-6">
-            <Content components={{ table: Tabla }} />
+            <ContenidoGuia><Content components={{ table: Tabla }} /></ContenidoGuia>
           </div>
         </section>
       ))
@@ -152,15 +153,8 @@ const hayPdf = existsSync('public/guia-de-productos-lola.pdf');
       break-before: page;
       margin-top: 0;
     }
-    .hoja :global(.prosa.guia h3 + ul) {
-      break-inside: avoid;
-    }
-    .hoja :global(.prosa.guia h3) {
-      break-after: avoid;
-      background: #fbf8f2;
-    }
-    .hoja :global(.prosa.guia h3 + ul) {
-      background: #fbf8f2;
+    .hoja :global(.prosa.guia .ficha) {
+      background: #fff;
     }
   }
 </style>
