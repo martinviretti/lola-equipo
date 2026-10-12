@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // No se guardan offline: los PDF (pesan varios MB y se bajan aparte) ni archivos internos.
-const EXCLUIR = /\.(pdf|map)$|^(_headers|_redirects|robots\.txt|sw\.js)$/;
+const EXCLUIR = /\.(pdf|map|mp4|webm)$|^(_headers|_redirects|robots\.txt|sw\.js)$/;
 
 async function listar(dir, base = dir) {
   const salida = [];
@@ -84,6 +84,8 @@ const limpiar = (url) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  // Los videos van siempre a la red (pedidos por partes): no se guardan para usar sin internet.
+  if (/\.(mp4|webm)$/.test(new URL(req.url).pathname)) return;
 
   // Páginas: primero la red (para ver lo último), si no hay conexión, lo guardado.
   if (req.mode === 'navigate') {
