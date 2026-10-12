@@ -134,7 +134,10 @@ import logo from '../assets/logo-lola-circulo.png';
           </span>
           <p class="mt-4 text-2xl font-bold text-profundo" data-registro-fin-titulo></p>
           <p class="mt-2 text-texto-2" data-registro-fin-texto></p>
-          <button type="button" class="boton boton-principal mt-6" data-registro-cerrar>Listo</button>
+          <div class="mt-6 flex flex-wrap justify-center gap-2">
+            <button type="button" class="boton boton-principal hidden" data-registro-forzar>Es otra persona: registrar igual</button>
+            <button type="button" class="boton boton-secundario" data-registro-cerrar>Cerrar</button>
+          </div>
         </div>
       </div>
     </div>

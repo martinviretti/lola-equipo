@@ -222,6 +222,16 @@ ok(filaAsig.email === 'lu@gmail.com' && filaAsig.metodo === 'manual' && filaAsig
 ok((await falla('martin', `select public.asignar_sin_reconocer($1, 'lu@gmail.com', 'entrada')`, [pend[0].id]))?.includes('ya_resuelta'), 'no se puede asignar dos veces');
 ok((await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4)`, [...D, JSON.stringify(toma(ANA)), new Date(Date.now() - 40 * 86400e3).toISOString()])).estado === 'vieja', 'una guardada hace más de 30 días se descarta');
 
+// Parientes que se parecen (madre e hijo): se rechaza, pero la admin puede confirmar que es otra persona
+const FAMILIAR = ANA.map((x) => +(x * 0.9 + normal() * 0.08 * 0.4).toFixed(5));
+const codFam = await uno('martin', `select public.crear_codigo_cara('lu@gmail.com')`);
+const tomasFam = JSON.stringify([toma(FAMILIAR), toma(FAMILIAR), toma(FAMILIAR)]);
+const fam1 = await uno('anon', `select public.registrar_cara($1, $2, $3, $4::jsonb, null)`, [...D, codFam, tomasFam]);
+ok(fam1.estado === 'parecida_a_otra' && fam1.otra === 'Ana López', 'un pariente parecido a Ana: avisa que se parece');
+const fam2 = await uno('anon', `select public.registrar_cara($1, $2, $3, $4::jsonb, null, true)`, [...D, codFam, tomasFam]);
+ok(fam2.estado === 'ok' && fam2.parecida_a === 'Ana López', 'confirmando que es otra persona, se registra igual');
+ok((await como('martin', `select distinct parecida_a from public.caras where email = 'lu@gmail.com'`))[0]?.parecida_a === 'Ana López', 'y queda anotado a quién se parecía');
+
 // Conexión de internet: la compu consulta desde el local; si alguien ficha con el secreto desde otro lado, queda para revisar
 const codLu = await uno('martin', `select public.crear_codigo_cara('lu@gmail.com')`);
 await uno('anon', `select public.registrar_cara($1, $2, $3, $4::jsonb, null)`, [...D, codLu, JSON.stringify([toma(LU), toma(LU), toma(LU)])]);

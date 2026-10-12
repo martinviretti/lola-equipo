@@ -525,8 +525,12 @@ end $$;
 
 -- Registrar (o volver a registrar) la cara de alguien, con el código que generó una admin.
 -- Se rechaza si las tomas no son de la misma persona o si la cara se parece a la de otra registrada.
+-- Parientes (madre e hijo, hermanas) se pueden parecer de verdad: con p_forzar se registra igual y
+-- queda anotado a quién se parecía (la admin está presente, porque el código lo dio ella).
+alter table public.caras add column if not exists parecida_a text;
+drop function if exists public.registrar_cara(uuid, text, text, jsonb, text);
 create or replace function public.registrar_cara(
-  p_dispositivo uuid, p_secreto text, p_codigo text, p_embeddings jsonb, p_foto text default null
+  p_dispositivo uuid, p_secreto text, p_codigo text, p_embeddings jsonb, p_foto text default null, p_forzar boolean default false
 ) returns jsonb
 language plpgsql security definer set search_path = public, extensions as $$
 declare
@@ -537,6 +541,7 @@ declare
   v extensions.vector;
   r record;
   v_peor real;
+  v_parecida text;
   i int := 0;
 begin
   perform public._dispositivo(p_dispositivo, p_secreto);
@@ -557,25 +562,28 @@ begin
     return jsonb_build_object('estado', 'tomas_distintas', 'similitud', v_peor);
   end if;
 
-  -- Ninguna toma se puede parecer a la cara de otra persona registrada (acá se es más exigente que al fichar).
+  -- Ninguna toma se puede parecer a la cara de otra persona registrada (salvo que la admin confirme que es otra persona).
   foreach v in array v_vectores loop
     select * into r from public._reconocer(v, v_cod.email);
-    if r.email is not null and r.similitud >= v_aj.similitud_min - 0.08 then
-      return jsonb_build_object('estado', 'parecida_a_otra', 'nombre', v_nombre,
-        'otra', (select coalesce(nullif(a.nombre, ''), split_part(a.email, '@', 1)) from public.autorizados a where a.email = r.email));
+    if r.email is not null and r.similitud >= v_aj.similitud_min then
+      v_parecida := (select coalesce(nullif(a.nombre, ''), split_part(a.email, '@', 1)) from public.autorizados a where a.email = r.email);
+      if not coalesce(p_forzar, false) then
+        return jsonb_build_object('estado', 'parecida_a_otra', 'nombre', v_nombre, 'otra', v_parecida);
+      end if;
+      exit;
     end if;
   end loop;
 
   delete from public.caras where email = v_cod.email;
   foreach v in array v_vectores loop
     i := i + 1;
-    insert into public.caras (email, embedding, foto, dispositivo)
+    insert into public.caras (email, embedding, foto, dispositivo, parecida_a)
     values (v_cod.email, v,
             case when i = 1 and p_foto like 'data:image/jpeg;base64,%' and length(p_foto) < 300000 then p_foto end,
-            p_dispositivo);
+            p_dispositivo, v_parecida);
   end loop;
   update public.codigos_cara set usado_el = now() where codigo = v_cod.codigo;
-  return jsonb_build_object('estado', 'ok', 'nombre', v_nombre);
+  return jsonb_build_object('estado', 'ok', 'nombre', v_nombre, 'parecida_a', v_parecida);
 end $$;
 
 -- ---------- Lo que usa la empleada desde su celular ----------
@@ -718,7 +726,7 @@ end $$;
 revoke all on function
   public.estado_fichador(uuid, text), public.fichar_cara(uuid, text, jsonb, text, timestamptz),
   public.fichar_codigo(uuid, text, text, jsonb, text), public.deshacer_fichada(uuid, text, bigint),
-  public.ver_codigo_cara(uuid, text, text), public.registrar_cara(uuid, text, text, jsonb, text),
+  public.ver_codigo_cara(uuid, text, text), public.registrar_cara(uuid, text, text, jsonb, text, boolean),
   public.pedir_codigo_fichaje(), public.activar_dispositivo(text), public.crear_codigo_cara(text),
   public.fichada_manual(text, text, timestamptz, text), public.corregir_fichada(bigint, timestamptz, text),
   public.anular_fichada(bigint, text), public.marcar_revisada(bigint), public.cambiar_tipo(bigint, text),
@@ -729,7 +737,7 @@ revoke all on function
 grant execute on function
   public.estado_fichador(uuid, text), public.fichar_cara(uuid, text, jsonb, text, timestamptz),
   public.fichar_codigo(uuid, text, text, jsonb, text), public.deshacer_fichada(uuid, text, bigint),
-  public.ver_codigo_cara(uuid, text, text), public.registrar_cara(uuid, text, text, jsonb, text)
+  public.ver_codigo_cara(uuid, text, text), public.registrar_cara(uuid, text, text, jsonb, text, boolean)
   to anon, authenticated;
 grant execute on function
   public.pedir_codigo_fichaje(), public.activar_dispositivo(text), public.crear_codigo_cara(text),
@@ -785,7 +793,7 @@ grant select on public.fichadas, public.fotos_fichada, public.fichadas_sin_recon
 grant select, insert, update, delete on public.horarios to authenticated;
 grant select, update on public.ajustes_fichador to authenticated;
 -- La huella de la cara y el hash del secreto no salen nunca de la base.
-grant select (id, email, foto, creada_el, dispositivo) on public.caras to authenticated;
+grant select (id, email, foto, creada_el, dispositivo, parecida_a) on public.caras to authenticated;
 grant delete on public.caras to authenticated;
 grant select (id, nombre, activo, creado_por, creado_el, ultimo_uso, ultima_ip) on public.dispositivos to authenticated;
 grant update (nombre, activo) on public.dispositivos to authenticated;

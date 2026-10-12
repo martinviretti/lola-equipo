@@ -320,6 +320,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     email: string;
     foto: string | null;
     creada_el: string;
+    /** Si al registrarla se parecía a otra persona y la admin confirmó que era otra (por ejemplo, un familiar). */
+    parecida_a: string | null;
   }
   interface Compu {
     id: string;
@@ -829,7 +831,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     const db = supabase!;
     const [compus, caras] = await Promise.all([
       q<Compu[]>(db.from('dispositivos').select('id,nombre,activo,creado_por,creado_el,ultimo_uso').order('creado_el')),
-      q<Cara[]>(db.from('caras').select('id,email,foto,creada_el').order('id')),
+      q<Cara[]>(db.from('caras').select('id,email,foto,creada_el,parecida_a').order('id')),
     ]);
 
     // Compus
@@ -872,6 +874,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         txt.append(
           el('p', 'font-semibold text-profundo', p.nombre || p.email.split('@')[0]),
           el('p', `text-xs ${suyas.length ? 'text-marca font-semibold' : 'text-texto-2'}`, suyas.length ? `Cara registrada el ${fmt.format(new Date(suyas[0].creada_el))}` : 'Sin cara registrada'),
+          ...(suyas[0]?.parecida_a ? [el('p', 'text-xs text-ambar', `Se registró aunque se parece a ${suyas[0].parecida_a} (se confirmó que es otra persona)`)] : []),
         );
         const codigo = el('p', 'w-full hidden rounded-xl bg-white px-4 py-3 text-center');
         li.append(
