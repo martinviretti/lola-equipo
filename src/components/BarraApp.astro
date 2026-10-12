@@ -6,6 +6,7 @@ import Icon from './Icon.astro';
 const ruta = sinBase(Astro.url.pathname);
 const pestanas = [
   { href: url('/'), icono: 'house', label: 'Inicio', activa: ruta === '/' || ruta.startsWith('/guia') },
+  { href: url('/bienvenida'), icono: 'hand-waving', label: 'Bienvenida', activa: ruta.startsWith('/bienvenida') },
   { href: url('/buscar'), icono: 'magnifying-glass', label: 'Buscar', activa: ruta.startsWith('/buscar') },
   { href: url('/guardados'), icono: 'bookmark-simple', label: 'Guardados', activa: ruta.startsWith('/guardados') },
   { href: url('/examen'), icono: 'exam', label: 'Examinarme', activa: ruta.startsWith('/examen') },
@@ -16,7 +17,7 @@ const pestanas = [
   class="barra-app no-print fixed inset-x-0 bottom-0 z-50 border-t border-profundo/10 bg-crema/92 backdrop-blur-xl lg:hidden"
   aria-label="Secciones de la app"
 >
-  <ul class="mx-auto grid max-w-[560px] grid-cols-4">
+  <ul class="mx-auto grid max-w-[600px] grid-cols-5">
     {
       pestanas.map((p) => (
         <li>
@@ -25,7 +26,7 @@ const pestanas = [
             aria-current={p.activa ? 'page' : undefined}
             class="flex flex-col items-center gap-1 pt-2 pb-1.5 text-[0.7rem] font-semibold text-texto-2 transition-colors aria-[current=page]:text-profundo"
           >
-            <span class="flex h-8 w-14 items-center justify-center rounded-full transition-colors duration-300 aria-[current=page]:bg-menta" aria-current={p.activa ? 'page' : undefined}>
+            <span class="flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-300 aria-[current=page]:bg-menta" aria-current={p.activa ? 'page' : undefined}>
               <Icon name={p.icono} class="size-6" />
             </span>
             {p.label}
