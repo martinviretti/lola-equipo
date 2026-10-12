@@ -1,4 +1,4 @@
-# Guía de redacción del manual — El Almacén de Lola
+# Guía de redacción del manual — La Almacén de Lola
 
 Manual de onboarding para empleados nuevos de una dietética/almacén natural en Victoria (San Fernando, Buenos Aires). La rotación es alta y la gente entra **sin saber nada** de dietética. El manual tiene que permitir que alguien lo lea en su primera semana y pueda atender bien, y que sirva de consulta después. Se lee en el celular y también se imprime en PDF.
 
