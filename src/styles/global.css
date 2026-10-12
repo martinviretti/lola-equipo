@@ -437,6 +437,58 @@
     font-weight: 600;
     color: var(--color-profundo);
   }
+  /* En el celular, las tablas de la góndola (ContenidoGuia modo "app") se ven como tarjetas:
+     una por fila, con el nombre arriba y cada dato con el título de su columna. */
+  @media (max-width: 639px) {
+    .prosa .tabla.tarjetas {
+      overflow: visible;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+    }
+    .prosa .tabla.tarjetas table,
+    .prosa .tabla.tarjetas tbody,
+    .prosa .tabla.tarjetas tr,
+    .prosa .tabla.tarjetas td {
+      display: block;
+      width: 100%;
+    }
+    .prosa .tabla.tarjetas thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .prosa .tabla.tarjetas tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .prosa .tabla.tarjetas tr {
+      border-radius: 16px;
+      background: #fff;
+      padding: 12px 14px;
+      box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+    }
+    .prosa .tabla.tarjetas td {
+      min-width: 0;
+      border: 0;
+      padding: 2px 0;
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+    .prosa .tabla.tarjetas td:first-child {
+      padding-bottom: 6px;
+      font-size: 1.0625rem;
+      font-weight: 700;
+    }
+    .prosa .tabla.tarjetas td:not(:first-child)::before {
+      content: attr(data-label) ': ';
+      font-weight: 700;
+      color: var(--color-marca);
+    }
+  }
 }
 
 /* ---------- Comportamiento de app (PWA) ---------- */

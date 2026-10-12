@@ -61,6 +61,23 @@ const preguntasApp = (html: string) =>
       `<details class="pregunta"><summary><span class="pregunta-texto">${pregunta}</span><span class="ficha-abrir">${FLECHA}</span></summary><div class="pregunta-respuesta">${respuesta.trim()}</div></details>`,
   );
 
+/**
+ * Tablas legibles en el celular: cada celda lleva el título de su columna (data-label) y el
+ * contenedor la clase "tarjetas"; en pantallas chicas el CSS muestra cada fila como una tarjeta.
+ */
+const tablasApp = (html: string) =>
+  html.replace(/<div class="tabla">(\s*<table>[\s\S]*?<\/table>\s*)<\/div>/g, (_, tabla: string) => {
+    const titulos = [...(tabla.match(/<thead>[\s\S]*?<\/thead>/)?.[0] ?? '').matchAll(/<th[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+      sinEtiquetas(m[1]).replace(/"/g, '&quot;'),
+    );
+    const conEtiquetas = tabla.replace(/<tr>([\s\S]*?)<\/tr>/g, (fila: string, celdas: string) => {
+      if (!celdas.includes('<td')) return fila;
+      let k = 0;
+      return `<tr>${celdas.replace(/<td([^>]*)>/g, (_: string, attrs: string) => `<td${attrs} data-label="${titulos[k++] ?? ''}">`)}</tr>`;
+    });
+    return `<div class="tabla tarjetas">${conEtiquetas}</div>`;
+  });
+
 function armarImprimir(html: string) {
   let h2 = '';
   let salida = '';
@@ -112,7 +129,7 @@ function armarApp(html: string) {
     }
   }
   return [
-    `<div data-panel="basico" hidden>${paneles.basico.join('')}</div>`,
+    `<div data-panel="basico" hidden>${tablasApp(paneles.basico.join(''))}</div>`,
     `<div data-panel="productos" class="lista-fichas">${paneles.productos.join('')}</div>`,
     `<div data-panel="preguntas" class="lista-preguntas" hidden>${paneles.preguntas.join('')}</div>`,
   ].join('');
