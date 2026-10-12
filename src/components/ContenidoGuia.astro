@@ -1,20 +1,67 @@
 ---
-// Arma los bloques de una góndola sobre el HTML ya renderizado del MDX, para darles estilo:
+// Arma los bloques de una góndola sobre el HTML ya renderizado del MDX, para darles estilo.
+//
+// modo "imprimir" (por defecto, la guía para imprimir): todo abierto y en orden.
 //   "## Lo básico"                       → <section class="lo-basico">
-//   cada "### Producto" de Los productos → <section class="ficha">, con las viñetas
-//                                          "Propiedades", "Tip" y "Ojo" marcadas como destacados
+//   cada "### Producto" de Los productos → <section class="ficha">
 //   "## Lo que más te van a preguntar"   → <section class="preguntas">
-// Uso: <ContenidoGuia><Content components={{ table: Tabla }} /></ContenidoGuia>
+//
+// modo "app" (la página de cada góndola en la app): reparte el contenido en paneles para las
+// pestañas (data-panel="basico" | "productos" | "preguntas"), cada producto es una tarjeta que
+// se abre (<details class="ficha">, con el h3 y su id adentro del <summary>) y cada pregunta de
+// cliente muestra la respuesta al tocarla.
+//
+// Uso: <ContenidoGuia modo="app"><Content components={{ table: Tabla }} /></ContenidoGuia>
+interface Props {
+  modo?: 'imprimir' | 'app';
+}
+const { modo = 'imprimir' } = Astro.props;
+
 const SECCIONES: Record<string, string> = { 'Lo básico': 'lo-basico', 'Lo que más te van a preguntar': 'preguntas' };
 
-const sinEtiquetas = (s: string) => s.replace(/<[^>]+>/g, '').trim();
+const sinEtiquetas = (s: string) =>
+  s
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 const marcarDestacados = (html: string) =>
   html
     .replace(/<ul>/g, '<ul class="destacados">')
     .replace(/<li>(\s*(?:<p>)?\s*<strong>)(Propiedades|Tip|Ojo)/g, (_, antes, etiqueta) => `<li class="${etiqueta.toLowerCase()}">${antes}${etiqueta}`);
 
-function armarBloques(html: string) {
+/** Primera oración del primer párrafo, para mostrar en la tarjeta cerrada. */
+function bajada(html: string) {
+  const p = html.match(/<p>([\s\S]*?)<\/p>/);
+  if (!p) return '';
+  const texto = sinEtiquetas(p[1]);
+  const oracion = texto.match(/^(.+?[.!?])(\s|$)/)?.[1] ?? texto;
+  if (oracion.length <= 120) return oracion;
+  return `${oracion.slice(0, 117).replace(/\s+\S*$/, '')}…`;
+}
+
+const FLECHA =
+  '<svg class="ficha-flecha" viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg>';
+
+/** Una ficha como tarjeta plegable: el h3 (con su id) queda en el summary. */
+function fichaApp(parte: string) {
+  const m = parte.match(/^(<h3[^>]*>[\s\S]*?<\/h3>)([\s\S]*)$/);
+  if (!m) return parte;
+  const [, h3, cuerpo] = m;
+  const id = h3.match(/id="([^"]+)"/)?.[1] ?? '';
+  return `<details class="ficha" data-ficha="${id}"><summary><span class="ficha-cabeza">${h3}<span class="ficha-bajada">${bajada(cuerpo)}</span></span><span class="ficha-abrir">${FLECHA}</span></summary><div class="ficha-cuerpo">${marcarDestacados(cuerpo)}</div></details>`;
+}
+
+/** Cada "**"¿Pregunta?"**" + respuesta, como tarjeta que muestra la respuesta al tocarla. */
+const preguntasApp = (html: string) =>
+  html.replace(
+    /<p>\s*<strong>([\s\S]*?)<\/strong>([\s\S]*?)<\/p>/g,
+    (_, pregunta, respuesta) =>
+      `<details class="pregunta"><summary><span class="pregunta-texto">${pregunta}</span><span class="ficha-abrir">${FLECHA}</span></summary><div class="pregunta-respuesta">${respuesta.trim()}</div></details>`,
+  );
+
+function armarImprimir(html: string) {
   let h2 = '';
   let salida = '';
   let abierta = false;
@@ -47,7 +94,32 @@ function armarBloques(html: string) {
   return salida;
 }
 
-const html = armarBloques(await Astro.slots.render('default'));
+function armarApp(html: string) {
+  const paneles: Record<'basico' | 'productos' | 'preguntas', string[]> = { basico: [], productos: [], preguntas: [] };
+  let h2 = '';
+  for (const parte of html.split(/(?=<h[23][\s>])/)) {
+    const titulo = parte.match(/^<h([23])[^>]*>([\s\S]*?)<\/h\1>/);
+    if (titulo?.[1] === '2') h2 = sinEtiquetas(titulo[2]);
+    if (h2 === 'Los productos') {
+      // El título "Los productos" lo reemplaza la pestaña; cada h3 es una ficha.
+      if (titulo?.[1] === '3') paneles.productos.push(fichaApp(parte));
+    } else if (h2 === 'Lo que más te van a preguntar') {
+      paneles.preguntas.push(preguntasApp(parte));
+    } else if (h2 === 'Lo básico') {
+      paneles.basico.push(`<section class="lo-basico">${parte}</section>`);
+    } else {
+      paneles.basico.push(parte);
+    }
+  }
+  return [
+    `<div data-panel="basico" hidden>${paneles.basico.join('')}</div>`,
+    `<div data-panel="productos" class="lista-fichas">${paneles.productos.join('')}</div>`,
+    `<div data-panel="preguntas" class="lista-preguntas" hidden>${paneles.preguntas.join('')}</div>`,
+  ].join('');
+}
+
+const renderizado = await Astro.slots.render('default');
+const html = modo === 'app' ? armarApp(renderizado) : armarImprimir(renderizado);
 ---
 
 <Fragment set:html={html} />

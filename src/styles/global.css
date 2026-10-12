@@ -282,6 +282,130 @@
     margin-top: 0.75rem;
   }
 
+  /* ---------- Góndola en la app (ContenidoGuia modo "app"): tarjetas que se abren ---------- */
+  .prosa.guia .lista-fichas,
+  .prosa.guia .lista-preguntas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .prosa.guia .lista-fichas > *,
+  .prosa.guia .lista-preguntas > * {
+    margin-top: 0;
+  }
+  .prosa.guia details.ficha,
+  .prosa.guia details.pregunta {
+    padding: 0;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(33 76 59 / 0.1), 0 14px 30px -26px rgb(33 76 59 / 0.5);
+    scroll-margin-top: 130px;
+  }
+  .prosa.guia details.ficha > summary,
+  .prosa.guia details.pregunta > summary {
+    display: flex;
+    cursor: pointer;
+    list-style: none;
+    align-items: center;
+    gap: 10px;
+    border-radius: 20px;
+    padding: 14px 12px 14px 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .prosa.guia details > summary::-webkit-details-marker {
+    display: none;
+  }
+  .prosa.guia details > summary:focus-visible {
+    outline: 2px solid var(--color-marca);
+    outline-offset: 2px;
+  }
+  .prosa.guia details.ficha > summary:active,
+  .prosa.guia details.pregunta > summary:active {
+    background: var(--color-menta-suave);
+  }
+  .prosa.guia .ficha-cabeza {
+    min-width: 0;
+    flex: 1;
+  }
+  .prosa.guia details.ficha h3 {
+    display: block;
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    scroll-margin-top: 130px;
+  }
+  .prosa.guia .ficha-bajada {
+    display: block;
+    margin-top: 3px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--color-texto-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .prosa.guia .ficha-abrir {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+    color: var(--color-profundo);
+  }
+  .prosa.guia .ficha-flecha {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    transition: transform 250ms var(--ease-fluid);
+  }
+  .prosa.guia details[open] > summary .ficha-flecha {
+    transform: rotate(180deg);
+  }
+  .prosa.guia details[open] > summary .ficha-abrir {
+    background: var(--color-profundo);
+    color: #fff;
+  }
+  .prosa.guia details.ficha[open] {
+    box-shadow: 0 0 0 2px var(--color-marca), 0 18px 36px -24px rgb(33 76 59 / 0.55);
+  }
+  .prosa.guia details.ficha[open] > summary {
+    border-radius: 20px 20px 0 0;
+    border-bottom: 1px solid rgb(33 76 59 / 0.08);
+  }
+  .prosa.guia details[open] .ficha-bajada {
+    display: none;
+  }
+  .prosa.guia .ficha-cuerpo {
+    padding: 6px 16px 18px;
+  }
+  .prosa.guia .ficha-cuerpo > p:first-child {
+    margin-top: 0.5em;
+  }
+  /* Preguntas de clientes: la respuesta aparece al tocar */
+  .prosa.guia .pregunta-texto {
+    min-width: 0;
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.4;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .prosa.guia .pregunta-respuesta {
+    margin: 0 12px 12px;
+    border-radius: 14px;
+    background: var(--color-menta-suave);
+    padding: 10px 14px;
+    font-size: 0.975rem;
+    line-height: 1.6;
+  }
+  .prosa.guia [data-panel='preguntas'] > h2 {
+    margin: 0 0 4px;
+    font-size: 1.25rem;
+  }
+
   /* Tablas: con scroll horizontal en el celular */
   .prosa .tabla {
     overflow-x: auto;
