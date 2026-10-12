@@ -1,6 +1,7 @@
 ---
 // Pantalla de ingreso: login con Google. Solo entran los mails autorizados (tabla "autorizados").
 import { Image } from 'astro:assets';
+import { url } from '../lib/url';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import logo from '../assets/logo-lola-circulo.png';
@@ -26,6 +27,9 @@ import logo from '../assets/logo-lola-circulo.png';
           Entrar con Google
         </button>
         <p class="mt-4 text-xs text-texto-2">Solo pueden entrar las personas del equipo que la encargada haya agregado.</p>
+        <a href={url('/instalar')} class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-marca underline underline-offset-4">
+          <Icon name="download-simple" class="size-4" /> Instalá la app en tu celular
+        </a>
       </div>
 
       <!-- Verificando -->
