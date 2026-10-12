@@ -48,6 +48,12 @@ const principales = [
           </li>
         ))
       }
+      <li class="solo-navegador">
+        <a href={url('/instalar')} class="menu-item" aria-current={ruta.startsWith('/instalar') ? 'page' : undefined}>
+          <Icon name="download-simple" class="size-5 shrink-0" />
+          Instalar la app
+        </a>
+      </li>
     </ul>
 
     <p class="menu-titulo">Góndolas</p>

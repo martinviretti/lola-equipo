@@ -4,6 +4,7 @@
 import { url } from '../lib/url';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
+import InstalarApp from '../components/InstalarApp.astro';
 import { getGuia, urlCategoria, porZona } from '../data/guia';
 import { secciones } from '../data/bienvenida';
 import { NIVELES } from '../data/niveles';
@@ -57,6 +58,8 @@ const pasos = [
           Acá aprendés cómo trabajamos, conocés los productos de la dietética y te ponés a prueba. Sirve para tu primer día y para
           todos los demás.
         </p>
+
+        <InstalarApp class="mt-6 max-w-[640px]" />
 
         <div id="buscar" class="relative mt-6 max-w-[640px]">
           <label for="buscador" class="sr-only">Buscar un producto</label>
@@ -178,27 +181,15 @@ const pasos = [
               <span class="block text-sm text-texto-2">Para imprimir en el local o tenerla guardada.</span>
             </span>
           </a>
-          <button
-            type="button"
-            data-instalar
-            class="solo-navegador hidden items-center gap-4 rounded-3xl bg-white p-4 text-left ring-1 ring-profundo/10 hover:bg-menta-suave"
-          >
+          <a href={url('/instalar')} class="solo-navegador flex items-center gap-4 rounded-3xl bg-white p-4 ring-1 ring-profundo/10 hover:bg-menta-suave">
             <Icon name="device-mobile" class="size-7 shrink-0 text-marca" />
             <span>
               <span class="block font-semibold text-profundo">Instalar la app</span>
-              <span class="block text-sm text-texto-2">Queda en tu pantalla de inicio.</span>
+              <span class="block text-sm text-texto-2">Paso a paso para Android y iPhone.</span>
             </span>
-          </button>
+          </a>
         </div>
 
-        <div class="solo-navegador mt-3 hidden rounded-3xl bg-white p-4 ring-1 ring-profundo/10" data-instrucciones-ios>
-          <p class="font-semibold text-profundo">Instalala en tu iPhone</p>
-          <ol class="mt-2 flex flex-col gap-1.5 text-sm text-texto">
-            <li class="flex items-center gap-2">1. Tocá <Icon name="export" class="size-5 text-marca" /> <strong>Compartir</strong> abajo en Safari.</li>
-            <li class="flex items-center gap-2">2. Elegí <Icon name="plus-square" class="size-5 text-marca" /> <strong>Agregar a inicio</strong>.</li>
-            <li>3. Tocá <strong>Agregar</strong>. Listo: aparece el ícono de Lola.</li>
-          </ol>
-        </div>
       </div>
     </section>
   </main>
@@ -283,21 +274,4 @@ const pasos = [
     const g = estado.guardadas.length;
     document.querySelector('[data-guardados]')!.textContent = `Tenés ${g} ficha${g > 1 ? 's' : ''} guardada${g > 1 ? 's' : ''}.`;
   }
-
-  // Instalar la app: Android y escritorio con el aviso del navegador; iPhone con instrucciones.
-  const instalar = document.querySelector<HTMLButtonElement>('[data-instalar]');
-  let aviso: (Event & { prompt: () => Promise<void> }) | null = null;
-  addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    aviso = e as typeof aviso;
-    instalar?.classList.remove('hidden');
-    instalar?.classList.add('flex');
-  });
-  instalar?.addEventListener('click', async () => {
-    await aviso?.prompt();
-    instalar.classList.add('hidden');
-  });
-  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const instalada = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone;
-  if (esIOS && !instalada) document.querySelector('[data-instrucciones-ios]')?.classList.remove('hidden');
 </script>

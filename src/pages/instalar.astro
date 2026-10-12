@@ -1,0 +1,215 @@
+---
+// Instalar la app: paso a paso para Android y iPhone, con el botón directo cuando Chrome lo
+// permite y un botón para mandarle el link a una compañera.
+import { url } from '../lib/url';
+import Manual from '../layouts/Manual.astro';
+import Icon from '../components/Icon.astro';
+
+const android = [
+  { titulo: 'Abrí este link en Chrome', texto: 'Si se abrió adentro de WhatsApp, Instagram u otra app, tocá ⋮ y elegí Abrir en Chrome.' },
+  { titulo: 'Tocá “Instalar la app”', texto: 'Es el botón verde de arriba. Si no aparece, tocá ⋮ arriba a la derecha de Chrome.' },
+  { titulo: 'Elegí “Instalar aplicación”', texto: 'Según el teléfono puede decir Agregar a la pantalla principal. Confirmá con Instalar.' },
+  { titulo: 'Buscá el ícono de Lola', texto: 'Queda en tu pantalla de inicio, junto a tus otras apps.' },
+];
+const iphone = [
+  { titulo: 'Abrí este link en Safari', texto: 'Es el navegador del iPhone, el del ícono de la brújula. Desde Chrome o Instagram no se puede.' },
+  { titulo: 'Tocá Compartir', texto: 'El cuadrado con una flecha hacia arriba, en la barra de abajo. Si no lo ves, tocá ··· primero.' },
+  { titulo: 'Elegí “Agregar a pantalla de inicio”', texto: 'Bajá un poco en la lista hasta encontrarlo. Si aparece “Abrir como app web”, dejalo activado.' },
+  { titulo: 'Tocá Agregar', texto: 'Listo: el ícono de Lola queda en tu pantalla de inicio.' },
+];
+---
+
+<Manual title="Instalar la app">
+  <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
+    <div class="mx-auto max-w-[640px]">
+      <div class="flex items-center gap-4">
+        <img src={url('/iconos/icono-192.png')} alt="" width="72" height="72" class="size-16 rounded-2xl shadow-[0_10px_24px_rgb(33_76_59/0.25)] sm:size-18" />
+        <div>
+          <h1 class="titulo-degrade text-3xl font-bold tracking-tight sm:text-4xl">Instalá la app</h1>
+          <p class="mt-1 text-texto-2">Un minuto y la tenés siempre a mano.</p>
+        </div>
+      </div>
+
+      <ul class="mt-6 grid grid-cols-3 gap-2 text-center text-sm">
+        <li class="rounded-2xl bg-white p-3 ring-1 ring-profundo/10">
+          <Icon name="device-mobile" class="mx-auto size-6 text-marca" /><span class="mt-1 block font-semibold text-profundo">En tu pantalla</span>
+        </li>
+        <li class="rounded-2xl bg-white p-3 ring-1 ring-profundo/10">
+          <Icon name="lightning" class="mx-auto size-6 text-marca" /><span class="mt-1 block font-semibold text-profundo">Abre al toque</span>
+        </li>
+        <li class="rounded-2xl bg-white p-3 ring-1 ring-profundo/10">
+          <Icon name="wifi-slash" class="mx-auto size-6 text-marca" /><span class="mt-1 block font-semibold text-profundo">Sin internet</span>
+        </li>
+      </ul>
+
+      <!-- Estado: ya instalada o botón directo -->
+      <div class="mt-6 rounded-3xl bg-menta p-5 text-center text-profundo" data-ya-instalada hidden>
+        <Icon name="check-circle" class="mx-auto size-10" />
+        <p class="mt-2 text-lg font-bold">Ya tenés la app instalada</p>
+        <p class="mt-1 text-sm">La estás usando ahora mismo. Para abrirla, tocá el ícono de Lola en tu pantalla.</p>
+      </div>
+      <button type="button" class="boton-grande mt-6" data-instalar-boton hidden>
+        <Icon name="download-simple" class="size-6" /> Instalar la app
+      </button>
+
+      <!-- Elegí tu teléfono -->
+      <h2 class="mt-8 text-sm font-bold tracking-wide text-profundo uppercase">Elegí tu teléfono</h2>
+      <div class="mt-3 grid grid-cols-2 gap-2 rounded-2xl bg-white p-1.5 ring-1 ring-profundo/10" role="tablist" aria-label="Tipo de teléfono">
+        <button type="button" role="tab" class="pestana" data-pestana="android" aria-controls="pasos-android">
+          <Icon name="android-logo" class="size-5" /> Android
+        </button>
+        <button type="button" role="tab" class="pestana" data-pestana="iphone" aria-controls="pasos-iphone">
+          <Icon name="apple-logo" class="size-5" /> iPhone
+        </button>
+      </div>
+
+      <ol id="pasos-android" class="pasos mt-4" role="tabpanel" data-panel="android">
+        {
+          android.map((p, k) => (
+            <li>
+              <span class="num">{k + 1}</span>
+              <span>
+                <strong>{p.titulo}</strong>
+                <span class="block text-texto-2">{p.texto}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+      <ol id="pasos-iphone" class="pasos mt-4" role="tabpanel" data-panel="iphone" hidden>
+        {
+          iphone.map((p, k) => (
+            <li>
+              <span class="num">{k + 1}</span>
+              <span>
+                <strong>{p.titulo}</strong>
+                <span class="block text-texto-2">{p.texto}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <!-- Si no aparece -->
+      <details class="mt-4 rounded-2xl bg-white p-4 ring-1 ring-profundo/10">
+        <summary class="cursor-pointer font-semibold text-profundo">¿No te aparece la opción?</summary>
+        <ul class="mt-3 flex flex-col gap-2 text-[0.95rem] text-texto">
+          <li><strong>En Android:</strong> usá Chrome actualizado. Si tenés el navegador de Samsung, buscá en su menú la opción Agregar página a, y después Pantalla de inicio.</li>
+          <li><strong>En iPhone:</strong> tiene que ser Safari. Desde Chrome, Instagram o Facebook no aparece la opción: copiá el link y abrilo en Safari.</li>
+          <li><strong>Si ya la instalaste</strong> y no la encontrás, buscá “Lola” en el buscador de apps del teléfono.</li>
+        </ul>
+      </details>
+
+      <!-- Compartir con una compañera -->
+      <section class="mt-8 rounded-3xl bg-arena-suave p-5">
+        <p class="text-lg font-bold text-profundo">¿Entró una compañera nueva?</p>
+        <p class="mt-1 text-sm text-texto-2">Mandale el link para que la instale en su celular.</p>
+        <button type="button" class="boton boton-principal mt-4 w-full" data-compartir>
+          <Icon name="share-network" class="size-5" /> <span data-compartir-texto>Mandarle el link</span>
+        </button>
+      </section>
+    </div>
+  </main>
+</Manual>
+
+<style>
+  .boton-grande {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 18px;
+    background: var(--color-profundo);
+    padding: 16px 20px;
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 18px 36px -20px rgb(33 76 59 / 0.7);
+  }
+  .pestana {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 12px;
+    padding: 10px;
+    font-weight: 700;
+    color: var(--color-texto-2);
+  }
+  .pestana[aria-selected='true'] {
+    background: var(--color-profundo);
+    color: #fff;
+  }
+  .pasos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pasos li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    border-radius: 20px;
+    background: #fff;
+    padding: 14px 16px;
+    line-height: 1.45;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  .pasos strong {
+    color: var(--color-profundo);
+  }
+  .num {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-menta);
+    font-weight: 800;
+    color: var(--color-profundo);
+  }
+</style>
+
+<script>
+  import { caso, alCambiar, instalar, esIOS, enlaceApp, copiarEnlace } from '../scripts/instalar';
+
+  // Pestaña Android / iPhone, elegida según el teléfono.
+  const pestanas = [...document.querySelectorAll<HTMLButtonElement>('[data-pestana]')];
+  const elegir = (id: string) => {
+    pestanas.forEach((p) => p.setAttribute('aria-selected', String(p.dataset.pestana === id)));
+    document.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== id));
+  };
+  pestanas.forEach((p) => p.addEventListener('click', () => elegir(p.dataset.pestana!)));
+  elegir(esIOS ? 'iphone' : 'android');
+
+  // Estado: ya instalada, o botón directo si Chrome lo permite.
+  const boton = document.querySelector<HTMLButtonElement>('[data-instalar-boton]')!;
+  const pintar = () => {
+    const c = caso();
+    document.querySelector<HTMLElement>('[data-ya-instalada]')!.hidden = c !== 'instalada';
+    boton.hidden = c !== 'android-boton';
+  };
+  boton.addEventListener('click', () => instalar());
+  alCambiar(pintar);
+  pintar();
+
+  // Compartir el link (o copiarlo si el teléfono no puede compartir).
+  const compartir = document.querySelector<HTMLButtonElement>('[data-compartir]')!;
+  compartir.addEventListener('click', async () => {
+    const datos = { title: 'Lola · Equipo', text: 'Instalá la app del equipo de El Almacén de Lola:', url: enlaceApp() };
+    if (navigator.share) {
+      try {
+        await navigator.share(datos);
+        return;
+      } catch {
+        // Canceló: no pasa nada.
+        return;
+      }
+    }
+    const ok = await copiarEnlace();
+    compartir.querySelector('[data-compartir-texto]')!.textContent = ok ? '¡Link copiado! Pegalo en WhatsApp' : 'No se pudo copiar';
+  });
+</script>
