@@ -1,6 +1,7 @@
 ---
-// Panel de administración: quiénes pueden entrar y el avance de cada persona del equipo.
-// Solo lo ven las admins (rol 'admin' en la tabla autorizados); la base lo controla con RLS.
+// Panel de administración: tablero del equipo, avance de cada persona, descargas para Excel
+// y quiénes pueden entrar. Solo lo ven las admins (rol 'admin' en la tabla autorizados);
+// la base lo controla con RLS.
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import { getGuia } from '../data/guia';
@@ -17,9 +18,9 @@ const datos = {
 
 <Manual title="Panel de admin">
   <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
-    <div class="mx-auto max-w-[900px]">
+    <div class="mx-auto max-w-[960px]">
       <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Panel de admin</h1>
-      <p class="mt-1 text-base text-texto-2">Quiénes pueden entrar y cómo viene cada una con la guía y los exámenes.</p>
+      <p class="mt-1 text-base text-texto-2">Cómo viene el equipo con la guía y los exámenes, y quiénes pueden entrar.</p>
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
         <Icon name="lock-key" class="mx-auto size-10 text-marca" />
@@ -32,13 +33,49 @@ const datos = {
       </p>
 
       <div class="hidden" data-panel>
-        <!-- Resumen -->
+        <!-- Números principales -->
         <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" data-resumen></div>
+        <p class="mt-2 text-xs text-texto-2" data-base-texto></p>
+
+        <!-- Tablero general -->
+        <div class="mt-6 grid gap-4 lg:grid-cols-2">
+          <section class="tarjeta">
+            <h2 class="tarjeta-titulo">Actividad de los últimos 14 días</h2>
+            <p class="tarjeta-sub">Lecturas, repasos, exámenes y temas de Bienvenida, sumados por día.</p>
+            <div class="mt-4" data-grafico-actividad></div>
+          </section>
+
+          <section class="tarjeta">
+            <h2 class="tarjeta-titulo">Examen por nivel</h2>
+            <p class="tarjeta-sub">Cuántas aprobaron cada nivel.</p>
+            <div class="mt-4 flex flex-col gap-4" data-grafico-niveles></div>
+          </section>
+
+          <section class="tarjeta lg:col-span-2">
+            <h2 class="tarjeta-titulo">Góndolas completadas</h2>
+            <p class="tarjeta-sub">Cuántas personas aprobaron el repaso de cada góndola. Las que menos se completaron, arriba.</p>
+            <div class="mt-4" data-grafico-gondolas></div>
+          </section>
+        </div>
+
+        <!-- Descargas -->
+        <section class="tarjeta mt-6">
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
+          <p class="tarjeta-sub">Sirve para llevar registro y como copia de seguridad. Se abre directo con Excel.</p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <button type="button" class="boton boton-principal" data-descargar="resumen">
+              <Icon name="download-simple" class="size-5" /> Resumen: una fila por persona
+            </button>
+            <button type="button" class="boton boton-secundario" data-descargar="detalle">
+              <Icon name="download-simple" class="size-5" /> Detalle: toda la actividad
+            </button>
+          </div>
+        </section>
 
         <!-- Agregar -->
-        <section class="mt-8 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 sm:p-6">
-          <h2 class="flex items-center gap-2 text-xl font-bold text-profundo"><Icon name="plus-square" class="size-6 text-marca" /> Dar acceso a alguien</h2>
-          <p class="mt-1 text-sm text-texto-2">Con su mail de Google (Gmail). Puede entrar apenas la agregás.</p>
+        <section class="tarjeta mt-6">
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca" /> Dar acceso a alguien</h2>
+          <p class="tarjeta-sub">Con su mail de Google (Gmail). Puede entrar apenas la agregás.</p>
           <form class="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]" data-agregar>
             <label class="sr-only" for="nuevo-email">Mail de Google</label>
             <input id="nuevo-email" name="email" type="email" required autocomplete="off" placeholder="nombre@gmail.com" class="campo" />
@@ -57,6 +94,7 @@ const datos = {
         <!-- Equipo -->
         <section class="mt-8">
           <h2 class="text-xl font-bold text-profundo">El equipo</h2>
+          <p class="mt-1 text-sm text-texto-2">Tocá a una persona para ver su tablero.</p>
           <ul class="mt-4 flex flex-col gap-3" data-equipo></ul>
         </section>
 
@@ -82,20 +120,157 @@ const datos = {
   .campo:focus {
     box-shadow: inset 0 0 0 2px var(--color-marca);
   }
+  .tarjeta {
+    border-radius: 24px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  .tarjeta-titulo {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .tarjeta-sub {
+    margin-top: 2px;
+    font-size: 0.875rem;
+    color: var(--color-texto-2);
+  }
   :global(.persona summary::-webkit-details-marker) {
     display: none;
   }
-  :global(.barra-avance) {
-    height: 6px;
-    overflow: hidden;
+
+  /* ---------- Gráficos (una sola serie por gráfico, color de marca) ---------- */
+  /* Medidor: barra fina con el valor en texto al lado */
+  :global(.medidor) {
+    height: 8px;
     border-radius: 9999px;
     background: var(--color-menta-suave);
   }
-  :global(.barra-avance > span) {
+  :global(.medidor > span) {
     display: block;
     height: 100%;
     border-radius: 9999px;
     background: var(--color-marca);
+  }
+  /* Columnas por día */
+  :global(.columnas) {
+    position: relative;
+  }
+  :global(.columnas-area) {
+    display: flex;
+    height: 140px;
+    padding-top: 20px;
+    align-items: flex-end;
+    gap: 2px;
+    border-bottom: 1px solid rgb(33 76 59 / 0.14);
+  }
+  :global(.columnas-area.chica) {
+    height: 64px;
+    padding-top: 4px;
+  }
+  :global(.col) {
+    position: relative;
+    display: flex;
+    height: 100%;
+    flex: 1;
+    align-items: flex-end;
+    justify-content: center;
+    outline: none;
+  }
+  :global(.col > i) {
+    display: block;
+    width: min(18px, 70%);
+    border-radius: 4px 4px 0 0;
+    background: var(--color-marca);
+    transition: opacity 150ms;
+  }
+  :global(.col.cero > i) {
+    height: 2px !important;
+    border-radius: 0;
+    background: rgb(33 76 59 / 0.1);
+  }
+  :global(.columnas-area:hover .col > i) {
+    opacity: 0.55;
+  }
+  :global(.columnas-area .col:hover > i),
+  :global(.columnas-area .col:focus-visible > i) {
+    opacity: 1;
+  }
+  :global(.col:focus-visible) {
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+    border-radius: 6px;
+  }
+  :global(.col-valor) {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    padding-bottom: 2px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-texto);
+  }
+  :global(.columnas-ejes) {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+    font-size: 0.6875rem;
+    color: var(--color-texto-2);
+  }
+  :global(.columnas-ejes span) {
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+  }
+  :global(.globo) {
+    pointer-events: none;
+    position: absolute;
+    z-index: 5;
+    min-width: 150px;
+    transform: translate(-50%, calc(-100% - 8px));
+    border-radius: 12px;
+    background: var(--color-profundo);
+    padding: 8px 10px;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: #fff;
+    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.4);
+  }
+  /* Barras horizontales por góndola */
+  :global(.barras) {
+    display: grid;
+    gap: 10px 28px;
+  }
+  @media (min-width: 640px) {
+    :global(.barras) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  :global(.barras .etq) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    color: var(--color-texto);
+  }
+  :global(.barras .pista) {
+    margin-top: 3px;
+    height: 8px;
+    border-radius: 9999px;
+    background: rgb(33 76 59 / 0.06);
+  }
+  :global(.barras .pista > span) {
+    display: block;
+    height: 100%;
+    border-radius: 9999px;
+    background: var(--color-marca);
+  }
+  :global(.barras .val) {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-texto);
+    font-variant-numeric: tabular-nums;
   }
 </style>
 
@@ -103,6 +278,7 @@ const datos = {
   import { supabase } from '../lib/supabase';
   import { sesionLista } from '../scripts/sesion';
 
+  // ---------- Tipos ----------
   interface Autorizado {
     email: string;
     nombre: string | null;
@@ -120,6 +296,7 @@ const datos = {
     quiz_mejor: number;
     quiz_total: number;
     completada_el: string | null;
+    actualizado_el: string;
   }
   interface Intento {
     user_id: string;
@@ -128,13 +305,35 @@ const datos = {
     aprobado: boolean;
     hecho_el: string;
   }
+  interface Lectura {
+    user_id: string;
+    seccion: string;
+    leida_el: string;
+  }
+  interface Evento {
+    user_id: string;
+    tipo: 'Góndola leída' | 'Repaso' | 'Góndola completada' | 'Examen' | 'Bienvenida';
+    que: string;
+    resultado: string;
+    fecha: string;
+  }
+  interface Datos {
+    equipo: Autorizado[];
+    gondolas: Gondola[];
+    intentos: Intento[];
+    leidas: Lectura[];
+  }
 
-  const datos: {
+  const info: {
     gondolas: { id: string; titulo: string }[];
     secciones: { id: string; titulo: string }[];
     niveles: { numero: number; nombre: string }[];
   } = JSON.parse(document.getElementById('admin-datos')!.textContent!);
+  const tituloGondola = (id: string) => info.gondolas.find((g) => g.id === id)?.titulo ?? id;
+  const tituloSeccion = (id: string) => info.secciones.find((s) => s.id === id)?.titulo ?? id;
+  const nombreNivel = (n: number) => info.niveles.find((v) => v.numero === n)?.nombre ?? '';
 
+  // ---------- Utilidades ----------
   const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
   const el = <K extends keyof HTMLElementTagNameMap>(tag: K, clase = '', texto = '') => {
     const e = document.createElement(tag);
@@ -144,159 +343,435 @@ const datos = {
   };
   const fecha = (iso: string | null) =>
     iso ? new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso)) : 'Nunca';
+  /** Fecha para Excel en español: 12/10/2026 14:30 (la reconoce como fecha y se puede ordenar). */
+  const fechaExcel = (iso: string | null) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const dos = (n: number) => String(n).padStart(2, '0');
+    return `${dos(d.getDate())}/${dos(d.getMonth() + 1)}/${d.getFullYear()} ${dos(d.getHours())}:${dos(d.getMinutes())}`;
+  };
   const hace = (iso: string | null) => {
     if (!iso) return 'Nunca entró';
     const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
     return dias === 0 ? 'Entró hoy' : dias === 1 ? 'Entró ayer' : `Entró hace ${dias} días`;
   };
-  const barra = (parte: number, total: number) => {
-    const b = el('div', 'barra-avance');
+  const diaLocal = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  const nombreDe = (p: Autorizado) => p.nombre ?? p.email.split('@')[0];
+  const porUsuario = <T extends { user_id: string }>(lista: T[], uid: string | null) => (uid ? lista.filter((x) => x.user_id === uid) : []);
+
+  /** Toda la actividad registrada, como eventos con fecha. */
+  function eventos(d: Datos): Evento[] {
+    const lista: Evento[] = [];
+    for (const g of d.gondolas) {
+      const t = tituloGondola(g.gondola);
+      if (g.vista_el) lista.push({ user_id: g.user_id, tipo: 'Góndola leída', que: t, resultado: '', fecha: g.vista_el });
+      if (g.quiz_intentos > 0)
+        lista.push({
+          user_id: g.user_id,
+          tipo: 'Repaso',
+          que: t,
+          resultado: `Mejor: ${g.quiz_mejor} de ${g.quiz_total} (${g.quiz_intentos} ${g.quiz_intentos === 1 ? 'intento' : 'intentos'})`,
+          fecha: g.actualizado_el,
+        });
+      if (g.completada_el) lista.push({ user_id: g.user_id, tipo: 'Góndola completada', que: t, resultado: 'Repaso aprobado', fecha: g.completada_el });
+    }
+    for (const x of d.intentos)
+      lista.push({
+        user_id: x.user_id,
+        tipo: 'Examen',
+        que: `Nivel ${x.nivel} · ${nombreNivel(x.nivel)}`,
+        resultado: `${x.nota}% · ${x.aprobado ? 'aprobado' : 'no aprobado'}`,
+        fecha: x.hecho_el,
+      });
+    for (const l of d.leidas) lista.push({ user_id: l.user_id, tipo: 'Bienvenida', que: tituloSeccion(l.seccion), resultado: 'Tema leído', fecha: l.leida_el });
+    return lista.sort((a, b) => b.fecha.localeCompare(a.fecha));
+  }
+
+  // ---------- Gráficos ----------
+  const medidor = (parte: number, total: number) => {
+    const b = el('div', 'medidor');
+    b.setAttribute('role', 'img');
+    b.setAttribute('aria-label', `${parte} de ${total}`);
     const s = el('span');
-    s.style.width = `${total ? (parte / total) * 100 : 0}%`;
+    s.style.width = `${total ? Math.min(100, (parte / total) * 100) : 0}%`;
     b.append(s);
     return b;
   };
 
-  let miEmail = '';
+  /** Fila de medidor con título y valor en texto. */
+  const filaMedidor = (titulo: string, parte: number, total: number, extra = '') => {
+    const caja = el('div');
+    const cab = el('p', 'mb-1.5 flex items-baseline justify-between gap-3 text-sm');
+    cab.append(el('span', 'font-semibold text-profundo', titulo), el('span', 'font-bold text-texto tabular-nums', `${parte} de ${total}${extra}`));
+    caja.append(cab, medidor(parte, total));
+    return caja;
+  };
 
-  async function cargar() {
+  /** Columnas de los últimos 14 días (una sola serie), con globo al pasar o tocar. */
+  function columnasActividad(evs: Evento[], chica = false) {
+    const hoy = new Date();
+    const dias = Array.from({ length: 14 }, (_, k) => {
+      const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - (13 - k));
+      return { d, clave: diaLocal(d), evs: [] as Evento[] };
+    });
+    for (const e of evs) dias.find((x) => x.clave === diaLocal(new Date(e.fecha)))?.evs.push(e);
+    const max = Math.max(1, ...dias.map((x) => x.evs.length));
+    const kMax = dias.reduce((m, x, k) => (x.evs.length > dias[m].evs.length ? k : m), 0);
+
+    const raiz = el('div', 'columnas');
+    const area = el('div', `columnas-area${chica ? ' chica' : ''}`);
+    const globo = el('div', 'globo hidden');
+    const fmtDia = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    dias.forEach((x, k) => {
+      const n = x.evs.length;
+      const col = el('div', `col${n ? '' : ' cero'}`);
+      col.tabIndex = 0;
+      const resumen = (['Góndola leída', 'Repaso', 'Góndola completada', 'Examen', 'Bienvenida'] as const)
+        .map((t) => [t, x.evs.filter((e) => e.tipo === t).length] as const)
+        .filter(([, c]) => c);
+      col.setAttribute('aria-label', `${fmtDia.format(x.d)}: ${n} ${n === 1 ? 'actividad' : 'actividades'}`);
+      const barra = el('i');
+      barra.style.height = `${(n / max) * 100}%`;
+      col.append(barra);
+      if (!chica && n && k === kMax) {
+        const v = el('span', 'col-valor', String(n));
+        v.style.bottom = `${(n / max) * 100}%`;
+        col.append(v);
+      }
+      const mostrar = () => {
+        globo.replaceChildren(
+          el('strong', 'block', fmtDia.format(x.d)),
+          el('span', 'block', n ? `${n} ${n === 1 ? 'actividad' : 'actividades'}` : 'Sin actividad'),
+          ...resumen.map(([t, c]) => el('span', 'block text-white/80', `${t}: ${c}`)),
+        );
+        globo.classList.remove('hidden');
+        const r = col.getBoundingClientRect();
+        const base = raiz.getBoundingClientRect();
+        const x0 = r.left - base.left + r.width / 2;
+        globo.style.left = `${Math.min(Math.max(x0, 80), base.width - 80)}px`;
+        globo.style.top = `${area.offsetTop + area.offsetHeight * (1 - Math.max(n / max, 0.05))}px`;
+      };
+      col.addEventListener('pointerenter', mostrar);
+      col.addEventListener('focus', mostrar);
+      col.addEventListener('click', mostrar);
+      col.addEventListener('pointerleave', () => globo.classList.add('hidden'));
+      col.addEventListener('blur', () => globo.classList.add('hidden'));
+      area.append(col);
+    });
+
+    const ejes = el('div', 'columnas-ejes');
+    const fmtCorto = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'numeric' });
+    dias.forEach((x, k) => ejes.append(el('span', '', k === 13 ? 'Hoy' : k % 3 === 1 ? fmtCorto.format(x.d) : '')));
+    raiz.append(area, ejes, globo);
+    if (!evs.length) raiz.append(el('p', 'mt-2 text-sm text-texto-2', 'Todavía no hay actividad registrada.'));
+    return raiz;
+  }
+
+  /** Barras horizontales: personas que completaron cada góndola (una sola serie). */
+  function barrasGondolas(d: Datos, base: Set<string>) {
+    const total = base.size;
+    const filas = info.gondolas
+      .map((g) => {
+        const filasG = d.gondolas.filter((x) => x.gondola === g.id && base.has(x.user_id));
+        const completas = filasG.filter((x) => x.completada_el).length;
+        const conRepaso = filasG.filter((x) => x.quiz_intentos > 0);
+        const promedio = conRepaso.length ? conRepaso.reduce((s, x) => s + x.quiz_mejor / (x.quiz_total || 5), 0) / conRepaso.length : null;
+        return { g, completas, leidas: filasG.filter((x) => x.vista_el).length, promedio };
+      })
+      .sort((a, b) => a.completas - b.completas || a.leidas - b.leidas);
+    const grilla = el('div', 'barras');
+    for (const f of filas) {
+      const fila = el('div', 'barra-fila');
+      fila.title = `${f.g.titulo}: completada por ${f.completas} de ${total} · leída por ${f.leidas}${
+        f.promedio !== null ? ` · promedio del repaso ${Math.round(f.promedio * 100)}%` : ''
+      }`;
+      const cab = el('p', 'flex items-baseline justify-between gap-3');
+      cab.append(el('span', 'etq', f.g.titulo), el('span', 'val', `${f.completas}/${total}`));
+      const pista = el('div', 'pista');
+      const barra = el('span');
+      barra.style.width = `${total ? (f.completas / total) * 100 : 0}%`;
+      pista.append(barra);
+      fila.append(cab, pista);
+      grilla.append(fila);
+    }
+    return grilla;
+  }
+
+  // ---------- Carga ----------
+  let miEmail = '';
+  let ultimo: Datos | null = null;
+
+  async function cargar(): Promise<Datos> {
     const db = supabase!;
     const [a, g, i, l] = await Promise.all([
       db.from('autorizados').select('*').order('rol').order('nombre'),
-      db.from('progreso_gondola').select('user_id,gondola,vista_el,quiz_intentos,quiz_mejor,quiz_total,completada_el'),
-      db.from('intentos_examen').select('user_id,nivel,nota,aprobado,hecho_el').order('hecho_el', { ascending: false }).limit(2000),
-      db.from('secciones_leidas').select('user_id,seccion'),
+      db.from('progreso_gondola').select('user_id,gondola,vista_el,quiz_intentos,quiz_mejor,quiz_total,completada_el,actualizado_el'),
+      db.from('intentos_examen').select('user_id,nivel,nota,aprobado,hecho_el').order('hecho_el', { ascending: false }).limit(5000),
+      db.from('secciones_leidas').select('user_id,seccion,leida_el'),
     ]);
     if (a.error || g.error || i.error || l.error) throw a.error ?? g.error ?? i.error ?? l.error;
-    return {
-      equipo: a.data as Autorizado[],
-      gondolas: g.data as Gondola[],
-      intentos: i.data as Intento[],
-      leidas: l.data as { user_id: string; seccion: string }[],
-    };
+    return { equipo: a.data as Autorizado[], gondolas: g.data as Gondola[], intentos: i.data as Intento[], leidas: l.data as Lectura[] };
   }
 
-  function pintar(d: Awaited<ReturnType<typeof cargar>>) {
-    const total = datos.gondolas.length;
-    const porUsuario = <T extends { user_id: string }>(lista: T[], uid: string | null) => (uid ? lista.filter((x) => x.user_id === uid) : []);
-    const empleadas = d.equipo.filter((p) => p.rol === 'empleada');
+  // ---------- Pintar ----------
+  function pintar(d: Datos) {
+    ultimo = d;
+    const total = info.gondolas.length;
+    const evs = eventos(d);
 
-    // Resumen
-    const activas7 = d.equipo.filter((p) => p.ultimo_ingreso && Date.now() - new Date(p.ultimo_ingreso).getTime() < 7 * 86400000).length;
-    const aprobados = d.intentos.filter((x) => x.aprobado).length;
+    // Sobre quiénes se calcula: las empleadas que ya entraron; si todavía no entró ninguna, todas las que entraron.
+    const empleadasQueEntraron = d.equipo.filter((p) => p.rol === 'empleada' && p.user_id);
+    const baseLista = empleadasQueEntraron.length ? empleadasQueEntraron : d.equipo.filter((p) => p.user_id);
+    const base = new Set(baseLista.map((p) => p.user_id!));
+    $('[data-base-texto]').textContent = empleadasQueEntraron.length
+      ? `Los gráficos cuentan a las ${base.size} empleadas que ya entraron a la app.`
+      : base.size
+        ? 'Todavía no entró ninguna empleada: por ahora los gráficos cuentan a las admins que entraron.'
+        : 'Todavía no entró nadie.';
+    const evsBase = evs.filter((e) => base.has(e.user_id));
+
+    // Números principales
+    const activas7 = baseLista.filter((p) => p.ultimo_ingreso && Date.now() - new Date(p.ultimo_ingreso).getTime() < 7 * 86400000).length;
+    const completasTotales = d.gondolas.filter((x) => base.has(x.user_id) && x.completada_el).length;
+    const posibles = base.size * total;
     const tarjeta = (valor: string, texto: string) => {
       const c = el('div', 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10');
       c.append(el('span', 'block text-3xl font-bold text-profundo tabular-nums', valor), el('span', 'block text-sm text-texto-2', texto));
       return c;
     };
     $('[data-resumen]').replaceChildren(
-      tarjeta(String(empleadas.length), 'empleadas con acceso'),
-      tarjeta(String(activas7), 'entraron en la última semana'),
-      tarjeta(String(d.gondolas.filter((x) => x.completada_el).length), 'góndolas completadas en total'),
-      tarjeta(String(aprobados), 'exámenes aprobados'),
+      tarjeta(String(d.equipo.filter((p) => p.rol === 'empleada').length), 'empleadas con acceso'),
+      tarjeta(`${activas7}/${base.size}`, 'entraron en la última semana'),
+      tarjeta(posibles ? `${Math.round((completasTotales / posibles) * 100)}%` : '0%', 'de la guía completada en promedio'),
+      tarjeta(String(d.intentos.filter((x) => base.has(x.user_id) && x.aprobado).length), 'exámenes aprobados'),
     );
 
-    // Equipo
-    $('[data-equipo]').replaceChildren(
-      ...d.equipo.map((p) => {
-        const gs = porUsuario(d.gondolas, p.user_id);
-        const completas = gs.filter((x) => x.completada_el).length;
-        const vistas = gs.filter((x) => x.vista_el).length;
-        const its = porUsuario(d.intentos, p.user_id);
-        const leidas = new Set(porUsuario(d.leidas, p.user_id).map((x) => x.seccion));
-
-        const li = el('li');
-        const det = el('details', 'persona rounded-3xl bg-white ring-1 ring-profundo/10');
-        const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-3 p-4');
-        const avatar = el('span', 'flex size-11 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo', (p.nombre ?? p.email)[0].toUpperCase());
-        const quien = el('span', 'min-w-0 flex-1');
-        const nombre = el('span', 'block truncate font-semibold text-profundo', p.nombre ?? p.email.split('@')[0]);
-        if (p.rol === 'admin') nombre.append(el('span', 'ml-2 rounded-full bg-profundo px-2 py-0.5 text-[0.7rem] font-bold text-white uppercase', 'Admin'));
-        quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
-        const avance = el('span', 'w-full sm:w-56');
-        avance.append(el('span', 'flex justify-between text-xs font-semibold text-texto-2', ''), barra(completas, total));
-        avance.firstElementChild!.append(el('span', '', 'Góndolas completadas'), el('span', 'tabular-nums', `${completas}/${total}`));
-        const niveles = el('span', 'flex gap-1.5');
-        for (const n of datos.niveles) {
-          const ok = its.some((x) => x.nivel === n.numero && x.aprobado);
-          const chip = el('span', `rounded-full px-2 py-1 text-[0.7rem] font-bold ${ok ? 'bg-marca text-white' : 'bg-menta-suave text-texto-2'}`, `N${n.numero}`);
-          chip.title = `${n.nombre}: ${ok ? 'aprobado' : 'sin aprobar'}`;
-          niveles.append(chip);
-        }
-        sum.append(avatar, quien, avance, niveles);
-
-        // Detalle
-        const cuerpo = el('div', 'border-t border-profundo/8 p-4');
-        const fila = (titulo: string, valor: string) => {
-          const r = el('p', 'flex justify-between gap-3 py-1 text-sm');
-          r.append(el('span', 'text-texto-2', titulo), el('span', 'font-semibold text-profundo', valor));
-          return r;
-        };
-        cuerpo.append(
-          fila('Agregada', fecha(p.agregado_el)),
-          fila('Primer ingreso', fecha(p.primer_ingreso)),
-          fila('Último ingreso', fecha(p.ultimo_ingreso)),
-          fila('Góndolas leídas', `${vistas}/${total}`),
-          fila('Bienvenida leída', `${leidas.size}/${datos.secciones.length} temas`),
-        );
-
-        // Exámenes
-        cuerpo.append(el('p', 'mt-4 text-sm font-bold tracking-wide text-profundo uppercase', 'Exámenes'));
-        if (!its.length) cuerpo.append(el('p', 'mt-1 text-sm text-texto-2', 'Todavía no hizo ningún examen.'));
-        const listaEx = el('ul', 'mt-2 flex flex-col gap-1.5');
-        for (const x of its.slice(0, 15)) {
-          const n = datos.niveles.find((v) => v.numero === x.nivel);
-          const r = el('li', `flex justify-between gap-3 rounded-xl px-3 py-2 text-sm ${x.aprobado ? 'bg-menta-suave' : 'bg-crema'}`);
-          r.append(el('span', '', `Nivel ${x.nivel}${n ? ` · ${n.nombre}` : ''} · ${fecha(x.hecho_el)}`), el('span', 'font-bold tabular-nums', `${x.nota}% ${x.aprobado ? '✓' : ''}`));
-          listaEx.append(r);
-        }
-        cuerpo.append(listaEx);
-
-        // Góndolas
-        cuerpo.append(el('p', 'mt-4 text-sm font-bold tracking-wide text-profundo uppercase', 'Góndolas'));
-        const grid = el('ul', 'mt-2 grid gap-1.5 sm:grid-cols-2');
-        for (const gd of datos.gondolas) {
-          const x = gs.find((y) => y.gondola === gd.id);
-          const estado = x?.completada_el ? `Completada · ${x.quiz_mejor}/${x.quiz_total}` : x?.quiz_intentos ? `Quiz ${x.quiz_mejor}/${x.quiz_total}` : x?.vista_el ? 'Leída' : 'Sin abrir';
-          const r = el('li', `flex justify-between gap-2 rounded-xl px-3 py-2 text-sm ${x?.completada_el ? 'bg-menta-suave' : 'bg-crema'}`);
-          r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca' : 'text-texto-2'}`, estado));
-          grid.append(r);
-        }
-        cuerpo.append(grid);
-
-        // Acciones
-        const acciones = el('div', 'mt-5 flex flex-wrap gap-2');
-        if (p.email !== miEmail) {
-          const rol = el('button', 'boton boton-secundario !py-2 !text-sm', p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin');
-          rol.type = 'button';
-          rol.addEventListener('click', async () => {
-            const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
-            if (!confirm(`¿Cambiar a ${p.nombre ?? p.email} a ${nuevo}?`)) return;
-            const { error } = await supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email);
-            if (error) alert('No se pudo cambiar el rol.');
-            void refrescar();
-          });
-          const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Quitar acceso');
-          quitar.type = 'button';
-          quitar.addEventListener('click', async () => {
-            if (!confirm(`¿Quitarle el acceso a ${p.nombre ?? p.email}? Su avance queda guardado por si vuelve.`)) return;
-            const { error } = await supabase!.from('autorizados').delete().eq('email', p.email);
-            if (error) alert('No se pudo quitar el acceso.');
-            void refrescar();
-          });
-          acciones.append(rol, quitar);
-        } else {
-          acciones.append(el('p', 'text-sm text-texto-2', 'Sos vos.'));
-        }
-        cuerpo.append(acciones);
-
-        det.append(sum, cuerpo);
-        li.append(det);
-        return li;
+    // Tablero general
+    $('[data-grafico-actividad]').replaceChildren(columnasActividad(evsBase));
+    $('[data-grafico-niveles]').replaceChildren(
+      ...info.niveles.map((n) => {
+        const aprobaron = new Set(d.intentos.filter((x) => x.nivel === n.numero && x.aprobado && base.has(x.user_id)).map((x) => x.user_id)).size;
+        return filaMedidor(`Nivel ${n.numero} · ${n.nombre}`, aprobaron, base.size);
       }),
     );
+    $('[data-grafico-gondolas]').replaceChildren(base.size ? barrasGondolas(d, base) : el('p', 'text-sm text-texto-2', 'Todavía no entró nadie.'));
+
+    // Equipo, con el tablero de cada persona
+    $('[data-equipo]').replaceChildren(...d.equipo.map((p) => persona(p, d, evs, total)));
   }
 
+  function persona(p: Autorizado, d: Datos, evs: Evento[], total: number) {
+    const gs = porUsuario(d.gondolas, p.user_id);
+    const completas = gs.filter((x) => x.completada_el).length;
+    const vistas = gs.filter((x) => x.vista_el).length;
+    const its = porUsuario(d.intentos, p.user_id);
+    const leidas = new Set(porUsuario(d.leidas, p.user_id).map((x) => x.seccion));
+    const misEvs = p.user_id ? evs.filter((e) => e.user_id === p.user_id) : [];
+
+    const li = el('li');
+    const det = el('details', 'persona rounded-3xl bg-white ring-1 ring-profundo/10');
+    const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-3 p-4');
+    const avatar = el('span', 'flex size-11 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo', nombreDe(p)[0].toUpperCase());
+    const quien = el('span', 'min-w-0 flex-1');
+    const nombre = el('span', 'block truncate font-semibold text-profundo', nombreDe(p));
+    if (p.rol === 'admin') nombre.append(el('span', 'ml-2 rounded-full bg-profundo px-2 py-0.5 text-[0.7rem] font-bold text-white uppercase', 'Admin'));
+    quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
+    const avance = el('span', 'w-full sm:w-56');
+    const cab = el('span', 'mb-1 flex justify-between text-xs font-semibold text-texto-2');
+    cab.append(el('span', '', 'Góndolas completadas'), el('span', 'tabular-nums text-texto', `${completas}/${total}`));
+    avance.append(cab, medidor(completas, total));
+    const niveles = el('span', 'flex gap-1.5');
+    for (const n of info.niveles) {
+      const ok = its.some((x) => x.nivel === n.numero && x.aprobado);
+      const chip = el('span', `rounded-full px-2 py-1 text-[0.7rem] font-bold ${ok ? 'bg-marca text-white' : 'bg-menta-suave text-texto-2'}`, `N${n.numero}${ok ? ' ✓' : ''}`);
+      chip.title = `Nivel ${n.numero} · ${n.nombre}: ${ok ? 'aprobado' : 'sin aprobar'}`;
+      niveles.append(chip);
+    }
+    sum.append(avatar, quien, avance, niveles);
+
+    // Tablero de la persona
+    const cuerpo = el('div', 'border-t border-profundo/8 p-4');
+    if (!p.user_id) {
+      cuerpo.append(el('p', 'text-sm text-texto-2', `Todavía no entró a la app. Tiene acceso desde ${fecha(p.agregado_el)}.`));
+    } else {
+      const grid = el('div', 'grid gap-4 md:grid-cols-2');
+      const izq = el('div', 'flex flex-col gap-3');
+      const promedioRepasos = gs.filter((x) => x.quiz_intentos > 0);
+      izq.append(
+        filaMedidor('Góndolas completadas', completas, total),
+        filaMedidor('Góndolas leídas', vistas, total),
+        filaMedidor('Temas de Bienvenida', leidas.size, info.secciones.length),
+      );
+      const datosP = el('div', 'mt-1 text-sm');
+      const fila = (t: string, v: string) => {
+        const r = el('p', 'flex justify-between gap-3 py-0.5');
+        r.append(el('span', 'text-texto-2', t), el('span', 'font-semibold text-profundo', v));
+        return r;
+      };
+      datosP.append(
+        fila('Primer ingreso', fecha(p.primer_ingreso)),
+        fila('Último ingreso', fecha(p.ultimo_ingreso)),
+        fila(
+          'Promedio en repasos',
+          promedioRepasos.length
+            ? `${Math.round((promedioRepasos.reduce((s, x) => s + x.quiz_mejor / (x.quiz_total || 5), 0) / promedioRepasos.length) * 100)}%`
+            : 'Sin repasos',
+        ),
+        fila('Exámenes hechos', String(its.length)),
+        fila('Mejor nota de examen', its.length ? `${Math.max(...its.map((x) => x.nota))}%` : '—'),
+      );
+      izq.append(datosP);
+
+      const der = el('div');
+      der.append(el('p', 'text-sm font-semibold text-profundo', 'Su actividad, últimos 14 días'), columnasActividad(misEvs, true));
+      der.append(el('p', 'mt-4 text-sm font-semibold text-profundo', 'Lo último que hizo'));
+      const ult = el('ul', 'mt-2 flex flex-col gap-1.5');
+      for (const e of misEvs.slice(0, 6)) {
+        const r = el('li', 'rounded-xl bg-crema px-3 py-2 text-sm');
+        r.append(el('span', 'block font-semibold text-profundo', `${e.tipo}: ${e.que}`), el('span', 'block text-xs text-texto-2', [e.resultado, fecha(e.fecha)].filter(Boolean).join(' · ')));
+        ult.append(r);
+      }
+      if (!misEvs.length) ult.append(el('li', 'text-sm text-texto-2', 'Todavía no hizo nada en la app.'));
+      der.append(ult);
+      grid.append(izq, der);
+      cuerpo.append(grid);
+
+      // Detalle por góndola y exámenes, plegados para no alargar
+      const plegable = (titulo: string, contenido: HTMLElement) => {
+        const dd = el('details', 'mt-4 rounded-2xl bg-crema');
+        const s = el('summary', 'cursor-pointer px-4 py-3 text-sm font-semibold text-profundo', titulo);
+        const c = el('div', 'px-4 pb-4');
+        c.append(contenido);
+        dd.append(s, c);
+        return dd;
+      };
+      const listaG = el('ul', 'grid gap-1.5 sm:grid-cols-2');
+      for (const gd of info.gondolas) {
+        const x = gs.find((y) => y.gondola === gd.id);
+        const estado = x?.completada_el ? `Completada · ${x.quiz_mejor}/${x.quiz_total}` : x?.quiz_intentos ? `Repaso ${x.quiz_mejor}/${x.quiz_total}` : x?.vista_el ? 'Leída' : 'Sin abrir';
+        const r = el('li', `flex justify-between gap-2 rounded-xl bg-white px-3 py-2 text-sm`);
+        r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca' : 'text-texto-2'}`, estado));
+        listaG.append(r);
+      }
+      cuerpo.append(plegable('Cada góndola', listaG));
+      const listaEx = el('ul', 'flex flex-col gap-1.5');
+      for (const x of its.slice(0, 30)) {
+        const r = el('li', 'flex justify-between gap-3 rounded-xl bg-white px-3 py-2 text-sm');
+        r.append(el('span', '', `Nivel ${x.nivel} · ${nombreNivel(x.nivel)} · ${fecha(x.hecho_el)}`), el('span', 'font-bold tabular-nums', `${x.nota}% ${x.aprobado ? '✓' : ''}`));
+        listaEx.append(r);
+      }
+      if (!its.length) listaEx.append(el('li', 'text-sm text-texto-2', 'Todavía no hizo ningún examen.'));
+      cuerpo.append(plegable(`Exámenes (${its.length})`, listaEx));
+    }
+
+    // Acciones
+    const acciones = el('div', 'mt-5 flex flex-wrap gap-2');
+    if (p.email !== miEmail) {
+      const rol = el('button', 'boton boton-secundario !py-2 !text-sm', p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin');
+      rol.type = 'button';
+      rol.addEventListener('click', async () => {
+        const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
+        if (!confirm(`¿Cambiar a ${nombreDe(p)} a ${nuevo}?`)) return;
+        const { error } = await supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email);
+        if (error) alert('No se pudo cambiar el rol.');
+        void refrescar();
+      });
+      const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Quitar acceso');
+      quitar.type = 'button';
+      quitar.addEventListener('click', async () => {
+        if (!confirm(`¿Quitarle el acceso a ${nombreDe(p)}? Su avance queda guardado por si vuelve.`)) return;
+        const { error } = await supabase!.from('autorizados').delete().eq('email', p.email);
+        if (error) alert('No se pudo quitar el acceso.');
+        void refrescar();
+      });
+      acciones.append(rol, quitar);
+    } else {
+      acciones.append(el('p', 'text-sm text-texto-2', 'Sos vos.'));
+    }
+    cuerpo.append(acciones);
+
+    det.append(sum, cuerpo);
+    li.append(det);
+    return li;
+  }
+
+  // ---------- Descargas para Excel ----------
+  // CSV con punto y coma y BOM: Excel en español lo abre con columnas y acentos bien.
+  function descargarCsv(nombre: string, filas: (string | number)[][]) {
+    const celda = (v: string | number) => {
+      const s = String(v ?? '');
+      return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const texto = '﻿' + filas.map((f) => f.map(celda).join(';')).join('\r\n');
+    const a = el('a');
+    a.href = URL.createObjectURL(new Blob([texto], { type: 'text/csv;charset=utf-8' }));
+    a.download = nombre;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  function descargar(tipo: 'resumen' | 'detalle') {
+    if (!ultimo) return;
+    const d = ultimo;
+    const hoy = new Date().toISOString().slice(0, 10);
+    const total = info.gondolas.length;
+    if (tipo === 'resumen') {
+      const filas: (string | number)[][] = [
+        [
+          'Nombre',
+          'Mail',
+          'Rol',
+          'Agregada',
+          'Primer ingreso',
+          'Último ingreso',
+          `Góndolas leídas (de ${total})`,
+          `Góndolas completadas (de ${total})`,
+          'Promedio en repasos (%)',
+          `Temas de Bienvenida leídos (de ${info.secciones.length})`,
+          ...info.niveles.map((n) => `Nivel ${n.numero} ${n.nombre}`),
+          'Exámenes hechos',
+          'Mejor nota de examen (%)',
+        ],
+      ];
+      for (const p of d.equipo) {
+        const gs = porUsuario(d.gondolas, p.user_id);
+        const its = porUsuario(d.intentos, p.user_id);
+        const conRepaso = gs.filter((x) => x.quiz_intentos > 0);
+        filas.push([
+          nombreDe(p),
+          p.email,
+          p.rol === 'admin' ? 'Admin' : 'Empleada',
+          fechaExcel(p.agregado_el),
+          fechaExcel(p.primer_ingreso),
+          fechaExcel(p.ultimo_ingreso),
+          gs.filter((x) => x.vista_el).length,
+          gs.filter((x) => x.completada_el).length,
+          conRepaso.length ? Math.round((conRepaso.reduce((s, x) => s + x.quiz_mejor / (x.quiz_total || 5), 0) / conRepaso.length) * 100) : '',
+          new Set(porUsuario(d.leidas, p.user_id).map((x) => x.seccion)).size,
+          ...info.niveles.map((n) => {
+            const ap = its.filter((x) => x.nivel === n.numero && x.aprobado).sort((a, b) => a.hecho_el.localeCompare(b.hecho_el))[0];
+            return ap ? `Aprobado ${fechaExcel(ap.hecho_el)} (${ap.nota}%)` : its.some((x) => x.nivel === n.numero) ? 'No aprobado todavía' : 'Sin hacer';
+          }),
+          its.length,
+          its.length ? Math.max(...its.map((x) => x.nota)) : '',
+        ]);
+      }
+      descargarCsv(`lola-avance-resumen-${hoy}.csv`, filas);
+    } else {
+      const quien = new Map(d.equipo.filter((p) => p.user_id).map((p) => [p.user_id!, p]));
+      const filas: (string | number)[][] = [['Nombre', 'Mail', 'Tipo', 'Qué', 'Resultado', 'Fecha']];
+      for (const e of eventos(d)) {
+        const p = quien.get(e.user_id);
+        filas.push([p ? nombreDe(p) : '(ya no tiene acceso)', p?.email ?? '', e.tipo, e.que, e.resultado, fechaExcel(e.fecha)]);
+      }
+      descargarCsv(`lola-avance-detalle-${hoy}.csv`, filas);
+    }
+  }
+
+  // ---------- Acciones ----------
   async function refrescar() {
     try {
       pintar(await cargar());
@@ -304,6 +779,10 @@ const datos = {
       alert('No se pudieron cargar los datos. Revisá la conexión.');
     }
   }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-descargar]').forEach((b) =>
+    b.addEventListener('click', () => descargar(b.dataset.descargar as 'resumen' | 'detalle')),
+  );
 
   $('[data-agregar]').addEventListener('submit', async (e) => {
     e.preventDefault();
