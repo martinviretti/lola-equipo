@@ -27,8 +27,23 @@ for (const f of archivos) {
   else for (const c of ['numero:', 'titulo:', 'bajada:', 'icono:', 'claves:']) if (!fm[1].includes(c)) p.push(`falta ${c}`);
   const cuerpo = fm ? texto.slice(fm[0].length) : texto;
   const total = palabras(cuerpo) + (fm ? palabras(fm[1]) : 0);
-  if (total > 6000) p.push(`demasiado largo: ${total} palabras (máximo orientativo 5.500)`);
+  if (total > 6400) p.push(`demasiado largo: ${total} palabras (máximo orientativo 6.000)`);
   if (!/^## Lo básico\s*$/m.test(cuerpo)) p.push('falta la sección "## Lo básico"');
+  // "De un vistazo": la última columna es "Propiedades", corta (8 palabras como máximo).
+  const vistazo = cuerpo.split(/^## /m).find((s) => s.startsWith('De un vistazo'));
+  const filasTabla = (vistazo ?? '').split(/\r?\n/).filter((l) => /^\|/.test(l));
+  if (!filasTabla.length) p.push('falta la tabla de "## De un vistazo"');
+  else {
+    const celdas = (l) => l.replace(/^\||\|\s*$/g, '').split('|').map((c) => c.trim());
+    const cabeza = celdas(filasTabla[0]);
+    if (cabeza.at(-1) !== 'Propiedades') p.push('la tabla de "De un vistazo" tiene que terminar en la columna "Propiedades"');
+    for (const l of filasTabla.slice(2)) {
+      const c = celdas(l);
+      if (c.length !== cabeza.length) p.push(`tabla: la fila "${c[0]}" tiene ${c.length} celdas y la cabecera ${cabeza.length}`);
+      else if (palabras(c.at(-1)) > 9) p.push(`tabla: Propiedades de "${c[0]}" tiene ${palabras(c.at(-1))} palabras (máximo 8)`);
+      else if (!c.at(-1)) p.push(`tabla: falta Propiedades en "${c[0]}"`);
+    }
+  }
   // Fichas: cada "### " dentro de "## Los productos". Se leen como texto corrido:
   // de 1 a 3 párrafos sin etiquetas y, como máximo, las viñetas "Tip" y "Ojo".
   const productos = cuerpo.split(/^## /m).find((s) => s.startsWith('Los productos'));

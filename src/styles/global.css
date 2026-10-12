@@ -488,6 +488,13 @@
       font-weight: 700;
       color: var(--color-marca);
     }
+    /* La columna Propiedades, destacada como en las fichas */
+    .prosa .tabla.tarjetas td[data-label='Propiedades'] {
+      margin-top: 6px;
+      border-radius: 10px;
+      background: var(--color-arena-suave);
+      padding: 6px 10px;
+    }
   }
 }
 
