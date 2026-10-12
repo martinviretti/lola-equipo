@@ -1,0 +1,44 @@
+---
+// Política de privacidad de la intranet (la pide Google para el login). Se ve sin login.
+import Manual from '../layouts/Manual.astro';
+---
+
+<Manual title="Privacidad" publica>
+  <main id="contenido" class="px-5 py-10">
+    <article class="prosa mx-auto max-w-[680px]">
+      <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Política de privacidad</h1>
+      <p>
+        <strong>Lola · Equipo</strong> es la intranet de capacitación del equipo de El Almacén de Lola (Av. Presidente Perón 3099,
+        Victoria, San Fernando, Buenos Aires). Solo pueden usarla las personas del equipo que la encargada autoriza.
+      </p>
+
+      <h2>Qué datos guardamos</h2>
+      <ul>
+        <li>Tu nombre, tu mail y tu foto de perfil de Google, que Google nos comparte cuando entrás con tu cuenta.</li>
+        <li>Tu avance en la intranet: qué góndolas y temas leíste, los resultados de los repasos y de los exámenes, y cuándo entraste.</li>
+      </ul>
+      <p>No pedimos ni guardamos contraseñas, datos de pago ni ningún otro dato de tu cuenta de Google.</p>
+
+      <h2>Para qué los usamos</h2>
+      <p>
+        Solo para la capacitación del equipo: que puedas seguir tu avance desde cualquier celular y que la encargada sepa cómo viene cada
+        persona. No los usamos para publicidad ni los vendemos o compartimos con nadie.
+      </p>
+
+      <h2>Quién los ve y dónde se guardan</h2>
+      <p>
+        Los ven solo vos y las administradoras de la intranet. Se guardan en Supabase, el servicio de base de datos que usa la app, con
+        acceso protegido.
+      </p>
+
+      <h2>Cómo borrarlos</h2>
+      <p>
+        Podés pedir que borremos tus datos en cualquier momento escribiendo a <a href="mailto:martinviretti@gmail.com">martinviretti@gmail.com</a>.
+        Cuando alguien deja el equipo, se le quita el acceso.
+      </p>
+
+      <p class="text-sm text-texto-2">Última actualización: octubre de 2026.</p>
+      <p><a href={import.meta.env.BASE_URL}>Volver a la intranet</a></p>
+    </article>
+  </main>
+</Manual>
