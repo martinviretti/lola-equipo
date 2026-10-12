@@ -1,0 +1,2371 @@
+[
+  {
+    "id": "t1-01",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia a una harina integral de una harina blanca refinada?",
+    "opciones": [
+      "La integral es una harina blanca a la que se le agrega color.",
+      "La integral conserva el grano entero, con su salvado, y tiene más fibra.",
+      "La integral es de otro cereal, distinto del trigo, y no tiene gluten.",
+      "La integral está más molida y por eso queda más fina que la blanca."
+    ],
+    "correcta": 1,
+    "explicacion": "Al refinar, al grano se le saca la parte de afuera, que es donde está casi toda la fibra. Por eso la integral es más oscura, más rústica y se pone rancia antes.",
+    "gondola": "07-harinas"
+  },
+  {
+    "id": "t1-02",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo te das cuenta de que un pan envasado es integral de verdad?",
+    "opciones": [
+      "Por el color: si es bien oscuro, es integral.",
+      "Por el frente: si dice “con fibra”, ya es integral.",
+      "Por los ingredientes: la harina integral tiene que estar primera.",
+      "Por el peso: el integral siempre pesa más que el blanco."
+    ],
+    "correcta": 2,
+    "explicacion": "La lista de ingredientes va de lo que más hay a lo que menos. El color engaña: hay panes oscurecidos con malta, caramelo o salvado que no son integrales.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "t1-03",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Por qué lo del granel no se le asegura ni a un celíaco ni a un alérgico?",
+    "opciones": [
+      "Porque se comparten palas, balanzas y frascos, y puede quedar en contacto con otros productos.",
+      "Porque lo del granel es de menor calidad que lo que viene envasado de fábrica.",
+      "Porque lo del granel dura menos y puede estar vencido sin que se note.",
+      "Porque lo del granel no trae tabla nutricional ni fecha de vencimiento."
+    ],
+    "correcta": 0,
+    "explicacion": "A eso se le llama contacto cruzado: alcanza con una pala que tocó harina de trigo o maní. Por eso, para celíacos y alérgicos, solo envasado de origen con su rótulo."
+  },
+  {
+    "id": "t1-04",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada producto con cómo se guarda.",
+    "pares": [
+      {
+        "a": "Aceite de lino",
+        "b": "Siempre en la heladera"
+      },
+      {
+        "a": "Leche vegetal larga vida cerrada",
+        "b": "En la góndola, fuera de la heladera"
+      },
+      {
+        "a": "Yerba",
+        "b": "Bien cerrada, lejos de olores fuertes"
+      },
+      {
+        "a": "Hamburguesas congeladas",
+        "b": "En el freezer, sin cortar el frío"
+      }
+    ],
+    "explicacion": "Lo seco va cerrado, fresco y lejos del sol; lo que pide frío no sale de la heladera o el freezer. Ante la duda, el envase dice cómo se guarda."
+  },
+  {
+    "id": "t1-05",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué alimentos de la dietética aportan proteína vegetal y fibra, y son la base de muchos platos sin carne?",
+    "opciones": [
+      "Las frutas desecadas, como las pasas y las ciruelas.",
+      "Los aceites, como el de girasol o el de oliva.",
+      "Las legumbres, como las lentejas, los garbanzos y los porotos.",
+      "Los endulzantes, como la miel o el azúcar mascabo."
+    ],
+    "correcta": 2,
+    "explicacion": "Las legumbres son baratas, rinden muchísimo y aportan proteínas y fibra. La soja es de las que más proteína tiene.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "t1-06",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Si un producto es natural, no le puede hacer mal a nadie.",
+    "correcta": false,
+    "explicacion": "Natural no es sinónimo de inofensivo. Hay yuyos con precauciones fuertes y productos naturales que dan alergia: lo que manda es la etiqueta y, ante un tema de salud, el médico."
+  },
+  {
+    "id": "t1-07",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "En la lista de ingredientes, el primero es el que más hay en el producto.",
+    "correcta": true,
+    "explicacion": "La lista va de lo que más hay a lo que menos. Sirve, por ejemplo, para ver si un pan es integral de verdad o si algo lleva mucha azúcar."
+  },
+  {
+    "id": "t1-08",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "“Sin azúcar agregada” quiere decir que el producto no tiene nada de azúcar.",
+    "correcta": false,
+    "explicacion": "Quiere decir que no le sumaron azúcar, pero puede tener la propia de la fruta, la leche o la harina, o llevar edulcorantes. Cuánta tiene lo dice la tabla nutricional.",
+    "gondola": "14-endulzantes"
+  },
+  {
+    "id": "t1-09",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 1,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Me dijeron que este té sirve para bajar la presión, ¿es verdad?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, lo toma mucha gente que tiene la presión alta y dicen que les baja enseguida.”",
+      "“No te lo puedo asegurar. Te cuento qué es y cómo se prepara; lo de la presión, consultalo con tu médico.”",
+      "“Sí, pero para que haga efecto tenés que tomar por lo menos dos o tres tazas por día.”",
+      "“No, eso es un mito. Ese té no hace nada para la presión, así que no gastes en eso.”"
+    ],
+    "correcta": 1,
+    "explicacion": "En el mostrador nunca se dice que algo cura o sirve para una enfermedad, ni para bien ni para mal. Contás qué es el producto y el tema de salud lo ve el médico."
+  },
+  {
+    "id": "t1-10",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 1,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te pregunta: “¿Y esto para qué se usa?” Es un producto que nunca viste. ¿Qué hacés?",
+    "opciones": [
+      "Le contás lo que sabés de un producto parecido, para no quedar mal.",
+      "Le leés el nombre del paquete y le decís que es muy bueno.",
+      "Le decís que ese producto ya no se vende y le ofrecés otro.",
+      "Le decís “No lo sé, dejame consultarlo” y le preguntás a la encargada."
+    ],
+    "correcta": 3,
+    "explicacion": "“No lo sé, dejame consultarlo” es una respuesta perfecta. Inventar confunde al cliente y puede ponerlo en riesgo si tiene una alergia o un tema de salud."
+  },
+  {
+    "id": "t1-11",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 1,
+    "tipo": "unir",
+    "pregunta": "Uní cada palabra con lo que significa.",
+    "pares": [
+      {
+        "a": "Integral",
+        "b": "Conserva el grano entero, con su salvado"
+      },
+      {
+        "a": "Refinado",
+        "b": "Le sacaron casi toda la cáscara del grano"
+      },
+      {
+        "a": "Granel",
+        "b": "Se vende suelto y se sirve con pala"
+      },
+      {
+        "a": "Rancio",
+        "b": "Olor a pintura y gusto amargo"
+      }
+    ],
+    "explicacion": "Son palabras que vas a escuchar todo el día. Y lo rancio no se vende: se separa y se avisa a la encargada."
+  },
+  {
+    "id": "t1-12",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Por qué las harinas y los cereales integrales duran menos que los blancos?",
+    "opciones": [
+      "Porque no llevan conservantes, a diferencia de los blancos.",
+      "Porque conservan la parte del grano que tiene más grasa, y se pone rancia.",
+      "Porque se muelen más gruesos y les entra más aire.",
+      "Porque absorben más humedad del ambiente que los blancos."
+    ],
+    "correcta": 1,
+    "explicacion": "Lo integral tiene más grasa que lo refinado, y la grasa con el tiempo se pone rancia. Por eso conviene guardarlo bien cerrado y comprarlo de a poco.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "t1-13",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te pregunta: “¿Cuál de estas barritas es la más sana?” ¿Qué hacés?",
+    "opciones": [
+      "Le recomendás la que dice “natural” en el frente, que es la más sana.",
+      "Le recomendás la de dátiles, porque no tiene nada de azúcar.",
+      "Le recomendás la más cara, que suele ser la de mejor calidad.",
+      "Le preguntás qué busca y comparan juntos la tabla de dos o tres."
+    ],
+    "correcta": 3,
+    "explicacion": "No hay una sola barrita más sana: depende de si busca proteína, poca azúcar o algo rico para llevar. La foto y las palabras del frente no alcanzan para comparar.",
+    "gondola": "12-galletitas-barritas-y-snacks"
+  },
+  {
+    "id": "t1-14",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Quiero algo natural para bajar de peso, ¿qué me das?” ¿Qué le respondés?",
+    "opciones": [
+      "“Para eso no te puedo recomendar nada: lo ideal es un nutricionista. Si querés, te cuento qué es cada producto.”",
+      "“Llevate té verde, que es natural y es lo que más se lleva cuando alguien quiere bajar.”",
+      "“El sen funciona muy bien para eso, pero tomalo solo un par de días y después cortás.”",
+      "“La chía te llena y vas a comer menos: probá con una cucharada en agua antes de cada comida.”"
+    ],
+    "correcta": 0,
+    "explicacion": "Nunca se dice que algo adelgaza, por más natural que sea. El tema del peso es de un profesional; vos contás qué es cada producto."
+  },
+  {
+    "id": "t1-15",
+    "tema": "La dietética y los conceptos básicos",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca y tengo diabetes, ¿qué galletitas puedo comer?” ¿Qué le respondés?",
+    "opciones": [
+      "“Llevate las de avena sin azúcar agregada, que son las más sanas y no te suben el azúcar.”",
+      "“Cualquiera sin azúcar agregada te sirve, porque esas no te suben el azúcar y no tienen trigo.”",
+      "“Te muestro las que tienen logo sin TACC y miramos la tabla. Por la diabetes, consultalo con tu médico.”",
+      "“Llevate galletas de arroz del granel, que no tienen gluten ni azúcar agregada, y son baratas.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Se cuidan las dos cosas: el logo para la celiaquía y nunca decir que algo es apto para diabéticos. La avena tiene TACC y lo del granel no se le asegura a un celíaco.",
+    "gondola": "12-galletitas-barritas-y-snacks"
+  },
+  {
+    "id": "t2-01",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Qué cereales resume la sigla TACC?",
+    "opciones": [
+      "Trigo, arroz, cebada y centeno.",
+      "Trigo, avena, cebada y maíz.",
+      "Trigo, avena, cebada y centeno.",
+      "Trigo, avena, quinoa y centeno."
+    ],
+    "correcta": 2,
+    "explicacion": "Son los cereales que tienen gluten, la proteína que un celíaco no puede comer. Arroz, maíz y quinoa no tienen gluten naturalmente.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-02",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "Para una persona celíaca, ¿qué productos del local podés ofrecer con tranquilidad?",
+    "opciones": [
+      "Los envasados que traen el logo oficial sin TACC en el envase cerrado.",
+      "Los que dicen “sin gluten” en el frente, aunque no tengan el logo.",
+      "Los del granel que no tienen gluten naturalmente, como el arroz o la quinoa.",
+      "Los que no tienen trigo, avena, cebada ni centeno en los ingredientes."
+    ],
+    "correcta": 0,
+    "explicacion": "Es el único criterio del local y no se negocia. Una frase escrita, un sello de otro país o un cartel del local no alcanzan.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-03",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Por qué en Argentina la avena no se le ofrece a un celíaco?",
+    "opciones": [
+      "Porque siempre viene mezclada con harina de trigo.",
+      "Porque está dentro de la sigla TACC y no se considera apta.",
+      "Porque tiene mucha fibra y a los celíacos les cae pesada.",
+      "Porque solo se consigue suelta, y del granel se contamina."
+    ],
+    "correcta": 1,
+    "explicacion": "La A de TACC es la avena. Si te piden avena sin gluten, ofrecé otro cereal envasado con logo, como copos de arroz o quinoa inflada.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "t2-04",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 2,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Cuál de estos productos tiene gluten?",
+    "opciones": [
+      "La quinoa",
+      "El trigo sarraceno",
+      "La fécula de mandioca",
+      "La malta"
+    ],
+    "correcta": 3,
+    "explicacion": "La malta se hace con cebada, una de las letras de TACC. El trigo sarraceno, aunque se llame así, no es trigo.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t2-05",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 2,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Cómo se manejan los panes sin TACC en el local?",
+    "opciones": [
+      "Se ponen en la panera común, del lado de arriba, para que no se toquen.",
+      "Se cortan en el local con un cuchillo limpio y se venden por porción.",
+      "Van envasados y cerrados, y nunca se tocan con la pinza ni la panera del pan común.",
+      "Se pueden vender sueltos si se hornearon en un horno aparte."
+    ],
+    "correcta": 2,
+    "explicacion": "Una miga de pan común alcanza para hacerle daño a un celíaco. Por eso, si un pan estuvo en la panera con el común, ya no se puede asegurar.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "t2-06",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "Valen las dos versiones del logo oficial: la que dice SIN T.A.C.C. y la que dice SIN GLUTEN.",
+    "correcta": true,
+    "explicacion": "Son el mismo logo oficial, un círculo con una barra cruzada sobre tres espigas, y conviven en la góndola. Lo que no vale es la frase “sin gluten” escrita sola, sin el logo.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-07",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Para un celíaco, una miga o el polvillo de una harina alcanzan para hacerle daño.",
+    "correcta": true,
+    "explicacion": "La celiaquía dura toda la vida y el daño en el intestino pasa aunque la persona no sienta nada en el momento. Por eso nunca se dice que “un poquito no hace nada”.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-08",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 2,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Los fideos integrales y los de espinaca son aptos para celíacos.",
+    "correcta": false,
+    "explicacion": "Son de trigo: los integrales tienen más fibra y los de espinaca llevan verdura para dar color, pero todos tienen TACC. Para un celíaco, solo pastas con el logo.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "t2-09",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 1,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca, ¿este arroz suelto me sirve?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, el arroz no tiene gluten, así que el suelto también te sirve igual que el envasado.”",
+      "“Del granel no te lo puedo asegurar, porque se comparten palas. Te muestro el envasado con logo.”",
+      "“Sí, si lo lavás bien antes de cocinarlo, no vas a tener ningún problema con el gluten.”",
+      "“Te lo fracciono ahora en una bolsa nueva y limpia, así no se contamina con nada.”"
+    ],
+    "correcta": 1,
+    "explicacion": "El arroz no tiene gluten, pero el del granel pudo tocar palas o polvillo de harinas con gluten. Para un celíaco, nada del granel, aunque sea arroz o quinoa.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-10",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 2,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te pide: “¿Me abrís este paquete de premezcla sin TACC, así veo cómo es?” ¿Qué hacés?",
+    "opciones": [
+      "Le explicás que abierto deja de estar garantizado y le mostrás el frente y los ingredientes.",
+      "Lo abrís con cuidado y, si no lo lleva, lo cerrás con cinta y lo volvés a poner.",
+      "Lo abrís y, si no lo lleva, lo pasás a la góndola común para venderlo igual.",
+      "Le ofrecés fraccionarle un poquito en una bolsita para que lo pruebe en casa."
+    ],
+    "correcta": 0,
+    "explicacion": "Un envase sin TACC abierto ya no está garantizado, ni para mostrar ni para probar. Y lo sin TACC tampoco se fracciona.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-11",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 3,
+    "tipo": "unir",
+    "pregunta": "Uní cada producto con lo que tenés que saber si es para un celíaco.",
+    "pares": [
+      {
+        "a": "Cuscús",
+        "b": "Es trigo, tiene TACC"
+      },
+      {
+        "a": "Trigo sarraceno",
+        "b": "No es trigo, pero solo envasado con logo"
+      },
+      {
+        "a": "Cerveza común",
+        "b": "Se hace con cebada"
+      },
+      {
+        "a": "Salsa de soja común",
+        "b": "Lleva trigo, mejor tamari con logo"
+      }
+    ],
+    "explicacion": "Hay productos que tienen TACC aunque el nombre no lo diga, y otros que no lo tienen aunque lo parezca. Para un celíaco, lo único que vale es el logo en el envase cerrado."
+  },
+  {
+    "id": "t2-12",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca y vegana, ¿qué proteína vegetal me puedo llevar?” ¿Qué le ofrecés?",
+    "opciones": [
+      "El seitán, que es la carne vegetal con más proteína.",
+      "Soja texturizada del granel, que es soja pura y rinde mucho.",
+      "Legumbres, tofu o tempeh, siempre envasados con el logo sin TACC.",
+      "Cualquier producto de la góndola de veganos, porque no tienen trigo."
+    ],
+    "correcta": 2,
+    "explicacion": "El seitán es gluten de trigo puro: nunca para celíacos. Lo demás puede servirle, pero solo envasado con logo, nunca del granel.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t2-13",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 3,
+    "tipo": "vf",
+    "pregunta": "Lo sin gluten es más sano o más liviano que lo común.",
+    "correcta": false,
+    "explicacion": "No necesariamente: muchos productos sin gluten tienen menos fibra y más grasa o azúcar. Sirven para quien no puede comer gluten; para comparar, se mira la tabla.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-14",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Soy celíaco y este paquete importado dice gluten free, ¿me sirve?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, gluten free quiere decir exactamente lo mismo que sin TACC, es la versión en inglés.”",
+      "“Sin el logo oficial sin TACC no te lo puedo asegurar. Te muestro opciones que lo tienen.”",
+      "“Sí, mientras en los ingredientes no aparezca el trigo, ese paquete te sirve.”",
+      "“Sí, quedate tranquilo: los importados suelen ser más controlados que los de acá.”"
+    ],
+    "correcta": 1,
+    "explicacion": "Para el local vale solo el logo oficial en el envase cerrado. Un sello de otro país o una frase escrita no alcanzan.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t2-15",
+    "tema": "Celiaquía y sin TACC",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una mamá te dice: “A mi hijo recién le diagnosticaron celiaquía, ¿qué tengo que comprar?” ¿Qué le respondés?",
+    "opciones": [
+      "“Buscá siempre el logo sin TACC y no compres nada suelto. Lo que tiene que comer lo ves con su médico.”",
+      "“Con sacarle el pan y los fideos comunes ya está, lo demás puede comer de todo.”",
+      "“Llevate lo del granel que no tenga trigo, como arroz, legumbres y semillas.”",
+      "“Si alguna vez come un poquito de gluten no pasa nada, no te preocupes tanto.”"
+    ],
+    "correcta": 0,
+    "explicacion": "Con lo básico ya la ayudás: logo en el envase cerrado y nada del granel. La dieta la arma el médico o el nutricionista, no el mostrador.",
+    "gondola": "22-sin-tacc"
+  },
+  {
+    "id": "t3-01",
+    "tema": "Alergias e intolerancias",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "Si un cliente te dice que es alérgico a algo, ¿qué es lo correcto?",
+    "opciones": [
+      "Contestarle de memoria lo que sepas de cada producto.",
+      "Ofrecerle lo del granel, que no tiene agregados.",
+      "Decirle que pruebe un poquito para ver cómo le cae.",
+      "Leer la etiqueta con él y, ante la duda, no recomendárselo."
+    ],
+    "correcta": 3,
+    "explicacion": "Una alergia puede ser grave y la memoria falla. La etiqueta, con su lista de ingredientes y su recuadro de alérgenos, es lo que vale."
+  },
+  {
+    "id": "t3-02",
+    "tema": "Alergias e intolerancias",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué es el maní?",
+    "opciones": [
+      "Una legumbre, aunque se venda con los frutos secos.",
+      "Un fruto seco, igual que la almendra o la nuez.",
+      "Una semilla, de la misma familia que el girasol.",
+      "Un cereal tostado, parecido al maíz."
+    ],
+    "correcta": 0,
+    "explicacion": "Por eso alguien puede ser alérgico al maní y no a los frutos secos, o al revés. Igual, los dos son de los alérgenos más graves.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t3-03",
+    "tema": "Alergias e intolerancias",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Qué quiere decir la leyenda “puede contener” en un envase?",
+    "opciones": [
+      "Que el producto lleva ese ingrediente en gran cantidad.",
+      "Que ese ingrediente es opcional y cambia según el lote.",
+      "Que en la fábrica se usa ese alérgeno y puede haber restos.",
+      "Que el producto es apto para alérgicos si se come poco."
+    ],
+    "correcta": 2,
+    "explicacion": "Esos restos se llaman trazas. Para una persona alérgica, un “puede contener” de su alérgeno alcanza para no recomendárselo."
+  },
+  {
+    "id": "t3-04",
+    "tema": "Alergias e intolerancias",
+    "nivel": 2,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Cuál es la diferencia entre alergia a la leche e intolerancia a la lactosa?",
+    "opciones": [
+      "Son lo mismo: solo cambia el nombre que usa cada médico.",
+      "La alergia reacciona a las proteínas de la leche; la intolerancia, a la lactosa.",
+      "La intolerancia es más grave y la alergia es solo una molestia.",
+      "La alergia es solo a la leche de vaca; la intolerancia, a cualquier leche."
+    ],
+    "correcta": 1,
+    "explicacion": "Por eso la leche deslactosada puede servirle a un intolerante, pero nunca a un alérgico: sigue teniendo las proteínas de la leche.",
+    "gondola": "19-yogures-y-heladera"
+  },
+  {
+    "id": "t3-05",
+    "tema": "Alergias e intolerancias",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estos productos es un lácteo y no sirve para un alérgico a la leche?",
+    "opciones": [
+      "El tofu",
+      "El kéfir de agua",
+      "El yogur de coco",
+      "El ghee"
+    ],
+    "correcta": 3,
+    "explicacion": "El ghee es manteca clarificada: tiene muy poca lactosa, pero sigue siendo un producto de leche. Lo mismo pasa con la manteca, los quesos y la leche deslactosada.",
+    "gondola": "15-aceites-y-untables"
+  },
+  {
+    "id": "t3-06",
+    "tema": "Alergias e intolerancias",
+    "nivel": 2,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Si un producto dice vegano, es seguro para una persona alérgica a la leche.",
+    "correcta": false,
+    "explicacion": "Un producto vegano puede decir “puede contener leche” porque se hace en la misma fábrica. Para un alérgico vale el recuadro de alérgenos, no la palabra vegano.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t3-07",
+    "tema": "Alergias e intolerancias",
+    "nivel": 2,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Hay personas alérgicas al sésamo, y en los mixes de semillas puede estar escondido.",
+    "correcta": true,
+    "explicacion": "El sésamo también aparece en panes, en el tahini y en el gomasio. Ante una alergia se lee la lista completa, no solo el nombre del producto.",
+    "gondola": "05-semillas"
+  },
+  {
+    "id": "t3-08",
+    "tema": "Alergias e intolerancias",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "A una persona alérgica no se le puede asegurar nada del granel, porque se comparten palas y balanzas.",
+    "correcta": true,
+    "explicacion": "Aunque las almendras estén en su propio frasco, la pala o la balanza pudo tocar nueces o maní. Para un alérgico, mejor algo envasado con rótulo.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t3-09",
+    "tema": "Alergias e intolerancias",
+    "nivel": 1,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una mamá te dice: “Mi hijo es alérgico al maní, ¿puede comer esta pasta de almendras?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, quedate tranquila: es de almendras, así que no tiene nada de maní.”",
+      "“Dale un poquito primero en casa y fijate cómo le cae antes de seguir.”",
+      "“No te lo puedo asegurar. Leamos juntas la lista completa y consultalo con su médico.”",
+      "“Si es de una marca conocida y está bien cerrada, no vas a tener problema.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Una pasta de almendras puede llevar maní o decir “puede contener”. Con una alergia no se responde de memoria: se lee la etiqueta y decide el médico.",
+    "gondola": "15-aceites-y-untables"
+  },
+  {
+    "id": "t3-10",
+    "tema": "Alergias e intolerancias",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Soy alérgico a los frutos secos, ¿qué leche vegetal puedo tomar?” ¿Qué hacés?",
+    "opciones": [
+      "Le mostrás las de avena, arroz, soja o coco y leen juntos los ingredientes y el “puede contener”.",
+      "Le das la de almendras, que es la más suave y la que menos alergia da.",
+      "Le das la de castañas de cajú, porque el cajú no es un fruto seco.",
+      "Le decís que las leches vegetales no son para alérgicos y que tome la común."
+    ],
+    "correcta": 0,
+    "explicacion": "Esas cuatro no se hacen con frutos secos, pero igual hay que leer la etiqueta por si dicen “puede contener”. Ante la duda, que lo consulte con su médico.",
+    "gondola": "18-leches-vegetales"
+  },
+  {
+    "id": "t3-11",
+    "tema": "Alergias e intolerancias",
+    "nivel": 1,
+    "tipo": "unir",
+    "pregunta": "Uní cada producto con el alérgeno que lleva.",
+    "pares": [
+      {
+        "a": "Tahini",
+        "b": "Sésamo"
+      },
+      {
+        "a": "Tofu",
+        "b": "Soja"
+      },
+      {
+        "a": "Ghee",
+        "b": "Leche"
+      },
+      {
+        "a": "Queso vegano de castañas",
+        "b": "Frutos secos"
+      }
+    ],
+    "explicacion": "Muchos alérgenos vienen adentro de otro producto y no se ven en el nombre. Por eso, ante una alergia, se lee la lista completa."
+  },
+  {
+    "id": "t3-12",
+    "tema": "Alergias e intolerancias",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Soy intolerante a la lactosa, ¿qué proteína en polvo me llevo?” ¿Qué le respondés?",
+    "opciones": [
+      "“Cualquier whey te va a servir, porque la proteína en polvo no tiene nada de lactosa.”",
+      "“La aislada suele tener poca lactosa, pero miremos la etiqueta. Si no querés arriesgar, hay vegetales.”",
+      "“Ninguna proteína en polvo te sirve, porque todas se hacen con leche, hasta las vegetales.”",
+      "“La concentrada, que es la más natural y la que menos lactosa tiene de todas las que hay.”"
+    ],
+    "correcta": 1,
+    "explicacion": "El whey sale de la leche: la aislada está más filtrada y tiene menos lactosa que la concentrada. Las de arveja o de arroz no tienen lactosa.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t3-13",
+    "tema": "Alergias e intolerancias",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy sensible a los sulfitos, ¿estos orejones del granel tienen?” ¿Qué le respondés?",
+    "opciones": [
+      "“No, los orejones son pura fruta seca, no llevan nada agregado.”",
+      "“Solo los oscuros tienen sulfitos, estos claritos no tienen.”",
+      "“Si los lavás bien antes de comerlos, se les va el sulfito.”",
+      "“Los muy claritos suelen tener. Del granel, sin rótulo, no te lo puedo asegurar.”"
+    ],
+    "correcta": 3,
+    "explicacion": "Los sulfitos son un conservante que evita que la fruta se oscurezca, por eso las desecadas muy claras suelen tenerlos. Sin rótulo de origen, no se puede asegurar.",
+    "gondola": "06-frutas-desecadas"
+  },
+  {
+    "id": "t3-14",
+    "tema": "Alergias e intolerancias",
+    "nivel": 3,
+    "tipo": "vf",
+    "pregunta": "Un queso vegano puede llevar castañas de cajú, así que no siempre sirve para alérgicos a los frutos secos.",
+    "correcta": true,
+    "explicacion": "Muchos quesos y untables veganos se hacen con castañas, almendras, coco o soja. Vegano no quiere decir sin alérgenos: se lee la lista.",
+    "gondola": "19-yogures-y-heladera"
+  },
+  {
+    "id": "t3-15",
+    "tema": "Alergias e intolerancias",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una mamá te dice: “Mi hija es alérgica a la leche, ¿le doy la leche deslactosada?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, la deslactosada no tiene lactosa, así que le va a caer bien aunque sea alérgica.”",
+      "“Sí, pero dale de a poco al principio y fijate bien cómo reacciona durante el día.”",
+      "“No, mejor dale manteca o ghee, que casi no tienen lactosa y le van a caer mejor.”",
+      "“No, sigue teniendo las proteínas de la leche. Consultalo con su pediatra y te muestro opciones vegetales.”"
+    ],
+    "correcta": 3,
+    "explicacion": "Sin lactosa no es sin leche. Para una alergia a la leche no sirve ningún lácteo, y lo que puede tomar lo decide el pediatra.",
+    "gondola": "19-yogures-y-heladera"
+  },
+  {
+    "id": "t4-01",
+    "tema": "Vegano y vegetariano",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Cuál es la diferencia entre una persona vegana y una vegetariana?",
+    "opciones": [
+      "El vegano no come carne roja ni pollo; el vegetariano no consume nada de origen animal, ni miel.",
+      "El vegano no consume nada de origen animal; el vegetariano no come carne ni pescado, pero en general sí huevo y lácteos.",
+      "Los dos no consumen nada de origen animal; el vegano además evita el gluten y el azúcar.",
+      "El vegano come pescado pero no carne; el vegetariano no come carne ni pescado, ni huevo."
+    ],
+    "correcta": 1,
+    "explicacion": "Para el vegano tampoco va la miel ni nada que venga de un animal. No te toca opinar sobre ninguna dieta: te toca saber qué es cada producto.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t4-02",
+    "tema": "Vegano y vegetariano",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estos ingredientes es de origen animal?",
+    "opciones": [
+      "El agar agar",
+      "El psyllium",
+      "La caseína",
+      "La levadura nutricional"
+    ],
+    "correcta": 2,
+    "explicacion": "La caseína es una proteína de la leche. Junto con la gelatina, el suero de leche, el carmín, el colágeno y la miel, son ingredientes animales que aparecen escondidos en la lista.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t4-03",
+    "tema": "Vegano y vegetariano",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Soy vegano y entreno, ¿qué proteína en polvo me llevo?” ¿Qué le mostrás?",
+    "opciones": [
+      "La proteína vegetal, por ejemplo de arveja o de arroz.",
+      "La proteína whey, que es la más común del gimnasio.",
+      "El colágeno en polvo, que también es una proteína.",
+      "La jalea real, que es un producto natural."
+    ],
+    "correcta": 0,
+    "explicacion": "El whey sale de la leche, el colágeno es de origen animal y la jalea real viene de la colmena. Ninguno de esos es vegano.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t4-04",
+    "tema": "Vegano y vegetariano",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué es el seitán?",
+    "opciones": [
+      "Leche de soja cuajada y prensada.",
+      "Soja entera fermentada en bloque.",
+      "Soja seca que se hidrata en caldo.",
+      "Gluten de trigo cocido."
+    ],
+    "correcta": 3,
+    "explicacion": "Es una carne vegetal hecha con gluten de trigo puro, así que nunca es para celíacos. La soja cuajada es el tofu, la fermentada es el tempeh y la seca, la soja texturizada.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t4-05",
+    "tema": "Vegano y vegetariano",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "Un cliente vegano quiere llevar pan. ¿Por qué conviene leer los ingredientes aunque parezca un pan simple?",
+    "opciones": [
+      "Porque todos los panes llevan huevo para que levanten.",
+      "Porque la levadura de panadería es de origen animal.",
+      "Porque algunos llevan leche, manteca, huevo o grasa vacuna.",
+      "Porque la harina de trigo se procesa con leche en polvo."
+    ],
+    "correcta": 2,
+    "explicacion": "Muchos panes son solo harina, agua, sal y levadura, pero no todos. Lo mismo pasa con algunas galletitas de agua, que llevan grasa vacuna.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "t4-06",
+    "tema": "Vegano y vegetariano",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Un producto vegano no tiene alérgenos.",
+    "correcta": false,
+    "explicacion": "Vegano quiere decir que no tiene nada de origen animal, no que sea apto para alérgicos. La soja, el maní y los frutos secos están en casi toda la góndola de veganos.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t4-07",
+    "tema": "Vegano y vegetariano",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "El tofu abierto se guarda en la heladera, tapado con agua que se cambia todos los días.",
+    "correcta": true,
+    "explicacion": "Así se mantiene fresco, y se come en pocos días. Tofu, tempeh, seitán y quesos veganos son productos de heladera.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t4-08",
+    "tema": "Vegano y vegetariano",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Si una hamburguesa congelada dice vegana en el frente, no hace falta leer los ingredientes.",
+    "correcta": false,
+    "explicacion": "Muchas hamburguesas de verdura llevan huevo o queso. Aunque el envase diga vegana, se mira igual la lista con el cliente.",
+    "gondola": "21-congelados"
+  },
+  {
+    "id": "t4-09",
+    "tema": "Vegano y vegetariano",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te pregunta: “Soy vegano, ¿qué vitamina B12 me conviene tomar?” ¿Qué le respondés?",
+    "opciones": [
+      "“Llevate la de gotas, que es la que mejor se absorbe y la que más se vende.”",
+      "“Con un comprimido por día ya estás cubierto, no hace falta ir al médico.”",
+      "“Eso te lo tiene que indicar tu médico o nutricionista. Si te indican algo, te ayudo a buscarlo.”",
+      "“Si comés variado y muchas legumbres, no te hace falta tomar ninguna.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Qué suplemento tomar y cuánto lo define un profesional, nunca el mostrador. Vos podés mostrarle qué hay y cómo viene.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t4-10",
+    "tema": "Vegano y vegetariano",
+    "nivel": 1,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te pregunta: “¿Estas galletitas son veganas?” ¿Qué hacés?",
+    "opciones": [
+      "Leen juntas los ingredientes buscando leche, manteca, huevo, miel o grasa vacuna.",
+      "Le decís que sí, porque las galletitas se hacen con harina y agua.",
+      "Le decís que, si no tienen carne ni pescado, son veganas.",
+      "Le decís que solo son veganas las que están en la góndola de veganos."
+    ],
+    "correcta": 0,
+    "explicacion": "La respuesta está en la lista de ingredientes. Si aparece algo que no conocés, decí que no lo podés asegurar.",
+    "gondola": "12-galletitas-barritas-y-snacks"
+  },
+  {
+    "id": "t4-11",
+    "tema": "Vegano y vegetariano",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada producto animal con lo que se usa en su lugar en la cocina vegana.",
+    "pares": [
+      {
+        "a": "Gelatina",
+        "b": "Agar agar"
+      },
+      {
+        "a": "Huevo en un budín",
+        "b": "Chía o lino molido con agua"
+      },
+      {
+        "a": "Miel",
+        "b": "Jarabe de agave o de arce"
+      },
+      {
+        "a": "Queso rallado",
+        "b": "Levadura nutricional"
+      }
+    ],
+    "explicacion": "Son los reemplazos más pedidos. El agar agar sale de algas y cuaja al enfriarse, y la chía o el lino con agua forman un gel que liga la masa.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t4-12",
+    "tema": "Vegano y vegetariano",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te pregunta: “¿El tofu tiene la misma proteína que la carne?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, el tofu reemplaza a la carne en todo, es exactamente lo mismo.”",
+      "“No, lo vegetal casi no tiene proteína, así que no te va a alcanzar.”",
+      "“Tiene más proteína que cualquier carne, así que podés comerlo tranquilo.”",
+      "“Tiene proteína, pero no es igual a la carne. Miremos juntos la tabla del envase.”"
+    ],
+    "correcta": 3,
+    "explicacion": "Lo justo es mirar la tabla nutricional con el cliente. Si quiere armar un plan de comidas, eso lo ve un nutricionista.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t4-13",
+    "tema": "Vegano y vegetariano",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Yo soy vegetariano, pero mi hija es vegana. ¿Este yogur griego le sirve a ella?” ¿Qué le respondés?",
+    "opciones": [
+      "“A ella no, porque es de leche. Te muestro los yogures vegetales de coco, almendras o soja.”",
+      "“Sí, el yogur no tiene carne, así que les sirve a los dos por igual.”",
+      "“Sí, el griego está colado y por eso ya no tiene nada de leche.”",
+      "“Solo si es descremado, porque así tiene menos grasa de origen animal.”"
+    ],
+    "correcta": 0,
+    "explicacion": "El vegetariano en general come lácteos y huevo; el vegano, nada de origen animal. Los yogures vegetales sirven, pero hay que mirar el azúcar y los frutos secos.",
+    "gondola": "19-yogures-y-heladera"
+  },
+  {
+    "id": "t4-14",
+    "tema": "Vegano y vegetariano",
+    "nivel": 3,
+    "tipo": "vf",
+    "pregunta": "La cera de abejas, la miel y la lanolina no son veganas, aunque estén en cosméticos naturales.",
+    "correcta": true,
+    "explicacion": "Lo vegano no es solo para la comida: en cremas, bálsamos y jabones también hay ingredientes de origen animal. Se lee la lista igual que en un alimento.",
+    "gondola": "25-cosmetica-natural"
+  },
+  {
+    "id": "t4-15",
+    "tema": "Vegano y vegetariano",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Soy vegano y alérgico a la soja, ¿qué proteína vegetal me llevo?” ¿Qué le ofrecés?",
+    "opciones": [
+      "Tofu firme, que es la proteína vegetal más completa y la que más se vende en la heladera.",
+      "Legumbres como lentejas o garbanzos, leyendo juntos las etiquetas, porque la soja está en casi todo.",
+      "Tempeh, porque al estar fermentado ya no tiene soja como el tofu y no da alergia.",
+      "Soja texturizada, que es un producto distinto del poroto de soja y no da la misma alergia."
+    ],
+    "correcta": 1,
+    "explicacion": "Tofu, tempeh y soja texturizada son todos de soja. La soja es alérgeno y aparece en muchos productos veganos, así que se lee la lista completa.",
+    "gondola": "20-veganos"
+  },
+  {
+    "id": "t5-01",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre la yerba con palo y la despalada?",
+    "opciones": [
+      "La con palo tiene más cafeína; la despalada casi no tiene.",
+      "La con palo es más suave y pareja; la despalada, más intensa.",
+      "La con palo es para tereré; la despalada, para mate caliente.",
+      "La con palo es más fuerte; la despalada, más suave y liviana."
+    ],
+    "correcta": 1,
+    "explicacion": "El palo suaviza el sabor. La despalada es casi toda hoja, por eso sale más amarga y con más cuerpo desde el primer mate.",
+    "gondola": "01-yerbas"
+  },
+  {
+    "id": "t5-02",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estos tiene cafeína?",
+    "opciones": [
+      "El rooibos",
+      "La malta",
+      "La manzanilla",
+      "El mate cocido"
+    ],
+    "correcta": 3,
+    "explicacion": "Toda yerba tiene cafeína, también el mate cocido y el tereré. El rooibos, la malta y los yuyos como la manzanilla no tienen.",
+    "gondola": "01-yerbas"
+  },
+  {
+    "id": "t5-03",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre el té rojo y el rooibos?",
+    "opciones": [
+      "El té rojo tiene cafeína y el rooibos no.",
+      "Son lo mismo, con dos nombres distintos.",
+      "El rooibos tiene cafeína y el té rojo no.",
+      "El té rojo es un yuyo y el rooibos, un té."
+    ],
+    "correcta": 0,
+    "explicacion": "Es una confusión muy común. El té rojo sale de la misma planta que todos los tés y tiene cafeína; el rooibos es otra planta y no tiene.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t5-04",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se prepara el té verde?",
+    "opciones": [
+      "Con agua hirviendo, para que suelte todo el sabor.",
+      "Hervido unos minutos en la olla, como el jengibre.",
+      "Con agua caliente que no hierva, unos pocos minutos.",
+      "Con agua fría, dejándolo reposar toda la noche."
+    ],
+    "correcta": 2,
+    "explicacion": "Con agua hirviendo, el verde y el blanco se amargan. El negro, en cambio, va con agua recién hervida.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t5-05",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué molienda de café va para una cafetera italiana o un espresso?",
+    "opciones": [
+      "Gruesa",
+      "Fina",
+      "Media",
+      "En grano entero"
+    ],
+    "correcta": 1,
+    "explicacion": "Cada cafetera pide su molienda: gruesa para prensa francesa, media para filtro y fina para italiana o espresso.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t5-06",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 3,
+    "tipo": "vf",
+    "pregunta": "La mateína y la cafeína son sustancias distintas.",
+    "correcta": false,
+    "explicacion": "Es la misma sustancia con otro nombre, igual que la teína. Lo que cambia es cuánta hay en cada taza.",
+    "gondola": "01-yerbas"
+  },
+  {
+    "id": "t5-07",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "El café descafeinado no tiene nada de cafeína.",
+    "correcta": false,
+    "explicacion": "Tiene muy poca, pero no cero. Para quien no quiere nada de cafeína, están la malta, la achicoria o la algarroba.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t5-08",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "La yerba se vende siempre en su paquete cerrado, nunca suelta.",
+    "correcta": true,
+    "explicacion": "Si te piden un poco suelta, ofrecé un paquete del tamaño que necesitan. Con el té pasa lo mismo.",
+    "gondola": "01-yerbas"
+  },
+  {
+    "id": "t5-09",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Esta yerba me sale muy amarga, ¿qué hago?” ¿Qué le respondés?",
+    "opciones": [
+      "“Ponele más yerba y menos agua en cada mate, así sale más suave y dura más.”",
+      "“Seguro te tocó un paquete malo. Llevate otro de la misma y probá de nuevo en casa.”",
+      "“¿Con qué agua la tomás? Si está hervida la quema: tiene que estar caliente, sin hervir.”",
+      "“Probá con una despalada, que al no tener palo sale mucho más suave y menos amarga.”"
+    ],
+    "correcta": 2,
+    "explicacion": "El agua hervida quema la yerba y la amarga. Si igual la siente fuerte, ofrecele una con palo o una suave.",
+    "gondola": "01-yerbas"
+  },
+  {
+    "id": "t5-10",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te pide: “Quiero algo sin cafeína para tomar a la noche.” ¿Qué le ofrecés?",
+    "opciones": [
+      "Un té blanco, que es el más suave de todos los tés.",
+      "Un rooibos o un yuyo, como manzanilla o tilo.",
+      "Un té rojo, que es suave y de sabor terroso.",
+      "Un mate cocido, que tiene menos que el cebado."
+    ],
+    "correcta": 1,
+    "explicacion": "Todos los tés verdaderos tienen cafeína, aunque sean suaves, y el mate cocido también. El rooibos y los yuyos de la góndola de hierbas no tienen.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t5-11",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada bebida con lo que hay que saber de su cafeína.",
+    "pares": [
+      {
+        "a": "Rooibos",
+        "b": "Parece un té, pero no tiene cafeína"
+      },
+      {
+        "a": "Café descafeinado",
+        "b": "Tiene muy poca, pero no cero"
+      },
+      {
+        "a": "Mate cocido",
+        "b": "Tiene cafeína, como toda yerba"
+      },
+      {
+        "a": "Matcha",
+        "b": "Té verde en polvo, con bastante cafeína"
+      }
+    ],
+    "explicacion": "Saber qué tiene cafeína es de lo más importante en esta góndola. Ante la duda, mirá el envase.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t5-12",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué suma más cafeína: una taza de mate cocido o un termo de mate cebado?",
+    "opciones": [
+      "La taza de mate cocido, porque se hace con agua hirviendo.",
+      "Los dos igual, porque es la misma yerba.",
+      "El termo de mate cebado, porque lleva mucha más yerba.",
+      "Ninguno de los dos, porque la yerba tiene mateína y no cafeína."
+    ],
+    "correcta": 2,
+    "explicacion": "Cuánta cafeína hay depende sobre todo de cuánta yerba se usa. Una taza de mate cocido tiene bastante menos que un termo entero de mate.",
+    "gondola": "01-yerbas"
+  },
+  {
+    "id": "t5-13",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Soy celíaco y quiero dejar el café, ¿la malta me sirve?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, la malta no tiene cafeína y es apta para todo el mundo, también para celíacos.”",
+      "“La malta es cebada y tiene TACC. Probá con algarroba o achicoria con el logo sin TACC.”",
+      "“Sí, pero llevate la del granel, que es más pura y no tiene agregados de fábrica.”",
+      "“Mejor llevate un descafeinado, que no tiene nada de cafeína y es apto para celíacos.”"
+    ],
+    "correcta": 1,
+    "explicacion": "La malta no tiene cafeína, pero se hace con cebada. Para un celíaco, las alternativas al café también tienen que tener el logo.",
+    "gondola": "03-tes-y-cafes"
+  },
+  {
+    "id": "t5-14",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Una mamá te pide: “Quiero chocolate para mi hijo, pero sin cafeína.” ¿Qué le ofrecés?",
+    "opciones": [
+      "Chocolate con leche, que al tener leche no tiene cafeína.",
+      "Chocolate semiamargo, que tiene menos cacao que el amargo.",
+      "Cacao alcalinizado, que pierde la cafeína en el proceso.",
+      "Algarroba, que tiene un sabor parecido y no tiene cafeína."
+    ],
+    "correcta": 3,
+    "explicacion": "Todo lo que tiene cacao tiene algo de cafeína y teobromina. La algarroba no tiene ninguna de las dos y se usa para reemplazar al cacao.",
+    "gondola": "13-chocolates-y-cacao"
+  },
+  {
+    "id": "t5-15",
+    "tema": "Yerbas, tés, cafés y cafeína",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Estoy embarazada, ¿puedo tomar kombucha?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, es un fermentado natural y te va a hacer bien a la panza.”",
+      "“Sí, no tiene alcohol ni cafeína, es como tomar un té frío.”",
+      "“Tiene un poquito de alcohol y algo de cafeína. Consultalo antes con tu médico.”",
+      "“Sí, pero tomá solo un vasito por día y no más que eso.”"
+    ],
+    "correcta": 2,
+    "explicacion": "La kombucha puede tener un poquito de alcohol por la fermentación y tiene algo de cafeína. Con embarazo o chicos, decide el médico.",
+    "gondola": "24-bebidas"
+  },
+  {
+    "id": "t6-01",
+    "tema": "Yuyos y hierbas",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se prepara un yuyo de hojas o flores, como la manzanilla o el tilo?",
+    "opciones": [
+      "En infusión: con agua caliente sin hervir y tapado unos minutos.",
+      "Hervido unos minutos en la olla, para que suelte el sabor.",
+      "Con agua fría, dejándolo reposar toda la noche en la heladera.",
+      "Molido y mezclado directo en la comida o en el yogur."
+    ],
+    "correcta": 0,
+    "explicacion": "Hojas y flores son delicadas y van en infusión. Las raíces, cortezas y trozos duros, como el jengibre, sí se hierven unos minutos.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-02",
+    "tema": "Yuyos y hierbas",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué tienen en común todos los yuyos de la góndola de hierbas?",
+    "opciones": [
+      "Todos se preparan hirviéndolos unos minutos.",
+      "Todos tienen un sabor suave y floral.",
+      "Todos se pueden sumar al mate.",
+      "Ninguno tiene cafeína."
+    ],
+    "correcta": 3,
+    "explicacion": "Por eso son la opción para la noche. La cafeína está en la yerba, el té y el café, que tienen sus propias góndolas.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-03",
+    "tema": "Yuyos y hierbas",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Cómo tenés que hablar de los yuyos con los clientes?",
+    "opciones": [
+      "Por la enfermedad que ayuda a aliviar cada uno.",
+      "Por su sabor, su aroma y cómo los toma la gente por costumbre.",
+      "Por la cantidad de tazas que conviene tomar por día.",
+      "Por los resultados que te contaron otros clientes."
+    ],
+    "correcta": 1,
+    "explicacion": "Podés decir “por tradición se la considera digestiva”, pero nunca que cura o que sirve para una enfermedad. Y nunca indiques cantidades.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-04",
+    "tema": "Yuyos y hierbas",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te pide: “Quiero un yuyo con gusto a limón para el mate.” ¿Cuál le mostrás?",
+    "opciones": [
+      "Carqueja",
+      "Boldo",
+      "Cedrón",
+      "Peperina"
+    ],
+    "correcta": 2,
+    "explicacion": "El cedrón tiene un perfume a limón intenso, y la melisa también es alimonada. La carqueja y el boldo son amargos, y la peperina es mentolada.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-05",
+    "tema": "Yuyos y hierbas",
+    "nivel": 3,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "El sen es un yuyo para bajar de peso.",
+    "correcta": false,
+    "explicacion": "El sen es un laxante fuerte y usarlo seguido puede hacer daño. Si alguien lo pide para adelgazar, que lo consulte con su médico o nutricionista.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-06",
+    "tema": "Yuyos y hierbas",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "Los yuyos se guardan en frasco o bolsa bien cerrada, en un lugar fresco, seco y sin luz.",
+    "correcta": true,
+    "explicacion": "Con el tiempo pierden aroma, y con humedad les puede salir moho. Si ves humedad o moho, avisale a la encargada.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-07",
+    "tema": "Yuyos y hierbas",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Si alguien toma medicación y quiere tomar un yuyo, lo tiene que consultar con su médico.",
+    "correcta": true,
+    "explicacion": "Natural no quiere decir inofensivo. Vos contás qué es el producto y cómo se prepara; si lo puede tomar, lo decide el médico.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-08",
+    "tema": "Yuyos y hierbas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Estoy embarazada, ¿qué yuyo puedo tomar?” ¿Qué le respondés?",
+    "opciones": [
+      "“Llevate la manzanilla, que es suavecita y en el embarazo no hace nada, la toma todo el mundo.”",
+      "“Cualquiera de los suaves te sirve, pero no tomes más de dos tazas por día en el embarazo.”",
+      "“El tilo, que lo toman muchas embarazadas para dormir mejor y estar más tranquilas a la noche.”",
+      "“Te muestro lo que hay y leemos la etiqueta, pero qué podés tomar lo hablás con tu médico.”"
+    ],
+    "correcta": 3,
+    "explicacion": "En el embarazo y la lactancia no se recomienda ninguna hierba desde el mostrador. Natural no quiere decir inofensivo.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-09",
+    "tema": "Yuyos y hierbas",
+    "nivel": 1,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te pregunta: “¿Qué me das para dormir mejor?” ¿Qué le respondés?",
+    "opciones": [
+      "“El tilo te hace dormir seguro, llevate ese y vas a ver que esta noche dormís de un tirón.”",
+      "“Mucha gente toma tilo, manzanilla o melisa a la noche. Si te pasa seguido, consultalo con tu médico.”",
+      "“Valeriana: tomá tres tazas antes de acostarte y listo, es lo más fuerte que tenemos.”",
+      "“Llevate el café descafeinado, que no tiene nada de cafeína y no te va a desvelar.”"
+    ],
+    "correcta": 1,
+    "explicacion": "Se cuenta la costumbre, no un efecto, y nunca se indica cuánto tomar. Si le pasa seguido, es tema del médico.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-10",
+    "tema": "Yuyos y hierbas",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada yuyo con su sabor.",
+    "pares": [
+      {
+        "a": "Carqueja",
+        "b": "Muy amargo"
+      },
+      {
+        "a": "Menta",
+        "b": "Fresco y mentolado"
+      },
+      {
+        "a": "Hibisco",
+        "b": "Ácido, de color rojo intenso"
+      },
+      {
+        "a": "Anís",
+        "b": "Dulce, con gusto a regaliz"
+      }
+    ],
+    "explicacion": "Los yuyos se recomiendan por sabor y aroma. Preguntale al cliente si lo quiere fresco, alimonado, dulce o amargo, y vas a saber qué ofrecerle.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-11",
+    "tema": "Yuyos y hierbas",
+    "nivel": 1,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Nunca tomé yuyos y quiero empezar con algo suave.” ¿Qué le mostrás?",
+    "opciones": [
+      "Carqueja o boldo, que son de los más tradicionales.",
+      "Valeriana, que es de las más conocidas de la góndola.",
+      "Manzanilla o tilo, que tienen un sabor suave.",
+      "Poleo, que es fresco y de sabor bien fuerte."
+    ],
+    "correcta": 2,
+    "explicacion": "Para empezar van los suaves, como manzanilla, tilo o malva. Si le gusta lo fresco, menta; si le gusta lo frutal, rosa mosqueta o hibisco.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-12",
+    "tema": "Yuyos y hierbas",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cuáles de estos yuyos se suelen sumar al mate?",
+    "opciones": [
+      "Peperina, cedrón y menta",
+      "Tilo, valeriana y hibisco",
+      "Rosa mosqueta, tilo y manzanilla",
+      "Manzanilla, hibisco y rosa mosqueta"
+    ],
+    "correcta": 0,
+    "explicacion": "Para el mate se usan cedrón, menta, burrito, peperina, poleo o carqueja. Preguntale al cliente si lo quiere fresco, alimonado o amargo.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-13",
+    "tema": "Yuyos y hierbas",
+    "nivel": 3,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "La valeriana se puede combinar con medicación para dormir.",
+    "correcta": false,
+    "explicacion": "La valeriana no se mezcla con alcohol ni con medicación para dormir o calmantes. Embarazadas, mujeres que dan el pecho y chicos, tampoco.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-14",
+    "tema": "Yuyos y hierbas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una abuela te pregunta: “¿Le puedo dar té de anís a mi nieto bebé para los gases?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, el anís es suavecito y se usa mucho para los bebés.”",
+      "“Eso lo tiene que decidir el pediatra. No recomendamos hierbas para bebés ni chicos.”",
+      "“Sí, pero dale muy poquito, bien tibio y en mamadera.”",
+      "“Mejor dale manzanilla, que es más suave que el anís para un bebé.”"
+    ],
+    "correcta": 1,
+    "explicacion": "Para bebés y chicos, cualquier hierba la decide el pediatra. Y el anís estrellado nunca se recomienda.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t6-15",
+    "tema": "Yuyos y hierbas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Tengo problemas de vesícula, ¿me llevo boldo para después de comer?” ¿Qué le respondés?",
+    "opciones": [
+      "“Con un problema de vesícula, el boldo lo tenés que hablar antes con tu médico.”",
+      "“Sí, el boldo es justo para eso, tomalo después de cada comida fuerte.”",
+      "“Sí, pero tomalo solo los fines de semana, que es cuando se come más.”",
+      "“Mejor llevate carqueja, que hace lo mismo y es más suave que el boldo.”"
+    ],
+    "correcta": 0,
+    "explicacion": "El boldo tiene precauciones fuertes: no va con problemas de hígado o vesícula sin hablarlo con el médico, ni en embarazo, lactancia o chicos. Natural no quiere decir inofensivo.",
+    "gondola": "02-yuyos-y-hierbas"
+  },
+  {
+    "id": "t7-01",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo te das cuenta de que un fruto seco o una semilla está rancio?",
+    "opciones": [
+      "Tiene olor a pintura o a aceite viejo y gusto amargo.",
+      "Está más oscuro que el resto y un poco más blando.",
+      "Tiene un polvillo blanco y seco por fuera.",
+      "Está más crocante y más liviano de lo normal."
+    ],
+    "correcta": 0,
+    "explicacion": "Tienen mucha grasa, y con el aire, la luz y el calor se ponen rancios. Lo rancio no se vende: se separa y se avisa a la encargada.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t7-02",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo conviene guardar los frutos secos en casa si van a durar más de unas semanas?",
+    "opciones": [
+      "En una bolsa abierta, para que no junten humedad.",
+      "En la alacena, cerca de la cocina, para que estén secos.",
+      "En un frasco cerrado, en la heladera o el freezer.",
+      "Al sol un rato cada tanto, para que sigan crocantes."
+    ],
+    "correcta": 2,
+    "explicacion": "El frío hace que tarden más en ponerse rancios. Si se comen rápido, alcanza con un frasco hermético en un lugar fresco y oscuro.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t7-03",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre la chía y el lino a la hora de usarlos?",
+    "opciones": [
+      "El lino se usa entero y la chía siempre hay que molerla.",
+      "La chía se puede usar entera y el lino conviene molerlo.",
+      "Las dos hay que tostarlas antes de comerlas.",
+      "Las dos se usan solo en panes, nunca crudas."
+    ],
+    "correcta": 1,
+    "explicacion": "La chía forma un gel con agua o leche sin molerla. El lino molido se aprovecha mejor, pero se pone rancio rápido: va a la heladera.",
+    "gondola": "05-semillas"
+  },
+  {
+    "id": "t7-04",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te pide: “Quiero hacer leche de almendras en casa, ¿cuáles me llevo?” ¿Qué le ofrecés?",
+    "opciones": [
+      "Tostadas, para que la leche tenga más sabor.",
+      "Saladas, porque la sal ayuda a conservarla.",
+      "Garrapiñadas, para que salga dulce sin agregar azúcar.",
+      "Naturales, sin tostar ni salar."
+    ],
+    "correcta": 3,
+    "explicacion": "Natural quiere decir crudo y sin agregados, que es lo que se usa para la leche. Si la quieren más blanca, la almendra repelada.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t7-05",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué tienen en común casi todos los arándanos desecados?",
+    "opciones": [
+      "Llevan azúcar agregada, porque la fruta es muy ácida.",
+      "Son pura fruta, sin ningún agregado.",
+      "Están fritos, igual que las banana chips.",
+      "Se venden siempre en la heladera."
+    ],
+    "correcta": 0,
+    "explicacion": "Lo mismo pasa con las cerezas, el ananá o la papaya desecados. Si el cliente busca fruta sin agregados, miren juntos la etiqueta.",
+    "gondola": "06-frutas-desecadas"
+  },
+  {
+    "id": "t7-06",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Las frutas desecadas tienen el azúcar propio de la fruta bien concentrado.",
+    "correcta": true,
+    "explicacion": "Al sacarles el agua, el sabor y el dulzor se concentran. Algunas, además, llevan azúcar agregada: lo dice la etiqueta.",
+    "gondola": "06-frutas-desecadas"
+  },
+  {
+    "id": "t7-07",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "La fruta abrillantada es lo mismo que la fruta desecada.",
+    "correcta": false,
+    "explicacion": "La desecada es fruta a la que se le sacó el agua. La abrillantada se cocina en almíbar y lleva mucha azúcar: es la del pan dulce.",
+    "gondola": "06-frutas-desecadas"
+  },
+  {
+    "id": "t7-08",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Los frutos secos enteros y el maní no van para chicos chicos, por riesgo de atragantamiento.",
+    "correcta": true,
+    "explicacion": "Si te piden algo para la merienda de un chico, preguntá la edad. Para los más chicos, mejor galletitas, galletas de arroz o una barrita suave.",
+    "gondola": "12-galletitas-barritas-y-snacks"
+  },
+  {
+    "id": "t7-09",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te pregunta: “¿Estos higos tienen moho? Tienen como un polvillo blanco.” ¿Qué hacés?",
+    "opciones": [
+      "Le decís que es normal en todas las desecadas y que se los lleve tranquila, que no pasa nada.",
+      "Les pasás un trapo seco a los higos para sacarles el polvillo y se los vendés igual.",
+      "Los mirás: un polvillo seco y granulado suele ser azúcar; si es pelusa o hay manchas, no se venden.",
+      "Le decís que el moho blanco no hace mal y que se puede comer si se lavan los higos antes."
+    ],
+    "correcta": 2,
+    "explicacion": "El azúcar de la fruta a veces sale a la superficie como un polvillo. La pelusa o las manchas son moho: eso se separa y se avisa a la encargada.",
+    "gondola": "06-frutas-desecadas"
+  },
+  {
+    "id": "t7-10",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te pregunta: “¿Qué fruto seco uso para hacer queso vegano?” ¿Qué le ofrecés?",
+    "opciones": [
+      "Nueces mariposa, que son las más lindas y parejas.",
+      "Castañas de cajú, que remojadas y procesadas quedan muy cremosas.",
+      "Maní tostado, que es el más económico de la góndola.",
+      "Almendras saladas, que ya vienen condimentadas."
+    ],
+    "correcta": 1,
+    "explicacion": "El cajú es el más usado para quesos y cremas veganas. Se remoja unas horas y se procesa.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t7-11",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 1,
+    "tipo": "unir",
+    "pregunta": "Uní cada presentación de fruto seco con lo que significa.",
+    "pares": [
+      {
+        "a": "Natural",
+        "b": "Crudo y sin nada agregado"
+      },
+      {
+        "a": "Tostado",
+        "b": "Pasado por calor, más crocante"
+      },
+      {
+        "a": "Salado",
+        "b": "Lleva sal"
+      },
+      {
+        "a": "Garrapiñado",
+        "b": "Lleva azúcar caramelizada"
+      }
+    ],
+    "explicacion": "Son las presentaciones que vas a ver en cada frasco. El precio también cambia: entero cuesta más que partido, y pelado más que con cáscara.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t7-12",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Por qué los frutos secos y las semillas se cuidan tanto del calor, la luz y el aire?",
+    "opciones": [
+      "Porque tienen mucha grasa, y la grasa se pone rancia.",
+      "Porque tienen mucha agua, y se pudren rápido.",
+      "Porque tienen mucha azúcar, y se apelmazan.",
+      "Porque pierden el color y se ven feos en el frasco."
+    ],
+    "correcta": 0,
+    "explicacion": "Esa grasa natural es la que, con el aire, la luz y el calor, se pone rancia. Por eso van en frascos cerrados, lejos del sol, y lo nuevo atrás.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t7-13",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Soy celíaco, pero las semillas no tienen gluten, así que me llevo chía suelta, ¿no?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, la chía no tiene gluten por naturaleza, así que la suelta te sirve igual que la envasada.”",
+      "“Sí, si la lavás bien en un colador antes de usarla, no vas a tener ningún problema.”",
+      "“No tiene gluten, pero lo fraccionado acá no te lo recomiendo. Para vos, envasada con logo sin TACC.”",
+      "“No, la chía tiene gluten escondido, así que mejor no la comas ni suelta ni envasada.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Tiene razón en que la chía no tiene gluten, pero en el local se comparten palas y frascos. Para un celíaco, nada del granel, aunque el producto sea apto por naturaleza.",
+    "gondola": "05-semillas"
+  },
+  {
+    "id": "t7-14",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 3,
+    "tipo": "unir",
+    "pregunta": "Uní cada fruta desecada con lo que suele llevar.",
+    "pares": [
+      {
+        "a": "Banana chips",
+        "b": "Suelen estar fritas"
+      },
+      {
+        "a": "Arándanos",
+        "b": "Azúcar agregada, porque son muy ácidos"
+      },
+      {
+        "a": "Fruta abrillantada",
+        "b": "Cocida en almíbar"
+      },
+      {
+        "a": "Orejones muy claritos",
+        "b": "Suelen tener sulfitos"
+      }
+    ],
+    "explicacion": "Una fruta desecada no siempre es pura fruta. Si el cliente busca algo sin agregados o es sensible a los sulfitos, miren juntos la etiqueta.",
+    "gondola": "06-frutas-desecadas"
+  },
+  {
+    "id": "t7-15",
+    "tema": "Frutos secos, semillas y frutas desecadas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una mamá te dice: “Mi hijo es alérgico a las nueces, ¿estas almendras del granel tienen algo?” ¿Qué le respondés?",
+    "opciones": [
+      "“No, quedate tranquila: las almendras están en otro frasco, no tienen nada de nuez.”",
+      "“Las almendras casi no dan alergia, así que no vas a tener problema.”",
+      "“Si las lavás bien antes de dárselas, no vas a tener ningún problema.”",
+      "“No te lo puedo asegurar, en el granel se comparten palas y balanzas. Mejor algo envasado con rótulo.”"
+    ],
+    "correcta": 3,
+    "explicacion": "Con un alérgico no se arriesga nada del granel: alcanza con una pala que tocó nueces. Para él, envasado con rótulo, y lo que puede comer lo ve su médico.",
+    "gondola": "04-frutos-secos"
+  },
+  {
+    "id": "t8-01",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre la harina 000 y la 0000?",
+    "opciones": [
+      "La 000 es integral y la 0000 es blanca.",
+      "La 0000 no tiene gluten y la 000 sí.",
+      "La 0000 es más refinada, para tortas y masas finas; la 000, para pan y pizza.",
+      "La 000 es para tortas y masas finas; la 0000, para pan y pizza."
+    ],
+    "correcta": 2,
+    "explicacion": "Más ceros, más refinada y más fina. Las dos son de trigo y tienen gluten.",
+    "gondola": "07-harinas"
+  },
+  {
+    "id": "t8-02",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué trae la harina leudante?",
+    "opciones": [
+      "Polvo de hornear y sal, para bizcochuelos y budines.",
+      "Levadura fresca, para hacer pan casero.",
+      "Salvado agregado, para que sea integral.",
+      "Fécula de mandioca, para que sea más liviana."
+    ],
+    "correcta": 0,
+    "explicacion": "Por eso sirve para bizcochuelos sin agregar polvo de hornear. Para pan con levadura no va: ahí se usa la 000.",
+    "gondola": "07-harinas"
+  },
+  {
+    "id": "t8-03",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué hay que hacer con la quinoa antes de cocinarla?",
+    "opciones": [
+      "Tostarla en una sartén, porque si no queda cruda.",
+      "Remojarla toda la noche y tirar el agua.",
+      "Molerla, porque entera no se cocina bien.",
+      "Lavarla bien en un colador, porque si no queda amarga."
+    ],
+    "correcta": 3,
+    "explicacion": "La quinoa tiene una capita amarga en la superficie que se va con el enjuague. Si alguien dice que le quedó amarga, seguro le faltó lavarla.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "t8-04",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre la granola y el muesli?",
+    "opciones": [
+      "El muesli está horneado con miel y la granola es cruda.",
+      "La granola está horneada y suele llevar más azúcar; el muesli es crudo.",
+      "Son lo mismo, solo cambia el nombre según la marca.",
+      "La granola es sin TACC y el muesli tiene avena."
+    ],
+    "correcta": 1,
+    "explicacion": "La granola se hornea con azúcar o miel y aceite, por eso queda crocante. Para saber cuál tiene menos azúcar, miren juntos la etiqueta.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "t8-05",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "Encontrás bichitos o telitas en un frasco de harina del granel. ¿Qué hacés?",
+    "opciones": [
+      "La tamizás y la volvés a poner en el frasco.",
+      "La vendés más barata, avisándole al cliente.",
+      "No se vende: la separás y le avisás a la encargada.",
+      "Sacás lo de arriba y seguís vendiendo el resto."
+    ],
+    "correcta": 2,
+    "explicacion": "Harinas, cereales y legumbres son de lo primero donde aparecen bichitos. Si ves bichitos, telitas, grumos o granos agujereados, no se vende.",
+    "gondola": "07-harinas"
+  },
+  {
+    "id": "t8-06",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Las legumbres no se comen crudas ni a medio cocer.",
+    "correcta": true,
+    "explicacion": "Siempre tienen que quedar bien cocidas, sobre todo los porotos y la soja. Las de lata o frasco, como los lupines, ya vienen cocidas.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "t8-07",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 3,
+    "tipo": "vf",
+    "pregunta": "La harina de almendras reemplaza a la harina común en la misma cantidad.",
+    "correcta": false,
+    "explicacion": "Cada harina absorbe distinto el líquido, y sin gluten la masa no se arma igual. Conviene seguir una receta pensada para esa harina.",
+    "gondola": "07-harinas"
+  },
+  {
+    "id": "t8-08",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Para que el pan fresco dure más, conviene congelarlo en rodajas antes que guardarlo en la heladera.",
+    "correcta": true,
+    "explicacion": "La heladera lo pone duro más rápido. En rodajas, se saca del freezer solo lo que se va a comer.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "t8-09",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 1,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Quiero hacer lentejas hoy y no las dejé en remojo.” ¿Qué le ofrecés?",
+    "opciones": [
+      "Lentejas rojas, que no necesitan remojo y se hacen en poco tiempo.",
+      "Garbanzos, que sin remojo se cocinan en media hora.",
+      "Porotos, si los hierve el doble de tiempo sin remojar.",
+      "Arvejas enteras, que son las más rápidas de la góndola."
+    ],
+    "correcta": 0,
+    "explicacion": "Las lentejas rojas vienen peladas y se deshacen rápido, ideales para sopas y cremas. Garbanzos, porotos, soja y habas sí necesitan remojo.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "t8-10",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te dice: “Quiero hacer chipá, ¿qué harina me llevo?” ¿Qué le ofrecés?",
+    "opciones": [
+      "Harina 0000 y un poco de polvo de hornear.",
+      "Harina de mandioca, que es lo mismo que la fécula.",
+      "Harina de maíz, la misma que se usa para la polenta.",
+      "Fécula de mandioca, que no es lo mismo que la harina de mandioca."
+    ],
+    "correcta": 3,
+    "explicacion": "El chipá se hace con fécula o almidón de mandioca, un polvo blanco muy fino, además de queso y huevo. Si es para un celíaco, solo envasada con logo.",
+    "gondola": "07-harinas"
+  },
+  {
+    "id": "t8-11",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada producto con lo que hay que saber para cocinarlo.",
+    "pares": [
+      {
+        "a": "Lenteja roja",
+        "b": "Sin remojo, se deshace rápido"
+      },
+      {
+        "a": "Garbanzo",
+        "b": "Remojo de una noche, se tira el agua"
+      },
+      {
+        "a": "Arroz integral",
+        "b": "Más agua y más tiempo que el blanco"
+      },
+      {
+        "a": "Legumbres de lata",
+        "b": "Ya vienen cocidas, solo se enjuagan"
+      }
+    ],
+    "explicacion": "Con estos datos podés ayudar a cualquiera que viene con una receta en la cabeza. Igual, lo que dice el paquete siempre manda.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "t8-12",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué tienen en común casi todos los productos de la góndola de panes, como panes, budines, tostadas y alfajores?",
+    "opciones": [
+      "Que son integrales y tienen mucha fibra.",
+      "Que se pueden vender a celíacos si están envasados.",
+      "Que duran meses fuera de la heladera.",
+      "Que llevan harina de trigo, así que tienen gluten."
+    ],
+    "correcta": 3,
+    "explicacion": "Las excepciones son los panificados sin TACC, hechos con harinas de arroz, maíz o mandioca, y solo sirven si traen el logo.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "t8-13",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué legumbre es de las que más proteína tienen?",
+    "opciones": [
+      "La lenteja roja",
+      "La soja",
+      "La arveja partida",
+      "El poroto mung"
+    ],
+    "correcta": 1,
+    "explicacion": "La soja se destaca, aunque todas las legumbres aportan proteínas y fibra. Si alguien lo busca por un tema de salud, que lo vea con su nutricionista.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "t8-14",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca. Me dijeron que el pan de masa madre fermenta tanto que pierde el gluten, ¿lo puedo comer?” ¿Qué le respondés?",
+    "opciones": [
+      "“No, el de trigo o de centeno tiene gluten aunque fermente muchas horas. Busquemos uno con logo sin TACC.”",
+      "“Sí, con tantas horas de fermentación el gluten desaparece del todo y ya no te hace daño.”",
+      "“Sí, si es de centeno te sirve, porque el centeno no tiene gluten y fermenta todavía más.”",
+      "“Depende de cada uno: si te cae bien y no sentís nada después de comerlo, no hay problema.”"
+    ],
+    "correcta": 0,
+    "explicacion": "La masa madre cambia el sabor y la miga, no el gluten. Y el centeno es una de las letras de TACC.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "t8-15",
+    "tema": "Harinas, cereales, legumbres y panes",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Quiero un pan keto, pero soy alérgico a los frutos secos.” ¿Qué hacés?",
+    "opciones": [
+      "Le das cualquiera de los keto, porque no llevan harina de trigo y son todos parecidos.",
+      "Leen juntos la lista completa, porque casi todos llevan almendras, y ante la duda no se lo das.",
+      "Le das el de lino, porque los panes de semillas nunca llevan frutos secos en la masa.",
+      "Le decís que los keto son aptos para alérgicos porque no tienen gluten ni harina común."
+    ],
+    "correcta": 1,
+    "explicacion": "Los panes keto se hacen con harinas de almendras, coco o lino, y algunos además llevan gluten. Con una alergia se lee todo, y ante la duda no se recomienda.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "t9-01",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué leche vegetal tiene más proteína?",
+    "opciones": [
+      "La de almendras",
+      "La de soja",
+      "La de arroz",
+      "La de coco"
+    ],
+    "correcta": 1,
+    "explicacion": "La soja es una legumbre y por eso tiene bastante proteína. Las de almendras, avena, arroz y coco tienen poca.",
+    "gondola": "18-leches-vegetales"
+  },
+  {
+    "id": "t9-02",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te pide: “Quiero una leche vegetal para el café que haga espuma.” ¿Qué le mostrás?",
+    "opciones": [
+      "La de arroz, que es la más dulce de todas.",
+      "La de coco, que no cambia el gusto del café.",
+      "Cualquiera, porque todas espuman igual.",
+      "Una versión barista, por ejemplo la de avena."
+    ],
+    "correcta": 3,
+    "explicacion": "Las baristas están hechas para espumar y no cortarse en el café. La de arroz y la de coco casi no hacen espuma, y la de coco cambia el gusto.",
+    "gondola": "18-leches-vegetales"
+  },
+  {
+    "id": "t9-03",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué aceite conviene para freír?",
+    "opciones": [
+      "Uno que aguante mucho calor, como el de girasol.",
+      "El de lino, que es el más natural.",
+      "El de sésamo tostado, que le da más sabor.",
+      "Uno prensado en frío, que es el de más calidad."
+    ],
+    "correcta": 0,
+    "explicacion": "Cada aceite se elige según el calor que aguanta. Los prensados en frío y el extra virgen se lucen más en crudo, y el de lino nunca se calienta.",
+    "gondola": "15-aceites-y-untables"
+  },
+  {
+    "id": "t9-04",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se guarda una leche vegetal de larga vida?",
+    "opciones": [
+      "Siempre en la heladera, aunque esté cerrada.",
+      "Cerrada en la heladera y, una vez abierta, en la alacena.",
+      "Cerrada, fuera de la heladera; una vez abierta, en la heladera.",
+      "En el freezer, para que dure más tiempo."
+    ],
+    "correcta": 2,
+    "explicacion": "Cerrada aguanta en la góndola. Abierta va siempre a la heladera y se toma en los días que dice el envase.",
+    "gondola": "18-leches-vegetales"
+  },
+  {
+    "id": "t9-05",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "El azúcar mascabo, la miel y el azúcar de coco siguen siendo azúcar y aportan calorías.",
+    "correcta": true,
+    "explicacion": "Cambian el sabor, el color y la humedad, pero para el cuerpo son azúcar. Si es por un tema de salud, que lo vea con su nutricionista.",
+    "gondola": "14-endulzantes"
+  },
+  {
+    "id": "t9-06",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Las leches vegetales pueden reemplazar la leche de un bebé.",
+    "correcta": false,
+    "explicacion": "No reemplazan la leche para bebés ni la fórmula infantil. Si es para un bebé o un chico chico, lo tiene que ver con el pediatra.",
+    "gondola": "18-leches-vegetales"
+  },
+  {
+    "id": "t9-07",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 3,
+    "tipo": "vf",
+    "pregunta": "El aceite de lino sirve para cocinar a fuego fuerte.",
+    "correcta": false,
+    "explicacion": "El lino y la chía nunca se calientan: van solo en crudo y se guardan en la heladera. Para cocinar, un girasol o un oliva.",
+    "gondola": "15-aceites-y-untables"
+  },
+  {
+    "id": "t9-08",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 1,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy diabética, ¿este endulzante me sirve?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, quedate tranquila: es apto para diabéticos y no te sube el azúcar, lo usa mucha gente.”",
+      "“Te muestro lo que dice la etiqueta. Para saber si te conviene, consultalo con tu médico o nutricionista.”",
+      "“Sí, te sirve, pero usá poquito: una o dos cucharaditas por día como mucho, no más.”",
+      "“No, con diabetes no te conviene ningún endulzante, mejor tomalo amargo o con poquita azúcar.”"
+    ],
+    "correcta": 1,
+    "explicacion": "Nunca se dice “apto para diabéticos” ni que algo no sube el azúcar. Se muestra la etiqueta y lo decide el médico o el nutricionista.",
+    "gondola": "14-endulzantes"
+  },
+  {
+    "id": "t9-09",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 1,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un papá te pregunta: “¿Puedo endulzar la papilla de mi bebé de ocho meses con miel?” ¿Qué le respondés?",
+    "opciones": [
+      "“No, la miel no se les da a los menores de un año. Consultalo con el pediatra.”",
+      "“Sí, si es miel pura y orgánica no hay ningún problema, es lo más natural.”",
+      "“Sí, pero ponele solo media cucharadita por papilla, que es lo que se usa.”",
+      "“Mejor usá azúcar mascabo, que es más natural y más suave para un bebé.”"
+    ],
+    "correcta": 0,
+    "explicacion": "La miel no se les da a bebés menores de un año, sea cual sea el tipo. Decilo con claridad y sugerí hablarlo con el pediatra.",
+    "gondola": "14-endulzantes"
+  },
+  {
+    "id": "t9-10",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada aceite con lo que hay que saber de él.",
+    "pares": [
+      {
+        "a": "Girasol",
+        "b": "Todo uso, también para freír"
+      },
+      {
+        "a": "Lino",
+        "b": "Solo en crudo y en la heladera"
+      },
+      {
+        "a": "Sésamo tostado",
+        "b": "Unas gotas al final del plato"
+      },
+      {
+        "a": "Coco",
+        "b": "Se pone sólido con el frío"
+      }
+    ],
+    "explicacion": "La luz, el calor y el aire ponen rancios los aceites: van bien cerrados, lejos de la ventana y de la cocina. Que el de coco se ponga sólido es normal.",
+    "gondola": "15-aceites-y-untables"
+  },
+  {
+    "id": "t9-11",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Una leche de avena sin el logo sin TACC le sirve a un celíaco.",
+    "correcta": false,
+    "explicacion": "La avena es parte de TACC. Para un celíaco, solo leches vegetales con el logo en el envase.",
+    "gondola": "18-leches-vegetales"
+  },
+  {
+    "id": "t9-12",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te dice: “Quiero un edulcorante para hacer una torta, ¿cuál me llevo?” ¿Qué tenés en cuenta?",
+    "opciones": [
+      "Que sea líquido, porque el de polvo se quema en el horno.",
+      "Que sea el que más endulza, así se usa menos.",
+      "Que aguante el calor y diga en el envase su equivalencia con el azúcar.",
+      "Que sea natural, porque los artificiales no se pueden hornear."
+    ],
+    "correcta": 2,
+    "explicacion": "No todos los edulcorantes aguantan el horno: algunos pierden el dulzor con el calor. La equivalencia del envase dice cuánto poner en lugar del azúcar.",
+    "gondola": "14-endulzantes"
+  },
+  {
+    "id": "t9-13",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay, en grandes rasgos, entre la grasa del aceite de oliva y la del aceite de coco?",
+    "opciones": [
+      "El de oliva tiene sobre todo grasa monoinsaturada; el de coco, mucha grasa saturada.",
+      "El de coco es más liviano y tiene menos calorías que el de oliva.",
+      "Los dos tienen el mismo tipo de grasa; solo cambia el sabor.",
+      "El de oliva tiene mucha grasa saturada; el de coco, casi nada."
+    ],
+    "correcta": 0,
+    "explicacion": "Por esa grasa saturada, el de coco se pone sólido con el frío. Igual, todos los aceites son pura grasa y aportan calorías parecidas.",
+    "gondola": "15-aceites-y-untables"
+  },
+  {
+    "id": "t9-14",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca y quiero una leche vegetal para el café, ¿me das la de avena barista?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, la versión barista es especial para café y no tiene gluten.”",
+      "“Sí, la avena de las leches vegetales está procesada y pierde el gluten.”",
+      "“No, para celíacos no sirve ninguna leche vegetal, mejor tomalo solo.”",
+      "“La de avena sin logo no te sirve. Te muestro otras baristas que tengan el logo sin TACC.”"
+    ],
+    "correcta": 3,
+    "explicacion": "Para el café conviene una barista, pero primero va el logo, porque la avena tiene TACC. Hay otras leches vegetales con logo que también sirven para el café.",
+    "gondola": "18-leches-vegetales"
+  },
+  {
+    "id": "t9-15",
+    "tema": "Leches vegetales, endulzantes y aceites",
+    "nivel": 3,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te dice: “Me llevo xilitol para la torta. Tengo un perro en casa, ¿pasa algo?” ¿Qué le respondés?",
+    "opciones": [
+      "“No, el xilitol es natural y no les hace nada a los animales, quedate tranquila.”",
+      "“Solo si come mucha cantidad; un poquito no le va a hacer nada, no te preocupes.”",
+      "“Sí, es muy tóxico para los perros. Guardalo donde no llegue; si lo come, al veterinario.”",
+      "“No pasa nada, pero no le des torta porque al perro le hace mal el azúcar.”"
+    ],
+    "correcta": 2,
+    "explicacion": "El xilitol endulza casi igual que el azúcar y aguanta el horno, pero para los perros es muy tóxico. Vale la pena avisarlo siempre que alguien lo lleva.",
+    "gondola": "14-endulzantes"
+  },
+  {
+    "id": "t10-01",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "¿Quién define cuánto suplemento tiene que tomar un cliente?",
+    "opciones": [
+      "Vos, según lo que te cuente el cliente.",
+      "La encargada, que conoce bien los productos.",
+      "El cliente, según cómo se vaya sintiendo.",
+      "El envase o el profesional que lo atiende."
+    ],
+    "correcta": 3,
+    "explicacion": "En el mostrador nunca se indica cuánto tomar. Le mostrás el modo de uso del envase, y lo que le conviene lo define su médico o nutricionista.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t10-02",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿A qué temperatura tiene que estar la heladera de los refrigerados?",
+    "opciones": [
+      "A 5 grados o menos.",
+      "A 10 grados o menos.",
+      "A 15 grados o menos.",
+      "A 18 grados bajo cero."
+    ],
+    "correcta": 0,
+    "explicacion": "El termómetro se mira todos los días y, si marca más, se avisa enseguida a la encargada. El freezer, en cambio, va a 18 grados bajo cero o menos.",
+    "gondola": "19-yogures-y-heladera"
+  },
+  {
+    "id": "t10-03",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se cocinan la mayoría de los congelados, como hamburguesas o empanadas?",
+    "opciones": [
+      "Descongelados sobre la mesada unas horas antes.",
+      "Directo del freezer, siguiendo el modo de cocción del envase.",
+      "Descongelados en agua caliente y después al horno.",
+      "Descongelados en el microondas y después a la sartén."
+    ],
+    "correcta": 1,
+    "explicacion": "La mayoría va directo del freezer al horno, la sartén o la olla. Si el envase pide descongelar, es en la heladera, nunca afuera.",
+    "gondola": "21-congelados"
+  },
+  {
+    "id": "t10-04",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 1,
+    "tipo": "opcion",
+    "critica": true,
+    "pregunta": "Llega un pedido de yogures y quesos mientras estás atendiendo. ¿Qué hacés con la mercadería?",
+    "opciones": [
+      "La dejás en el piso hasta que termines de atender.",
+      "La dejás en el mostrador, que es un lugar fresco.",
+      "Va a la heladera apenas llega, con lo que vence primero adelante.",
+      "La ponés en la heladera con lo nuevo adelante, que se ve mejor."
+    ],
+    "correcta": 2,
+    "explicacion": "Lo refrigerado nunca queda afuera: si se corta la cadena de frío, puede dejar de ser seguro. Lo que vence primero va adelante para que salga antes.",
+    "gondola": "19-yogures-y-heladera"
+  },
+  {
+    "id": "t10-05",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "Se corta la luz en el local. ¿Qué hacés con el freezer?",
+    "opciones": [
+      "Lo abrís para revisar cómo están los productos.",
+      "Pasás los congelados a la heladera, que enfría más.",
+      "Sacás los helados al mostrador para venderlos rápido.",
+      "No lo abrís, le avisás a la encargada y anotás la hora."
+    ],
+    "correcta": 3,
+    "explicacion": "Cada vez que se abre, entra calor. Anotar la hora sirve para saber después cuánto tiempo estuvo sin luz.",
+    "gondola": "21-congelados"
+  },
+  {
+    "id": "t10-06",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Un congelado que se descongeló se puede volver a congelar si se ve y huele bien.",
+    "correcta": false,
+    "explicacion": "Cuando se calienta, las bacterias se despiertan y siguen ahí aunque se vuelva a congelar. Lo descongelado no se recongela ni se vende.",
+    "gondola": "21-congelados"
+  },
+  {
+    "id": "t10-07",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Un suplemento no es un remedio: se cuenta qué es, cómo viene y qué dice el envase.",
+    "correcta": true,
+    "explicacion": "Son alimentos pensados para personas sanas. Nada de promesas: no se dice que algo da energía, hace bajar de peso o sube las defensas.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t10-08",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 2,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Un paquete congelado con mucho hielo adentro se puede vender sin problema.",
+    "correcta": false,
+    "explicacion": "Tanto hielo puede ser señal de que se descongeló en algún momento. No se vende: se aparta y se avisa a la encargada.",
+    "gondola": "21-congelados"
+  },
+  {
+    "id": "t10-09",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 2,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te pregunta: “¿Qué me recomendás para tener más energía?” ¿Qué le respondés?",
+    "opciones": [
+      "“Llevate el pre entreno, que tiene cafeína y te despierta enseguida, lo usa todo el gimnasio.”",
+      "“El magnesio es lo mejor que hay para el cansancio: lo toma todo el mundo y anda muy bien.”",
+      "“No te lo puedo recomendar: el cansancio tiene muchas causas. Consultalo con tu médico y te cuento qué es cada producto.”",
+      "“Probá la spirulina: una cucharada todos los días en un licuado y vas a notar la diferencia.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Si te piden algo para la energía, el peso o el pelo, derivá con amabilidad al médico y después contá qué es cada producto, sin prometer nada.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t10-10",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te pide: “¿Me guardás estos congelados mientras sigo comprando?” ¿Qué hacés?",
+    "opciones": [
+      "Le sugerís que los deje para el final de la compra, así pasan menos tiempo fuera del frío.",
+      "Se los dejás en el mostrador, al lado de la caja, hasta que termine.",
+      "Los ponés en la heladera de los yogures mientras ella sigue comprando.",
+      "Le decís que no pasa nada, que media hora afuera no les hace nada."
+    ],
+    "correcta": 0,
+    "explicacion": "Cuanto menos tiempo pasen fuera del frío, mejor. Si tiene bolsa térmica, mejor todavía, y en casa van al freezer apenas llega.",
+    "gondola": "21-congelados"
+  },
+  {
+    "id": "t10-11",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 3,
+    "tipo": "unir",
+    "pregunta": "Uní cada suplemento con lo que hay que saber de él.",
+    "pares": [
+      {
+        "a": "Pre entreno",
+        "b": "Casi todos tienen bastante cafeína"
+      },
+      {
+        "a": "Proteína whey",
+        "b": "Sale de la leche, no es vegana"
+      },
+      {
+        "a": "Propóleos",
+        "b": "De la colmena, puede dar alergia"
+      },
+      {
+        "a": "Vitamina B12",
+        "b": "La buscan mucho veganos y vegetarianos"
+      }
+    ],
+    "explicacion": "No hace falta saber de dosis: alcanza con saber qué es cada producto y cuándo derivar. Ante cualquier duda de salud, médico o nutricionista.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t10-12",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Tomo medicación para la presión, ¿puedo tomar este pre entreno?” ¿Qué le respondés?",
+    "opciones": [
+      "“Consultalo antes con tu médico. Casi todos los pre entrenos tienen bastante cafeína.”",
+      "“Sí, si tomás la mitad de lo que dice el envase no te va a pasar nada, quedate tranquilo.”",
+      "“Sí, el pre entreno es un suplemento y no se cruza con los remedios para la presión.”",
+      "“Llevate la creatina, que hace lo mismo que el pre entreno y no tiene nada de cafeína.”"
+    ],
+    "correcta": 0,
+    "explicacion": "Con presión alta, medicación o sensibilidad a la cafeína, el pre entreno se consulta antes con el médico. Y no se ofrece otro suplemento como reemplazo.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t10-13",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre la proteína whey concentrada y la aislada?",
+    "opciones": [
+      "La aislada es vegetal y la concentrada sale de la leche.",
+      "La concentrada tiene más proteína y menos grasa.",
+      "La aislada está más filtrada: tiene más proteína y menos lactosa.",
+      "Son lo mismo, solo cambia el sabor."
+    ],
+    "correcta": 2,
+    "explicacion": "Las dos salen de la leche, así que ninguna es vegana. La aislada cuesta más, y con intolerancia a la lactosa igual manda la etiqueta.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t10-14",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Estoy embarazada, ¿qué vitaminas me llevo?” ¿Qué le respondés?",
+    "opciones": [
+      "“Llevate el magnesio y la vitamina D, que son las que más se piden en el embarazo.”",
+      "“Antes de comprar cualquier suplemento, consultalo con tu obstetra. Muchos avisan que no son para el embarazo.”",
+      "“Cualquier multivitamínico te sirve, porque son todos naturales y suaves para el bebé.”",
+      "“Llevate la spirulina, que es un alga muy completa y no tiene nada de químicos.”"
+    ],
+    "correcta": 1,
+    "explicacion": "En el embarazo, la lactancia o con chicos, cualquier suplemento se consulta antes con el médico. Vos podés contar qué es cada producto, sin recomendar.",
+    "gondola": "23-suplementos"
+  },
+  {
+    "id": "t10-15",
+    "tema": "Suplementos, heladera y freezer",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Tengo un problema de riñón, pero quiero empezar con creatina para el gimnasio.” ¿Qué le respondés?",
+    "opciones": [
+      "“Tranquilo, la creatina es natural, así que no te va a hacer nada.”",
+      "“Tomá la mitad de lo que dice el envase y así no tenés problema.”",
+      "“Mejor llevate una proteína en polvo, que es más suave para el riñón.”",
+      "“Con un problema de riñón, antes de tomar creatina consultalo con tu médico.”"
+    ],
+    "correcta": 3,
+    "explicacion": "Con problemas de riñón, cualquier suplemento se consulta antes con el médico, y el envase de la creatina dice que se consume bajo control médico. Tampoco se ofrece otro como reemplazo.",
+    "gondola": "23-suplementos"
+  }
+]

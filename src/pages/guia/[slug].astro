@@ -58,17 +58,6 @@ const productos = headings.filter((h) => h.depth === 3);
         </ul>
       </section>
 
-      <a
-        href={url(`/examen?gondola=${categoria.id}`)}
-        class="no-print mt-4 flex items-center gap-3 rounded-2xl bg-profundo px-4 py-3 text-white hover:bg-profundo-2"
-      >
-        <Icon name="exam" class="size-6 text-menta" />
-        <span class="flex-1">
-          <span class="block font-semibold">Examinarme de esta góndola</span>
-          <span class="block text-sm text-white/75">Preguntas de opción múltiple sobre estos productos</span>
-        </span>
-        <Icon name="arrow-right" class="size-5" />
-      </a>
 
       {
         productos.length > 3 && (
