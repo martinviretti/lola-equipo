@@ -1,0 +1,271 @@
+---
+// Mini video de un bloque de la Bienvenida (4:5, ~30 s, con subtítulos quemados).
+// Se reproduce de a uno: arranca solo y en silencio cuando se ve al 60% o más (si no hay otro andando)
+// y se pausa al salir de pantalla. Controles: pausa/play (también tocando el video), atrás y adelante
+// 5 segundos, barra para ir a cualquier punto y sonido. Si la persona lo pausa, no vuelve a arrancar solo.
+// El sonido va siempre prendido salvo que la persona lo silencie (ver scripts/sonido-video.ts).
+// Archivos en public/video/: <nombre>.mp4 y <nombre>.jpg (poster).
+import { url } from '../lib/url';
+import Icon from './Icon.astro';
+
+interface Props {
+  nombre: string;
+  titulo: string;
+  class?: string;
+}
+
+const { nombre, titulo, class: clase } = Astro.props;
+---
+
+<figure class:list={['video-bloque mt-4 w-full max-w-sm', clase]} data-video-bloque>
+  <video
+    src={url(`/video/${nombre}.mp4`)}
+    poster={url(`/video/${nombre}.jpg`)}
+    width="720"
+    height="900"
+    muted
+    playsinline
+    preload="none"
+    aria-label={titulo}
+    data-video
+  ></video>
+
+  <div class="video-bloque-controles">
+    <div class="video-bloque-barra">
+      <span class="tabular-nums" data-video-actual>0:00</span>
+      <input type="range" min="0" max="30" step="0.1" value="0" aria-label="Posición del video" data-video-posicion />
+      <span class="tabular-nums" data-video-total>0:30</span>
+    </div>
+    <div class="video-bloque-botones">
+      <button type="button" class="vb-redondo" aria-label="Atrás 5 segundos" data-video-atras>
+        <Icon name="arrow-counter-clockwise" class="size-5" />
+      </button>
+      <button type="button" class="vb-redondo vb-principal" aria-label="Reproducir" data-video-play>
+        <span data-icono-play><Icon name="play" class="size-6" /></span>
+        <span data-icono-pausa hidden><Icon name="pause" class="size-6" /></span>
+      </button>
+      <button type="button" class="vb-redondo" aria-label="Adelante 5 segundos" data-video-adelante>
+        <Icon name="arrow-clockwise" class="size-5" />
+      </button>
+      <button type="button" class="video-bloque-sonido" data-video-sonido aria-pressed="false">
+        <span data-icono-mudo><Icon name="speaker-x" class="size-5" /></span>
+        <span data-icono-sonido hidden><Icon name="speaker-low" class="size-5" /></span>
+        <span data-video-sonido-texto>Activar sonido</span>
+      </button>
+    </div>
+  </div>
+  <figcaption class="sr-only">{titulo}. Video con voz y subtítulos.</figcaption>
+</figure>
+
+<style>
+  .video-bloque video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: 28px;
+    background: var(--color-menta-suave);
+    box-shadow: 0 0 0 1px rgb(33 76 59 / 0.1), 0 30px 60px -36px rgb(33 76 59 / 0.55);
+    cursor: pointer;
+  }
+  .video-bloque-controles {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .video-bloque-barra {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-texto-2);
+  }
+  .video-bloque-barra input {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--color-marca);
+    cursor: pointer;
+  }
+  .video-bloque-botones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vb-redondo {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: #fff;
+    color: var(--color-profundo);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.15);
+  }
+  .vb-principal {
+    width: 52px;
+    height: 52px;
+    background: var(--color-profundo);
+    color: #fff;
+    box-shadow: none;
+  }
+  .video-bloque-sonido {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 9999px;
+    background: var(--color-profundo);
+    padding: 10px 16px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .video-bloque-sonido[aria-pressed='true'] {
+    background: #fff;
+    color: var(--color-profundo);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.2);
+  }
+  .video-bloque button:focus-visible,
+  .video-bloque input:focus-visible {
+    outline: 2px solid var(--color-marca);
+    outline-offset: 2px;
+  }
+  .video-bloque [hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  // Astro incluye este script una sola vez por página: sirve para todas las instancias.
+  import { reproducir as reproducirConSonido, guardarSonido, recienPrendido } from '../scripts/sonido-video';
+  const cajas = Array.from(document.querySelectorAll<HTMLElement>('[data-video-bloque]'));
+  const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const VISIBLE = 0.6;
+  const SALTO = 5;
+  type Instancia = { video: HTMLVideoElement; visible: boolean; puedeSolo: () => boolean };
+  const instancias: Instancia[] = [];
+
+  const reloj = (s: number) => {
+    const t = Math.max(0, Math.round(s || 0));
+    return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+  };
+  const reproducir = (video: HTMLVideoElement) => void reproducirConSonido(video);
+  const hayOtroAndando = (video: HTMLVideoElement) => instancias.some((o) => o.video !== video && !o.video.paused && !o.video.ended);
+  // Cuando uno se pausa o termina, arranca el siguiente que esté en pantalla (si nadie lo pausó a mano).
+  const pasarAlSiguiente = (video: HTMLVideoElement) => {
+    if (sinMovimiento || hayOtroAndando(video)) return;
+    const otro = instancias.find((o) => o.video !== video && o.visible && o.puedeSolo());
+    if (otro) reproducir(otro.video);
+  };
+
+  cajas.forEach((caja) => {
+    const $ = <T extends Element>(s: string) => caja.querySelector<T>(s)!;
+    const video = $<HTMLVideoElement>('[data-video]');
+    const play = $<HTMLButtonElement>('[data-video-play]');
+    const atras = $<HTMLButtonElement>('[data-video-atras]');
+    const adelante = $<HTMLButtonElement>('[data-video-adelante]');
+    const sonido = $<HTMLButtonElement>('[data-video-sonido]');
+    const sonidoTexto = $<HTMLElement>('[data-video-sonido-texto]');
+    const posicion = $<HTMLInputElement>('[data-video-posicion]');
+    const actual = $<HTMLElement>('[data-video-actual]');
+    const total = $<HTMLElement>('[data-video-total]');
+    if (!video) return;
+    // Si la persona lo pausó, el scroll no lo vuelve a arrancar.
+    let pausadoAMano = false;
+    const yo: Instancia = { video, visible: false, puedeSolo: () => !pausadoAMano && !video.ended };
+    instancias.push(yo);
+    let arrastrando = false;
+
+    const pintar = () => {
+      const andando = !video.paused && !video.ended;
+      $<HTMLElement>('[data-icono-play]').hidden = andando;
+      $<HTMLElement>('[data-icono-pausa]').hidden = !andando;
+      play.setAttribute('aria-label', andando ? 'Pausar' : video.ended ? 'Ver de nuevo' : 'Reproducir');
+      sonido.setAttribute('aria-pressed', String(!video.muted));
+      $<HTMLElement>('[data-icono-mudo]').hidden = !video.muted;
+      $<HTMLElement>('[data-icono-sonido]').hidden = video.muted;
+      sonidoTexto.textContent = video.muted ? 'Activar sonido' : 'Silenciar';
+    };
+    const pintarTiempo = () => {
+      if (Number.isFinite(video.duration)) {
+        posicion.max = String(video.duration);
+        total.textContent = reloj(video.duration);
+      }
+      if (!arrastrando) posicion.value = String(video.currentTime);
+      actual.textContent = reloj(video.currentTime);
+    };
+
+    const arrancar = () => {
+      pausadoAMano = false;
+      if (video.ended) video.currentTime = 0;
+      reproducir(video);
+    };
+    const alternar = () => {
+      if (video.paused || video.ended) arrancar();
+      else {
+        pausadoAMano = true;
+        video.pause();
+      }
+    };
+    const saltar = (s: number) => {
+      const fin = Number.isFinite(video.duration) ? video.duration : Infinity;
+      video.currentTime = Math.min(Math.max(0, video.currentTime + s), fin);
+      pintarTiempo();
+    };
+
+    play.addEventListener('click', alternar);
+    // Tocar el video pausa o reanuda (salvo que ese toque haya sido el que prendió el sonido).
+    video.addEventListener('click', () => !recienPrendido() && alternar());
+    atras.addEventListener('click', () => saltar(-SALTO));
+    adelante.addEventListener('click', () => saltar(SALTO));
+    sonido.addEventListener('click', () => {
+      const prender = video.muted;
+      guardarSonido(prender); // vale para todos los videos
+      video.muted = !prender;
+      // Al prender el sonido se reproduce (si estaba pausado o terminado).
+      if (prender && (video.paused || video.ended)) arrancar();
+      pintar();
+    });
+    posicion.addEventListener('input', () => {
+      arrastrando = true;
+      actual.textContent = reloj(Number(posicion.value));
+    });
+    posicion.addEventListener('change', () => {
+      video.currentTime = Number(posicion.value);
+      arrastrando = false;
+      pintarTiempo();
+    });
+
+    // De a uno: cuando arranca este, se pausan los demás (sin marcarlos como pausados a mano).
+    video.addEventListener('play', () => {
+      instancias.forEach((o) => o.video !== video && !o.video.paused && o.video.pause());
+      pintar();
+    });
+    ['pause', 'ended', 'volumechange'].forEach((ev) => video.addEventListener(ev, pintar));
+    video.addEventListener('ended', () => pasarAlSiguiente(video));
+    video.addEventListener('pause', () => {
+      // Solo si se pausó por salir de pantalla; si lo pausó la persona, queda todo quieto.
+      if (!pausadoAMano && !yo.visible) setTimeout(() => pasarAlSiguiente(video), 0);
+    });
+    ['timeupdate', 'loadedmetadata', 'durationchange', 'seeked'].forEach((ev) => video.addEventListener(ev, pintarTiempo));
+
+    pintar();
+    if (sinMovimiento) return; // con movimiento reducido no arranca solo
+
+    new IntersectionObserver(
+      ([e]) => {
+        yo.visible = e.isIntersecting && e.intersectionRatio >= VISIBLE;
+        if (yo.visible) {
+          if (yo.puedeSolo() && !hayOtroAndando(video)) reproducir(video);
+        } else if (!video.paused) {
+          video.pause();
+        }
+      },
+      { threshold: [0, VISIBLE] },
+    ).observe(video);
+  });
+</script>
