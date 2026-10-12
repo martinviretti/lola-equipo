@@ -5,6 +5,7 @@ import { url } from '../lib/url';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import Tema from '../components/Tema.astro';
+import VideoBloque from '../components/VideoBloque.astro';
 import { reglas } from '../data/guia';
 import { atencion, tareasGenerales, roles, cierre, imagen, horarios, celular, musica, cierreManual, grupos, secciones } from '../data/bienvenida';
 
@@ -47,6 +48,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
         <p class="bloque-numero">Bloque 1</p>
         <h2 id="g-atender" class="bloque-titulo">{grupo('atender').titulo}</h2>
         <p class="bloque-bajada">{grupo('atender').bajada}</p>
+        <VideoBloque nombre="bloque-1" titulo="Video: resumen del bloque Atender" />
         <div class="mt-4 flex flex-col gap-3">
           <Tema {...tema('atencion')}>
             <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{atencion.objetivo}</p>
@@ -93,6 +95,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
         <p class="bloque-numero">Bloque 2</p>
         <h2 id="g-dia" class="bloque-titulo">{grupo('dia-a-dia').titulo}</h2>
         <p class="bloque-bajada">{grupo('dia-a-dia').bajada}</p>
+        <VideoBloque nombre="bloque-2" titulo="Video: resumen del bloque El día a día" />
         <div class="mt-4 flex flex-col gap-3">
           <Tema {...tema('tareas')}>
             <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{tareasGenerales.objetivo}</p>
@@ -182,6 +185,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
         <p class="bloque-numero">Bloque 3</p>
         <h2 id="g-acuerdos" class="bloque-titulo">{grupo('acuerdos').titulo}</h2>
         <p class="bloque-bajada">{grupo('acuerdos').bajada}</p>
+        <VideoBloque nombre="bloque-3" titulo="Video: resumen del bloque Nuestros acuerdos" />
         <div class="mt-4 flex flex-col gap-3">
           <Tema {...tema('imagen')}>
             <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{imagen.objetivo}</p>
