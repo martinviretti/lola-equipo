@@ -1,0 +1,271 @@
+[
+  {
+    "id": "panes-pastas-1-01",
+    "tema": "Panes y pastas",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Para que el pan fresco dure más, conviene congelarlo en rodajas antes que guardarlo en la heladera.",
+    "correcta": true,
+    "explicacion": "La heladera lo pone duro más rápido. En rodajas, se saca del freezer solo lo que se va a comer.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-1-02",
+    "tema": "Panes y pastas",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué tienen en común casi todos los productos de la góndola de panes, como panes, budines, tostadas y alfajores?",
+    "opciones": [
+      "Que son integrales y tienen mucha fibra.",
+      "Que se pueden vender a celíacos si están envasados.",
+      "Que duran meses fuera de la heladera.",
+      "Que llevan harina de trigo, así que tienen gluten."
+    ],
+    "correcta": 3,
+    "explicacion": "Las excepciones son los panificados sin TACC, hechos con harinas de arroz, maíz o mandioca, y solo sirven si traen el logo.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-1-03",
+    "tema": "Panes y pastas",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Cómo sabés si un pan es integral de verdad?",
+    "opciones": [
+      "Porque es oscuro y tiene la miga con puntitos.",
+      "Porque la harina integral está primera en los ingredientes.",
+      "Porque dice “integral” bien grande en el frente.",
+      "Porque tiene salvado agregado a la masa."
+    ],
+    "correcta": 1,
+    "explicacion": "El color engaña: muchos panes se oscurecen con malta, caramelo o salvado. Para llamarse integral, la harina integral tiene que ir primera en la lista.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-1-04",
+    "tema": "Panes y pastas",
+    "nivel": 1,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca. ¿Me das uno de esos pancitos de la panera?” ¿Qué le respondés?",
+    "opciones": [
+      "“Si estuvo en la panera con pan común, no te lo aseguro. Te ofrezco uno envasado con logo.”",
+      "“Sí, esos son de harina de arroz, así que no tienen nada de gluten.”",
+      "“Sí, te lo agarro con una servilleta para que no lo toque la pinza.”",
+      "“Sí, te doy uno de los de abajo, que no tocan a los de trigo.”"
+    ],
+    "correcta": 0,
+    "explicacion": "Una miga de pan común alcanza para contaminarlo. Para un celíaco, solo panes envasados, cerrados y con el logo sin TACC.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-1-05",
+    "tema": "Panes y pastas",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Los ñoquis son de papa, así que no tienen gluten.",
+    "correcta": false,
+    "explicacion": "Los ñoquis llevan papa y harina de trigo, así que tienen TACC. Para celíacos, solo los envasados con el logo sin TACC.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-1-06",
+    "tema": "Panes y pastas",
+    "nivel": 1,
+    "tipo": "unir",
+    "pregunta": "Uní cada fideo con lo que hay que saber de él.",
+    "pares": [
+      { "a": "De sémola de trigo candeal", "b": "Los que mejor quedan al dente" },
+      { "a": "Integrales", "b": "Más fibra, pero tienen TACC" },
+      { "a": "Al huevo", "b": "Más tiernos, no sirven para veganos" },
+      { "a": "De arroz", "b": "Sin gluten de por sí, se pasan rápido" }
+    ],
+    "explicacion": "Todo fideo de trigo tiene TACC, aunque sea integral o al huevo. Los de arroz, para un celíaco, solo con el logo sin TACC.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-1-07",
+    "tema": "Panes y pastas",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Los fideos se echan recién cuando el agua hierve fuerte y se prueban un minuto antes del tiempo del paquete.",
+    "correcta": true,
+    "explicacion": "Así quedan al dente, que quiere decir firmes al morder sin estar duros. Va mucha agua con sal y se revuelve al principio para que no se peguen.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-2-01",
+    "tema": "Panes y pastas",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "Los fideos de espinaca son sin gluten porque llevan verdura.",
+    "correcta": false,
+    "explicacion": "Son fideos de trigo con un poco de espinaca para darles color. Tienen TACC, y algunos además llevan huevo.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-2-02",
+    "tema": "Panes y pastas",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “¿Qué diferencia hay entre el pan integral y el de salvado?” ¿Qué le respondés?",
+    "opciones": [
+      "“Ninguna, el salvado es justamente lo que hace integral a un pan.”",
+      "“El de salvado siempre tiene más fibra, así que es el más integral.”",
+      "“El integral es de grano entero. El de salvado puede ser harina blanca con salvado.”",
+      "“El de salvado no tiene gluten, porque el salvado es solo la cáscara.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Agregarle salvado a una harina blanca no la vuelve integral. Leé la lista con el cliente: en el integral, la harina integral va primera.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-2-03",
+    "tema": "Panes y pastas",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te dice: “Los fideos sin TACC siempre me quedan pegoteados.” ¿Qué le aconsejás?",
+    "opciones": [
+      "“Cocinalos con poca agua, así no largan tanto almidón.”",
+      "“Mucha agua, revolvé al principio, probalos antes de tiempo y escurrí enseguida.”",
+      "“Dejalos unos minutos más en el agua después de apagar el fuego.”",
+      "“Ponelos con el agua fría y recién ahí prendé el fuego.”"
+    ],
+    "correcta": 1,
+    "explicacion": "Las pastas sin TACC largan más almidón y se pasan rápido. Por eso se prueban antes del tiempo del paquete y no se dejan en el agua.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-2-04",
+    "tema": "Panes y pastas",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere hacer pad thai. ¿Qué fideos le ofrecés?",
+    "opciones": [
+      "Fideos udon, los gruesos japoneses.",
+      "Fideos soba, de trigo sarraceno.",
+      "Tallarines al huevo, que tienen el mismo ancho.",
+      "Fideos de arroz planos, que se hidratan en agua caliente."
+    ],
+    "correcta": 3,
+    "explicacion": "Los fideos de arroz asiáticos no se cocinan como un fideo común: se hidratan o se hierven muy poco y se terminan en el wok. El udon y el ramen son de trigo.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-2-05",
+    "tema": "Panes y pastas",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te dice: “Soy vegana, ¿qué pan me puedo llevar?” ¿Qué le respondés?",
+    "opciones": [
+      "“Leamos juntas los ingredientes: algunos llevan leche, manteca, huevo o grasa vacuna.”",
+      "“Cualquiera, el pan es harina, agua y sal, y nunca lleva nada de origen animal.”",
+      "“El pan de campo, que es el más simple y natural de todos los que tenemos.”",
+      "“Los integrales, porque esos nunca llevan lácteos, huevo ni grasa animal.”"
+    ],
+    "correcta": 0,
+    "explicacion": "Muchos panes son solo harina, agua, sal y levadura, pero no todos. El pan de campo, por ejemplo, muchas veces lleva grasa vacuna.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-2-06",
+    "tema": "Panes y pastas",
+    "nivel": 2,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Soy celíaco. El chipá de la vitrina es de mandioca, así que no tiene gluten, ¿no?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, la mandioca no tiene gluten, así que el de la vitrina te sirve.”",
+      "“Sí, mientras no lo toques con la mano no hay ningún problema.”",
+      "“La mandioca no tiene, pero para vos solo sirve el chipá envasado con logo.”",
+      "“Sí, el chipá nunca lleva harina de trigo, es todo almidón.”"
+    ],
+    "correcta": 2,
+    "explicacion": "El almidón de mandioca no tiene gluten, pero lo que está suelto en la vitrina se puede contaminar. Para un celíaco, solo envasado con el logo sin TACC.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-3-01",
+    "tema": "Panes y pastas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca. Me dijeron que el pan de masa madre fermenta tanto que pierde el gluten, ¿lo puedo comer?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, con tantas horas de fermentación el gluten desaparece del todo y ya no te hace daño.”",
+      "“Sí, si es de centeno te sirve, porque el centeno no tiene gluten y fermenta todavía más.”",
+      "“No, el de trigo o de centeno tiene gluten aunque fermente muchas horas. Busquemos uno con logo sin TACC.”",
+      "“Depende de cada uno: si te cae bien y no sentís nada después de comerlo, no hay problema.”"
+    ],
+    "correcta": 2,
+    "explicacion": "La masa madre cambia el sabor y la miga, no el gluten. Y el centeno es una de las letras de TACC.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-3-02",
+    "tema": "Panes y pastas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Quiero un pan keto, pero soy alérgico a los frutos secos.” ¿Qué hacés?",
+    "opciones": [
+      "Le das cualquiera de los keto, porque no llevan harina de trigo y son todos parecidos.",
+      "Leen juntos la lista completa, porque casi todos llevan almendras, y ante la duda no se lo das.",
+      "Le das el de lino, porque los panes de semillas nunca llevan frutos secos en la masa.",
+      "Le decís que los keto son aptos para alérgicos porque no tienen gluten ni harina común."
+    ],
+    "correcta": 1,
+    "explicacion": "Los panes keto se hacen con harinas de almendras, coco o lino, y algunos además llevan gluten. Con una alergia se lee todo, y ante la duda no se recomienda.",
+    "gondola": "11-panes-y-panificados"
+  },
+  {
+    "id": "panes-pastas-3-03",
+    "tema": "Panes y pastas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Mi hija es celíaca y ya le compré fideos con logo. ¿Los puedo cocinar en la misma olla y con el colador de los comunes?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, si los cocinás en agua nueva, el colador no importa.”",
+      "“Sí, con enjuagar el colador bajo la canilla alcanza.”",
+      "“Sí, el gluten se va con el agua hirviendo.”",
+      "“Lo más seguro es todo aparte: olla, agua, colador y cuchara solo para ella.”"
+    ],
+    "correcta": 3,
+    "explicacion": "Un colador usado con fideos de trigo ya les puede pasar gluten. El logo cuida el paquete; en casa hay que cuidar el resto.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-3-04",
+    "tema": "Panes y pastas",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué fideos tienen más proteína?",
+    "opciones": [
+      "Los de lenteja o garbanzo",
+      "Los de arroz integral",
+      "Los de espinaca",
+      "Los de maíz y arroz"
+    ],
+    "correcta": 0,
+    "explicacion": "Los de legumbres tienen casi el doble de proteína que el fideo común, y los de arroz o maíz, cerca de la mitad. Si lo busca por un tema de salud, que lo vea con su nutricionista.",
+    "gondola": "10-pastas"
+  },
+  {
+    "id": "panes-pastas-3-05",
+    "tema": "Panes y pastas",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Soy celíaca y vegana. ¿Qué fideos me puedo llevar?” ¿Qué le respondés?",
+    "opciones": [
+      "“Los de sémola, que son solo trigo y agua, sin nada animal.”",
+      "“Unos de arroz sueltos del granel, que no tienen huevo ni gluten.”",
+      "“Envasados con el logo sin TACC, y leemos que no lleven huevo.”",
+      "“Los al huevo sin TACC, que son los más parecidos a los comunes.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Para el gluten manda el logo y para lo vegano, la lista de ingredientes. Hay que mirar las dos cosas antes de recomendar.",
+    "gondola": "10-pastas"
+  }
+]

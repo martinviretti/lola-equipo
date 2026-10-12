@@ -1,12 +1,17 @@
 ---
 // Examen del equipo en 3 niveles (diseño en DISENO-EXAMEN.md). Las preguntas están escritas a
-// mano en src/data/examen.json, cada una con su "nivel" (1, 2 o 3) y "critica" si es de seguridad.
+// mano en src/data/examen/<tema>.json, cada una con su "nivel" (1, 2 o 3) y "critica" si es de
+// seguridad (reglas en EXAMEN-BANCO.md).
 import { Image } from 'astro:assets';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import logo from '../assets/logo-lola-circulo.png';
-import banco from '../data/examen.json';
-import { NIVELES, APRUEBA } from '../data/niveles';
+import { NIVELES, APRUEBA, TEMAS } from '../data/niveles';
+
+const archivos = import.meta.glob<{ default: { tema: string }[] }>('../data/examen/*.json', { eager: true });
+const banco = Object.values(archivos)
+  .flatMap((m) => m.default)
+  .sort((a, b) => TEMAS.indexOf(a.tema) - TEMAS.indexOf(b.tema));
 ---
 
 <Manual title="Examinarme">
@@ -16,7 +21,8 @@ import { NIVELES, APRUEBA } from '../data/niveles';
       <section data-pantalla="inicio">
         <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Examinarme</h1>
         <p class="mt-2 text-lg text-texto-2">
-          Tres niveles para comprobar lo que sabés, de lo indispensable a lo más difícil del mostrador. Se aprueba con {APRUEBA}%.
+          Tres niveles para comprobar lo que sabés, de lo indispensable a lo más difícil del mostrador. Cada examen recorre las
+          {TEMAS.length} áreas del local. Se aprueba con {APRUEBA}%.
         </p>
         <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-menta-suave px-4 py-2 text-sm font-bold text-profundo" data-resumen>
           <Icon name="trophy" class="size-5 text-marca" /> <span>Aprobaste 0 de 3 niveles</span>
@@ -333,7 +339,7 @@ import { NIVELES, APRUEBA } from '../data/niveles';
 <script>
   import { url } from '../lib/url';
   import { app, type Nivel } from '../scripts/app';
-  import { NIVELES, APRUEBA, CRITICAS_POR_EXAMEN } from '../data/niveles';
+  import { NIVELES, APRUEBA, CRITICAS_POR_EXAMEN, TEMAS } from '../data/niveles';
 
   type Tipo = 'opcion' | 'situacion' | 'vf' | 'unir';
   interface Pregunta {
@@ -358,7 +364,7 @@ import { NIVELES, APRUEBA } from '../data/niveles';
   };
 
   const banco: Pregunta[] = JSON.parse(document.getElementById('banco-examen')!.textContent!);
-  const temas = [...new Set(banco.map((p) => p.tema))];
+  const temas = TEMAS.filter((t) => banco.some((p) => p.tema === t));
   const datosNivel = (n: Nivel) => NIVELES.find((x) => x.numero === n)!;
 
   const $ = <T extends HTMLElement>(s: string, raiz: ParentNode = document) => raiz.querySelector<T>(s)!;
@@ -395,7 +401,21 @@ import { NIVELES, APRUEBA } from '../data/niveles';
       cupos[p.tipo]--;
       pool = pool.filter((x) => x.id !== p.id);
     };
-    const conCupo = (lista: Pregunta[]) => lista.find((p) => cupos[p.tipo] > 0) ?? lista[0];
+    // Dos preguntas casi iguales (de temas distintos) no van en el mismo examen.
+    const palabras = (p: Pregunta) => new Set(p.pregunta.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').split(' ').filter((w) => w.length > 3));
+    const parecida = (p: Pregunta) => {
+      const a = palabras(p);
+      return elegidas.some((x) => {
+        const b = palabras(x);
+        const comunes = [...a].filter((w) => b.has(w)).length;
+        return comunes / (a.size + b.size - comunes || 1) > 0.55;
+      });
+    };
+    const conCupo = (lista: Pregunta[]) => {
+      const distintas = lista.filter((p) => !parecida(p));
+      const base = distintas.length ? distintas : lista;
+      return base.find((p) => cupos[p.tipo] > 0) ?? base[0];
+    };
 
     // 1. Preguntas clave, de temas distintos (si no alcanzan, de los niveles anteriores).
     const criticas = orden(pool.filter((p) => p.critica && p.tipo !== 'unir'));

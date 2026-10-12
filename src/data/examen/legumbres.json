@@ -1,0 +1,221 @@
+[
+  {
+    "id": "legumbres-1-01",
+    "tema": "Legumbres",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Las legumbres no se comen crudas ni a medio cocer.",
+    "correcta": true,
+    "explicacion": "Siempre tienen que quedar bien cocidas, sobre todo los porotos y la soja. Las de lata o frasco, como los lupines, ya vienen cocidas.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-1-02",
+    "tema": "Legumbres",
+    "nivel": 1,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Quiero hacer lentejas hoy y no las dejé en remojo.” ¿Qué le ofrecés?",
+    "opciones": [
+      "Garbanzos, que sin remojo se cocinan en media hora.",
+      "Porotos, si los hierve el doble de tiempo sin remojar.",
+      "Lentejas rojas, que no necesitan remojo y se hacen en poco tiempo.",
+      "Arvejas enteras, que son las más rápidas de la góndola."
+    ],
+    "correcta": 2,
+    "explicacion": "Las lentejas rojas vienen peladas y se deshacen rápido, ideales para sopas y cremas. Garbanzos, porotos, soja y habas sí necesitan remojo.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-1-03",
+    "tema": "Legumbres",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estas legumbres necesita remojo de 8 a 12 horas antes de cocinarla?",
+    "opciones": [
+      "Lentejas comunes",
+      "Garbanzos",
+      "Lentejas rojas",
+      "Arvejas partidas"
+    ],
+    "correcta": 1,
+    "explicacion": "Garbanzos, porotos, soja y habas van con remojo; después se tira esa agua y se cocinan en agua nueva. Lentejas y arvejas partidas no lo necesitan.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-1-04",
+    "tema": "Legumbres",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "Las legumbres de lata ya vienen cocidas: se enjuagan y van directo a la comida.",
+    "correcta": true,
+    "explicacion": "Son ideales para quien no tiene tiempo. Se enjuagan para sacarles el líquido salado. Las secas son más baratas y rinden más.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-1-05",
+    "tema": "Legumbres",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Con qué legumbre se hace el hummus?",
+    "opciones": [
+      "Con lentejas",
+      "Con porotos alubia",
+      "Con arvejas partidas",
+      "Con garbanzos"
+    ],
+    "correcta": 3,
+    "explicacion": "El hummus es garbanzo procesado con tahini, limón, ajo y comino. Si el cliente no tiene tiempo de remojar, le sirven los de lata.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-1-06",
+    "tema": "Legumbres",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "Como las legumbres no tienen gluten, a un celíaco le podés vender las del granel.",
+    "correcta": false,
+    "explicacion": "Las legumbres no tienen TACC de por sí, pero en el granel tienen contacto con otros productos. Para un celíaco, solo envasadas con el logo sin TACC.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-2-01",
+    "tema": "Legumbres",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada legumbre con lo que hay que saber para cocinarla.",
+    "pares": [
+      { "a": "Lenteja roja", "b": "Sin remojo, se deshace rápido" },
+      { "a": "Garbanzo", "b": "Remojo de una noche, se tira el agua" },
+      { "a": "Lupines", "b": "Vienen en frasco, listos para comer" },
+      { "a": "Poroto mung", "b": "Se usa mucho para germinar brotes" }
+    ],
+    "explicacion": "Con estos datos podés ayudar a cualquiera que viene con una receta en la cabeza. Igual, lo que dice el paquete siempre manda.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-2-02",
+    "tema": "Legumbres",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te dice: “Quiero lentejas para una ensalada, pero siempre me quedan hechas puré.” ¿Qué le ofrecés?",
+    "opciones": [
+      "Lentejas beluga, que son chiquitas y quedan enteras y firmes.",
+      "Lentejas rojas, que vienen peladas y se hacen más rápido.",
+      "Arvejas partidas, que quedan más firmes que las lentejas.",
+      "Lentejas comunes, pero remojadas desde dos días antes."
+    ],
+    "correcta": 0,
+    "explicacion": "La beluga es de las que mejor mantienen la forma. Las rojas y las arvejas partidas no tienen piel y se deshacen, por eso van para sopas y cremas.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-2-03",
+    "tema": "Legumbres",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Las legumbres me caen pesadas.” ¿Qué le respondés?",
+    "opciones": [
+      "“Llevate estas, que son especiales y no le caen pesadas a nadie.”",
+      "“Mucha gente las remoja, tira esa agua, las cocina bien y empieza con poquito.”",
+      "“Cocinalas en la misma agua del remojo, así no pierden nada.”",
+      "“Comelas un poco duras, que así se digieren mejor.”"
+    ],
+    "correcta": 1,
+    "explicacion": "Son costumbres que a muchos les sirven, sin prometer nada. Si le pasa seguido, que lo consulte con su médico.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-2-04",
+    "tema": "Legumbres",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "Si los porotos no se ablandan, puede ser que estén viejos o que les haya faltado remojo o cocción.",
+    "correcta": true,
+    "explicacion": "Las legumbres muy viejas tardan más en ablandarse. Lo más común es dejarlas más tiempo en el fuego, y mucha gente pone la sal recién al final.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-2-05",
+    "tema": "Legumbres",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "Un cliente lleva lentejas comunes para un guiso. ¿Qué le podés ofrecer para completar la receta?",
+    "opciones": [
+      "Tahini y limón, del sector de untables.",
+      "Levadura y harina de garbanzo.",
+      "Pimentón, comino o laurel, del sector de especias.",
+      "Fécula de mandioca, para que no se deshagan."
+    ],
+    "correcta": 2,
+    "explicacion": "El guiso de lentejas clásico lleva cebolla, morrón, zanahoria y pimentón. Ofrecer lo que completa la receta ayuda al cliente y suma venta.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-3-01",
+    "tema": "Legumbres",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Qué legumbre es de las que más proteína tienen?",
+    "opciones": [
+      "La lenteja roja",
+      "La soja",
+      "La arveja partida",
+      "El poroto mung"
+    ],
+    "correcta": 1,
+    "explicacion": "La soja se destaca, aunque todas las legumbres aportan proteínas y fibra. Si alguien lo busca por un tema de salud, que lo vea con su nutricionista.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-3-02",
+    "tema": "Legumbres",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Estoy embarazada. ¿Los brotes de poroto mung los puedo comer crudos en la ensalada?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, son brotes frescos y crudos tienen más vitaminas.”",
+      "“Sí, si los lavás bien con agua no hay ningún riesgo.”",
+      "“Mejor cocidos o salteados, y cualquier duda consultala con tu médico.”",
+      "“Sí, pero solo si los germinás vos en casa.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Los germinados crudos pueden tener bacterias. Para embarazadas, chicos chicos y personas mayores van mejor cocidos, y lo del embarazo lo ve el médico.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-3-03",
+    "tema": "Legumbres",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Soy alérgico al maní. ¿Los lupines los puedo comer en la picada?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, el maní es un fruto seco y los lupines son legumbres: no tienen que ver.”",
+      "“Mejor no te los recomiendo: pueden dar alergia a quien es alérgico al maní.”",
+      "“Sí, si les sacás la piel antes de comerlos no hay ningún problema.”",
+      "“Sí, vienen en salmuera y eso les saca lo que puede dar alergia.”"
+    ],
+    "correcta": 1,
+    "explicacion": "El maní también es una legumbre, y a los alérgicos al maní los lupines les pueden dar alergia. No siempre figuran entre los alérgenos destacados, así que ante la duda, no.",
+    "gondola": "09-legumbres"
+  },
+  {
+    "id": "legumbres-3-04",
+    "tema": "Legumbres",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Tengo favismo y quiero hacer un guiso de legumbres. ¿Me llevo habas?” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, si les sacás la piel después del remojo no te hacen nada.”",
+      "“Sí, las secas no tienen problema, lo malo son las frescas.”",
+      "“Sí, bien cocidas durante tres horas ya no te afectan.”",
+      "“Las habas no son para vos. ¿Te muestro lentejas o porotos?”"
+    ],
+    "correcta": 3,
+    "explicacion": "Las personas con favismo no pueden comer habas. Para un guiso hay muchas otras legumbres que le sirven igual.",
+    "gondola": "09-legumbres"
+  }
+]

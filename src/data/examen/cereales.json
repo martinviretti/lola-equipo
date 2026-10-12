@@ -1,0 +1,231 @@
+[
+  {
+    "id": "cereales-1-01",
+    "tema": "Cereales y arroces",
+    "nivel": 1,
+    "tipo": "vf",
+    "critica": true,
+    "pregunta": "La avena sirve para celíacos porque no es trigo.",
+    "correcta": false,
+    "explicacion": "En Argentina la avena está dentro de la sigla TACC: trigo, avena, cebada y centeno. Ninguna avena es apta para celíacos.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-1-02",
+    "tema": "Cereales y arroces",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué hay que hacer con la quinoa antes de cocinarla?",
+    "opciones": [
+      "Tostarla en una sartén, porque si no queda cruda.",
+      "Remojarla toda la noche y tirar el agua.",
+      "Molerla, porque entera no se cocina bien.",
+      "Lavarla bien en un colador, porque si no queda amarga."
+    ],
+    "correcta": 3,
+    "explicacion": "La quinoa tiene una capita amarga en la superficie que se va con el enjuague. Si alguien dice que le quedó amarga, seguro le faltó lavarla.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-1-03",
+    "tema": "Cereales y arroces",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre la granola y el muesli?",
+    "opciones": [
+      "El muesli está horneado con miel y la granola es cruda.",
+      "La granola está horneada y suele llevar más azúcar; el muesli es crudo.",
+      "Son lo mismo, solo cambia el nombre según la marca.",
+      "La granola es sin TACC y el muesli tiene avena."
+    ],
+    "correcta": 1,
+    "explicacion": "La granola se hornea con azúcar o miel y aceite, por eso queda crocante. Para saber cuál tiene menos azúcar, miren juntos la etiqueta.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-1-04",
+    "tema": "Cereales y arroces",
+    "nivel": 1,
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre el arroz integral y el blanco?",
+    "opciones": [
+      "El integral conserva el salvado: tiene más fibra y tarda más en cocinarse.",
+      "El integral no tiene gluten y el blanco sí, porque está más procesado.",
+      "El blanco tiene más fibra, porque está pulido y se le nota menos.",
+      "Son iguales, pero el integral se cocina más rápido que el blanco."
+    ],
+    "correcta": 0,
+    "explicacion": "Al integral solo se le saca la cáscara de afuera, por eso es marrón y más firme. Lleva más agua y bastante más tiempo de cocción que el blanco.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-1-05",
+    "tema": "Cereales y arroces",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "El arroz parboil queda suelto y casi no se pasa, aunque se cocine de más.",
+    "correcta": true,
+    "explicacion": "Antes de pulirlo se cocina al vapor con su cáscara, y eso deja el grano firme. Es el ideal para quien se olvida la olla o recién empieza a cocinar.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-1-06",
+    "tema": "Cereales y arroces",
+    "nivel": 1,
+    "tipo": "vf",
+    "pregunta": "El cuscús es un tipo de arroz, así que no tiene gluten.",
+    "correcta": false,
+    "explicacion": "El cuscús son bolitas de sémola de trigo y tiene TACC. Lo mismo pasa con el burgol y la cebada perlada.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-1-07",
+    "tema": "Cereales y arroces",
+    "nivel": 1,
+    "tipo": "situacion",
+    "pregunta": "Una clienta te dice: “Quiero avena para los licuados, algo rápido y suave.” ¿Qué le ofrecés?",
+    "opciones": [
+      "Avena tradicional, que tiene los copos grandes y se nota más.",
+      "Avena instantánea, que tiene copos chiquitos y se hidrata enseguida.",
+      "Salvado de avena, que es la misma avena en copos más finos.",
+      "Granola, que es avena ya lista para mezclar con la leche."
+    ],
+    "correcta": 1,
+    "explicacion": "La instantánea es la misma avena con un corte más fino, por eso queda suave y cremosa. La tradicional va mejor si le gusta que se note el copo.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-2-01",
+    "tema": "Cereales y arroces",
+    "nivel": 2,
+    "tipo": "situacion",
+    "pregunta": "Un cliente te dice: “Quiero hacer un risotto, ¿qué arroz me llevo?” ¿Qué le ofrecés?",
+    "opciones": [
+      "Arroz parboil, que no se pasa nunca.",
+      "Arroz basmati, que es el más aromático.",
+      "Arroz largo fino, el de todos los días.",
+      "Arroz arborio o carnaroli, de grano corto y gordo."
+    ],
+    "correcta": 3,
+    "explicacion": "Son arroces con mucho almidón que lo sueltan al cocinarse y dejan el plato cremoso. Con un largo fino o un parboil, el risotto no queda cremoso.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-2-02",
+    "tema": "Cereales y arroces",
+    "nivel": 2,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “¿Tenés avena sin gluten? Es para mi hijo, que es celíaco.” ¿Qué le respondés?",
+    "opciones": [
+      "“En Argentina la avena no es apta. Te ofrezco quinoa inflada envasada con logo sin TACC.”",
+      "“Sí, la instantánea, que está tan procesada que ya casi no tiene gluten.”",
+      "“Sí, la del frasco del granel es avena pura, sin nada de trigo mezclado.”",
+      "“La avena no tiene gluten, el que tiene es el trigo. Te sirve cualquiera.”"
+    ],
+    "correcta": 0,
+    "explicacion": "La avena es una de las letras de TACC. Para el desayuno de un celíaco hay copos de arroz o quinoa inflada, siempre envasados con el logo.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-2-03",
+    "tema": "Cereales y arroces",
+    "nivel": 2,
+    "tipo": "opcion",
+    "pregunta": "¿Qué indican los ceros del paquete de arroz, como 00000?",
+    "opciones": [
+      "Qué tan refinado es, igual que en la harina.",
+      "La calidad del grano: menos granos partidos o manchados.",
+      "Cuántos minutos menos tarda en cocinarse.",
+      "Que el arroz es apto para celíacos."
+    ],
+    "correcta": 1,
+    "explicacion": "Un 00000 es mejor que un 0000 porque viene más parejo. No tiene nada que ver con los ceros de la harina.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-2-04",
+    "tema": "Cereales y arroces",
+    "nivel": 2,
+    "tipo": "vf",
+    "pregunta": "El trigo sarraceno, aunque se llame trigo, no tiene gluten naturalmente.",
+    "correcta": true,
+    "explicacion": "Es la semilla de otra planta, no un trigo. Pero se contamina fácil, así que para un celíaco solo sirve envasado con el logo sin TACC.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-2-05",
+    "tema": "Cereales y arroces",
+    "nivel": 2,
+    "tipo": "unir",
+    "pregunta": "Uní cada producto con la comida para la que lo buscan.",
+    "pares": [
+      { "a": "Burgol", "b": "Tabulé y kibbe" },
+      { "a": "Maíz blanco partido", "b": "Locro y mazamorra" },
+      { "a": "Cebada perlada", "b": "Sopas y guisos que espesan" },
+      { "a": "Arroz jazmín", "b": "Salteados al wok y comida tailandesa" }
+    ],
+    "explicacion": "Saber el plato te ayuda a ofrecer el grano justo. Ojo: el burgol y la cebada tienen TACC.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-3-01",
+    "tema": "Cereales y arroces",
+    "nivel": 3,
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estos granos tiene más proteína?",
+    "opciones": [
+      "Arroz blanco",
+      "Arroz jazmín",
+      "Quinoa",
+      "Arroz parboil"
+    ],
+    "correcta": 2,
+    "explicacion": "La quinoa tiene más o menos el doble de proteína que el arroz blanco, y además más fibra. Los arroces blancos son sobre todo almidón.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-3-02",
+    "tema": "Cereales y arroces",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Un cliente te dice: “Tengo diabetes. ¿Qué granola me hace bien para el azúcar?” ¿Qué le respondés?",
+    "opciones": [
+      "“Esta sin azúcar agregada, que te ayuda a bajar el azúcar en sangre.”",
+      "“Cualquiera, porque la avena te controla el azúcar de por sí.”",
+      "“Comparemos el azúcar en las etiquetas. Para tu caso, consultalo con tu médico.”",
+      "“Llevate muesli, que es crudo y no tiene nada de azúcar.”"
+    ],
+    "correcta": 2,
+    "explicacion": "Nunca decimos que un producto sirve para una enfermedad. Sí podemos leer las etiquetas juntos, porque el azúcar varía mucho entre granolas y mueslis.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-3-03",
+    "tema": "Cereales y arroces",
+    "nivel": 3,
+    "tipo": "situacion",
+    "critica": true,
+    "pregunta": "Una clienta te dice: “Mi nene es celíaco. Los copos de maíz le sirven, ¿no? El maíz no tiene gluten.” ¿Qué le respondés?",
+    "opciones": [
+      "“Sí, son de maíz, así que cualquiera le sirve.”",
+      "“Sí, mientras sean los naturales, sin azúcar.”",
+      "“Sí, los del granel, que son maíz solo, sin agregados.”",
+      "“Solo los envasados con logo: muchos llevan malta, que tiene gluten.”"
+    ],
+    "correcta": 3,
+    "explicacion": "El extracto de malta se hace con cebada, una de las letras de TACC. Por eso no alcanza con que sean de maíz: tienen que traer el logo sin TACC.",
+    "gondola": "08-cereales-y-arroces"
+  },
+  {
+    "id": "cereales-3-04",
+    "tema": "Cereales y arroces",
+    "nivel": 3,
+    "tipo": "vf",
+    "pregunta": "El germen de trigo, una vez abierto, se puede guardar en la alacena como cualquier cereal.",
+    "correcta": false,
+    "explicacion": "Tiene mucha grasa natural y se pone rancio rápido. Una vez abierto va bien cerrado a la heladera, y si tiene olor amargo ya no sirve.",
+    "gondola": "08-cereales-y-arroces"
+  }
+]
