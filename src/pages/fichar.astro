@@ -1,0 +1,215 @@
+---
+// Fichar desde el celular: muestra un código QR que cambia cada 3 segundos para mostrarle a la
+// cámara de la compu del local. Solo sirve ahí y con la cara de la dueña del celular al lado.
+import Manual from '../layouts/Manual.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<Manual title="Fichar">
+  <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
+    <div class="mx-auto max-w-[520px]">
+      <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Fichar</h1>
+      <p class="mt-1 text-base text-texto-2">
+        Por lo general alcanza con mirar a la cámara de la compu del local. Si no te reconoce, mostrale este código, al lado de tu cara.
+      </p>
+
+      <section class="tarjeta-qr mt-6" aria-live="polite">
+        <div class="qr" data-qr>
+          <span class="size-8 animate-spin rounded-full border-4 border-marca border-t-transparent"></span>
+        </div>
+        <div class="tiempo" aria-hidden="true"><span data-qr-barra></span></div>
+        <p class="mt-3 text-center text-sm font-semibold text-profundo" data-qr-estado>Preparando tu código…</p>
+      </section>
+
+      <div class="mt-5 hidden rounded-2xl bg-menta-suave p-4" data-listo>
+        <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="check-circle" class="size-6 text-marca" /> <span data-listo-texto></span></p>
+      </div>
+
+      <ul class="mt-5 flex flex-col gap-2 text-sm text-texto">
+        <li class="flex gap-2"><Icon name="lightbulb" class="size-5 shrink-0 text-marca" /> Subí el brillo del celular al máximo.</li>
+        <li class="flex gap-2"><Icon name="user-focus" class="size-5 shrink-0 text-marca" /> Sostené el celular a la altura del pecho, con la pantalla hacia la cámara, y mirá a la cámara.</li>
+        <li class="flex gap-2"><Icon name="lock-key" class="size-5 shrink-0 text-marca" /> El código cambia cada 3 segundos: una foto o una captura no sirve, y si lo muestra otra persona se rechaza.</li>
+      </ul>
+
+      <section class="mt-9">
+        <h2 class="text-xl font-bold text-profundo">Tus fichadas de los últimos 7 días</h2>
+        <ul class="mt-3 flex flex-col gap-2" data-mias>
+          <li class="text-sm text-texto-2">Cargando…</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+</Manual>
+
+<style>
+  .tarjeta-qr {
+    border-radius: 28px;
+    background: #fff;
+    padding: 22px;
+    box-shadow:
+      inset 0 0 0 1px rgb(33 76 59 / 0.1),
+      0 24px 60px -40px rgb(33 76 59 / 0.5);
+  }
+  .qr {
+    display: flex;
+    aspect-ratio: 1;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .tiempo {
+    margin: 14px auto 0;
+    max-width: 360px;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+  }
+  .tiempo span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    border-radius: 9999px;
+    background: var(--color-marca);
+    transform-origin: left;
+  }
+</style>
+
+<script>
+  import { renderSVG } from 'uqr';
+  import { supabase } from '../lib/supabase';
+  import { sesionLista } from '../scripts/sesion';
+  import { textoQr, PASO_QR, hora, diaClave, diaLargo, duracion, tramos, type Fichada } from '../lib/fichador';
+
+  const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
+  const estado = (t: string) => ($('[data-qr-estado]').textContent = t);
+
+  let codigo: { id: string; clave: string; vence: number } | null = null;
+  let desfase = 0;
+  let pidiendo = false;
+  let ultimoPaso = -1;
+  let ultimaVista = Date.now();
+
+  async function pedir() {
+    if (pidiendo) return;
+    pidiendo = true;
+    try {
+      const { data, error } = await supabase!.rpc('pedir_codigo_fichaje');
+      if (error) {
+        codigo = null;
+        $('[data-qr]').replaceChildren();
+        estado(navigator.onLine ? 'No se pudo armar tu código. Probá de nuevo en un momento.' : 'Necesitás internet para mostrar tu código.');
+        return;
+      }
+      desfase = new Date(data.ahora).getTime() - Date.now();
+      codigo = { id: data.id, clave: data.clave, vence: new Date(data.vence).getTime() };
+      ultimoPaso = -1;
+    } finally {
+      pidiendo = false;
+    }
+  }
+
+  async function pintar() {
+    if (document.visibilityState === 'visible') {
+      const t = Date.now() + desfase;
+      if (!codigo || codigo.vence - t < 20000) await pedir();
+      if (codigo) {
+        const paso = Math.floor(t / 1000 / PASO_QR);
+        if (paso !== ultimoPaso) {
+          ultimoPaso = paso;
+          const texto = await textoQr(codigo.id, codigo.clave, paso);
+          $('[data-qr]').innerHTML = renderSVG(texto, { ecc: 'M', border: 2, pixelSize: 10, blackColor: '#1c3a2e', whiteColor: '#ffffff' });
+          estado('Mostrale este código a la cámara del local');
+        }
+        const resto = 1 - ((t / 1000) % PASO_QR) / PASO_QR;
+        $('[data-qr-barra]').style.transform = `scaleX(${resto})`;
+      }
+    }
+    setTimeout(() => void pintar(), 200);
+  }
+
+  // ---------- Pantalla prendida mientras se muestra el código ----------
+  async function mantenerPrendida() {
+    try {
+      await (navigator as Navigator & { wakeLock?: { request(t: 'screen'): Promise<unknown> } }).wakeLock?.request('screen');
+    } catch {}
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void mantenerPrendida();
+  });
+
+  // ---------- Mis fichadas ----------
+  let email = '';
+  async function misFichadas() {
+    const desde = new Date(Date.now() - 7 * 86400000).toISOString();
+    const { data, error } = await supabase!
+      .from('fichadas')
+      .select('id,email,tipo,hora,metodo,anulada')
+      .eq('email', email)
+      .gte('hora', desde)
+      .order('hora');
+    if (error) return;
+    const lista = data as Fichada[];
+
+    // ¿Fichó recién? Se avisa acá también y se pide un código nuevo (el usado ya no sirve).
+    const nueva = lista.filter((f) => !f.anulada && new Date(f.hora).getTime() > ultimaVista - 5000).pop();
+    if (nueva) {
+      ultimaVista = Date.now();
+      $('[data-listo]').classList.remove('hidden');
+      $('[data-listo-texto]').textContent = `Listo: ${nueva.tipo === 'entrada' ? 'entrada' : 'salida'} a las ${hora(nueva.hora)}`;
+      navigator.vibrate?.(120);
+      codigo = null;
+    }
+
+    const porDia = new Map<string, ReturnType<typeof tramos>>();
+    for (const t of tramos(lista)) porDia.set(t.dia, [...(porDia.get(t.dia) ?? []), t]);
+    const ul = $('[data-mias]');
+    if (!porDia.size) {
+      ul.replaceChildren(Object.assign(document.createElement('li'), { className: 'text-sm text-texto-2', textContent: 'Todavía no fichaste en estos días.' }));
+      return;
+    }
+    ul.replaceChildren(
+      ...[...porDia.entries()].reverse().map(([dia, ts]) => {
+        const li = document.createElement('li');
+        li.className = 'rounded-2xl bg-white px-4 py-3 ring-1 ring-profundo/10';
+        const cab = document.createElement('p');
+        cab.className = 'flex justify-between gap-3 font-semibold text-profundo';
+        const fecha = document.createElement('span');
+        fecha.className = 'first-letter:uppercase';
+        fecha.textContent = dia === diaClave(new Date()) ? 'Hoy' : diaLargo(`${dia}T12:00:00-03:00`);
+        const total = document.createElement('span');
+        total.className = 'tabular-nums';
+        const ms = ts.reduce((s, t) => s + t.ms, 0);
+        total.textContent = ms ? duracion(ms) : '';
+        cab.append(fecha, total);
+        li.append(cab);
+        for (const t of ts) {
+          const p = document.createElement('p');
+          p.className = 'mt-0.5 text-sm tabular-nums text-texto-2';
+          const fin = t.salida ? hora(t.salida.hora) : t.dia === diaClave(new Date()) ? 'seguís adentro' : 'falta la salida';
+          p.textContent = `${t.entrada ? hora(t.entrada.hora) : 'falta la entrada'} – ${fin}`;
+          li.append(p);
+        }
+        return li;
+      }),
+    );
+  }
+
+  sesionLista.then(async (acceso) => {
+    if (!acceso || !supabase) {
+      estado('Para fichar con el celular tenés que entrar con tu cuenta.');
+      return;
+    }
+    email = acceso.email;
+    void mantenerPrendida();
+    void pintar();
+    await misFichadas();
+    setInterval(() => document.visibilityState === 'visible' && void misFichadas(), 5000);
+  });
+</script>

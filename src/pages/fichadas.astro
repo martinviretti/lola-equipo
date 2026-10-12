@@ -1,0 +1,921 @@
+---
+// Panel de fichadas (solo admins): quién está ahora, la semana de cada persona con sus horas,
+// lo que hay que revisar, descargas para Excel y la configuración del fichador.
+import Manual from '../layouts/Manual.astro';
+import Icon from '../components/Icon.astro';
+import { url } from '../lib/url';
+
+const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
+---
+
+<Manual title="Fichadas">
+  <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
+    <div class="mx-auto max-w-[960px]">
+      <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Fichadas</h1>
+      <p class="mt-1 text-base text-texto-2">Quién vino, a qué hora entró y salió, y cuántas horas hizo.</p>
+
+      <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
+        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
+        <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
+        <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
+      </div>
+
+      <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
+        <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando las fichadas…
+      </p>
+
+      <div class="hidden" data-panel>
+        <!-- Ahora -->
+        <section class="mt-6">
+          <h2 class="seccion-titulo"><Icon name="storefront" class="size-6 text-marca" /> Ahora en el local</h2>
+          <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" data-ahora></div>
+        </section>
+
+        <!-- Para revisar -->
+        <section class="mt-8 hidden" data-revisar-seccion>
+          <h2 class="seccion-titulo"><Icon name="seal-warning" class="size-6 text-ambar" /> Para revisar <span class="contador" data-revisar-cuantas></span></h2>
+          <p class="mt-1 text-sm text-texto-2">Fichadas con el código del celular sin cara reconocida, o guardadas sin internet. Mirá la foto: si está bien, marcala.</p>
+          <ul class="mt-3 grid gap-3 sm:grid-cols-2" data-revisar></ul>
+        </section>
+
+        <!-- Semana -->
+        <section class="mt-8">
+          <div class="flex flex-wrap items-center gap-2">
+            <h2 class="seccion-titulo mr-auto"><Icon name="calendar-blank" class="size-6 text-marca" /> Semana</h2>
+            <button type="button" class="boton-icono" aria-label="Semana anterior" data-semana="-1"><Icon name="caret-left" class="size-5" /></button>
+            <span class="min-w-[11rem] text-center text-sm font-semibold text-profundo" data-semana-texto></span>
+            <button type="button" class="boton-icono" aria-label="Semana siguiente" data-semana="1"><Icon name="caret-right" class="size-5" /></button>
+            <button type="button" class="boton boton-secundario !px-3 !py-1.5 !text-sm" data-semana="0">Esta semana</button>
+          </div>
+          <p class="mt-1 text-sm text-texto-2">Tocá un día para ver el detalle con la foto, corregir una hora o agregar una fichada que faltó.</p>
+          <div class="mt-4 grid gap-4 lg:grid-cols-2" data-semana-personas></div>
+          <p class="mt-3 text-sm text-texto-2" data-semana-sin></p>
+        </section>
+
+        <!-- Excel -->
+        <section class="tarjeta mt-8">
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
+          <p class="tarjeta-sub">Un mes completo. Sirve para la liquidación y como copia de seguridad.</p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-[auto_1fr_1fr]">
+            <label class="sr-only" for="mes">Mes</label>
+            <input id="mes" type="month" class="campo" data-mes />
+            <button type="button" class="boton boton-principal" data-excel="horas"><Icon name="download-simple" class="size-5" /> Horas por persona</button>
+            <button type="button" class="boton boton-secundario" data-excel="detalle"><Icon name="download-simple" class="size-5" /> Todas las fichadas</button>
+          </div>
+        </section>
+
+        <!-- Configuración -->
+        <details class="tarjeta mt-8" data-config>
+          <summary class="flex cursor-pointer list-none items-center gap-2">
+            <Icon name="desktop" class="size-6 text-marca" />
+            <span class="tarjeta-titulo flex-1">Configurar el fichador</span>
+            <Icon name="caret-down" class="size-5 text-texto-2" />
+          </summary>
+
+          <h3 class="sub-titulo mt-5">Compus que fichan</h3>
+          <p class="tarjeta-sub">
+            Para sumar una: en la compu del local abrí <a class="enlace" href={linkFichador} target="_blank" rel="noopener">{linkFichador.replace('https://', '')}</a>, instalala como app y tocá
+            <strong>Activar con mi cuenta de admin</strong>.
+          </p>
+          <ul class="mt-3 flex flex-col gap-2" data-compus></ul>
+
+          <h3 class="sub-titulo mt-7">Caras registradas</h3>
+          <p class="tarjeta-sub">
+            Generá un código, y en la compu del local tocá <strong>Registrar cara</strong> y escribilo con la persona adelante. Vale 15 minutos.
+          </p>
+          <ul class="mt-3 flex flex-col gap-2" data-caras></ul>
+
+          <h3 class="sub-titulo mt-7">Horario fijo (opcional)</h3>
+          <p class="tarjeta-sub">
+            Apagado, solo se registran las fichadas. Prendido, en la semana se marca si alguien llegó tarde o se fue antes. Nunca bloquea a nadie: los reemplazos y cambios de turno se pueden fichar igual.
+          </p>
+          <ul class="mt-3 flex flex-col gap-2" data-horarios></ul>
+
+          <h3 class="sub-titulo mt-7">Ajustes</h3>
+          <form class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]" data-ajustes>
+            <label class="text-sm font-semibold text-profundo"
+              >Exigencia del reconocimiento
+              <select class="campo mt-1" name="similitud_min">
+                <option value="0.45">Suave</option>
+                <option value="0.5">Normal (recomendada)</option>
+                <option value="0.55">Estricta</option>
+              </select>
+            </label>
+            <label class="text-sm font-semibold text-profundo"
+              >Contra fotos
+              <span class="campo mt-1 flex items-center gap-2 !py-2.5 font-normal">
+                <input type="checkbox" name="parpadeo" class="size-5 accent-[var(--color-marca)]" /> Pedir un parpadeo
+              </span>
+            </label>
+            <label class="text-sm font-semibold text-profundo"
+              >Tolerancia para el horario (minutos)
+              <input class="campo mt-1" name="tolerancia_min" type="number" min="0" max="60" step="1" />
+            </label>
+            <button type="submit" class="boton boton-principal self-end">Guardar</button>
+          </form>
+          <p class="mt-2 text-xs text-texto-2">Si el fichador confunde personas, subí la exigencia. Si a alguien le cuesta que la reconozca, volvé a registrar su cara con buena luz. "Pedir un parpadeo" frena a quien quiera fichar con una foto impresa, a cambio de un segundo más. Para ver los números con la cámara del local, abrí el fichador con <strong>?calibrar</strong> al final de la dirección.</p>
+        </details>
+
+        <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
+      </div>
+    </div>
+  </main>
+
+  <dialog class="detalle" data-detalle>
+    <div class="detalle-caja">
+      <div class="flex items-start gap-3">
+        <div class="min-w-0 flex-1">
+          <p class="text-xl font-bold text-profundo" data-detalle-titulo></p>
+          <p class="text-sm text-texto-2 first-letter:uppercase" data-detalle-sub></p>
+        </div>
+        <button type="button" class="boton-icono" aria-label="Cerrar" data-detalle-cerrar><Icon name="x" class="size-6" /></button>
+      </div>
+      <ul class="mt-4 flex flex-col gap-3" data-detalle-lista></ul>
+      <form class="mt-5 rounded-2xl bg-crema p-4" data-agregar-fichada>
+        <p class="font-semibold text-profundo">Agregar una fichada que faltó</p>
+        <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-[auto_auto_1fr_auto]">
+          <select class="campo" name="tipo" aria-label="Tipo">
+            <option value="entrada">Entrada</option>
+            <option value="salida">Salida</option>
+          </select>
+          <input class="campo" type="time" name="hora" required aria-label="Hora" />
+          <input class="campo col-span-2 sm:col-span-1" name="nota" required placeholder="Por qué (ej.: se olvidó de fichar)" aria-label="Motivo" />
+          <button type="submit" class="boton boton-principal col-span-2 !py-2 sm:col-span-1">Agregar</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+</Manual>
+
+<style>
+  .seccion-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .sub-titulo {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .contador {
+    border-radius: 9999px;
+    background: var(--color-ambar-suave);
+    padding: 2px 10px;
+    font-size: 0.875rem;
+    color: var(--color-ambar);
+  }
+  .tarjeta {
+    border-radius: 24px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  .tarjeta summary::-webkit-details-marker {
+    display: none;
+  }
+  .tarjeta[open] summary :global(svg:last-child) {
+    transform: rotate(180deg);
+  }
+  .tarjeta-titulo {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .tarjeta-sub {
+    margin-top: 2px;
+    font-size: 0.875rem;
+    color: var(--color-texto-2);
+  }
+  .enlace {
+    font-weight: 600;
+    color: var(--color-profundo);
+    text-decoration: underline;
+    text-decoration-color: var(--color-marca);
+    text-underline-offset: 3px;
+    word-break: break-all;
+  }
+  .campo {
+    width: 100%;
+    border-radius: 14px;
+    background: var(--color-crema);
+    padding: 10px 12px;
+    font-size: 1rem;
+    color: var(--color-texto);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
+    outline: none;
+  }
+  .campo:focus {
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  .boton-icono {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    color: var(--color-profundo);
+  }
+  .boton-icono:hover {
+    background: var(--color-menta-suave);
+  }
+  .detalle {
+    width: min(620px, calc(100% - 24px));
+    max-height: calc(100svh - 32px);
+    margin: auto;
+    border-radius: 28px;
+    padding: 0;
+    background: #fff;
+    box-shadow: 0 40px 100px -30px rgb(33 76 59 / 0.6);
+  }
+  .detalle::backdrop {
+    background: rgb(33 76 59 / 0.35);
+    backdrop-filter: blur(4px);
+  }
+  .detalle-caja {
+    padding: 22px;
+  }
+  :global(.marca) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 9999px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  :global(.marca-ambar) {
+    background: var(--color-ambar-suave);
+    color: var(--color-ambar);
+  }
+  :global(.marca-gris) {
+    background: var(--color-arena-suave);
+    color: var(--color-texto-2);
+  }
+  :global(.marca-verde) {
+    background: var(--color-menta-suave);
+    color: var(--color-profundo);
+  }
+  :global(.dia-fila) {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 10px;
+    border-radius: 14px;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  :global(.dia-fila:hover) {
+    background: var(--color-menta-suave);
+  }
+  :global(.foto-fichada) {
+    width: 88px;
+    height: 66px;
+    flex: none;
+    border-radius: 12px;
+    background: var(--color-menta-suave);
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+  :global(.grilla-horario) {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 6px 8px;
+    align-items: center;
+  }
+</style>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { sesionLista } from '../scripts/sesion';
+  import { descargarCsv, fechaExcel } from '../lib/csv';
+  import { hora, diaClave, diaLargo, duracion, tramos, type Fichada, type Tramo } from '../lib/fichador';
+
+  // ---------- Tipos ----------
+  interface Persona {
+    email: string;
+    nombre: string | null;
+    rol: 'empleada' | 'admin';
+    activo: boolean;
+    horario_fijo: boolean;
+  }
+  interface FichadaCompleta extends Fichada {
+    similitud: number | null;
+    revisada_por: string | null;
+    anulada_por: string | null;
+    motivo: string | null;
+    nota: string | null;
+    corregida_por: string | null;
+  }
+  interface Cara {
+    id: number;
+    email: string;
+    foto: string | null;
+    creada_el: string;
+  }
+  interface Compu {
+    id: string;
+    nombre: string;
+    activo: boolean;
+    creado_por: string;
+    creado_el: string;
+    ultimo_uso: string | null;
+  }
+  interface Horario {
+    email: string;
+    dia: number;
+    entrada: string;
+    salida: string;
+  }
+  interface Ajustes {
+    similitud_min: number;
+    tolerancia_min: number;
+    horas_max_turno: number;
+    parpadeo: boolean;
+  }
+
+  const COLUMNAS = 'id,email,tipo,hora,metodo,similitud,sin_conexion,revisar,revisada_el,revisada_por,anulada,anulada_por,motivo,creada_por,nota,hora_original,corregida_por';
+  const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+  // ---------- Utilidades ----------
+  const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, clase = '', texto = '') => {
+    const e = document.createElement(tag);
+    if (clase) e.className = clase;
+    if (texto) e.textContent = texto;
+    return e;
+  };
+  const boton = (texto: string, clase: string, accion: () => void) => {
+    const b = el('button', `boton !py-1.5 !px-3 !text-sm ${clase}`, texto);
+    b.type = 'button';
+    b.addEventListener('click', accion);
+    return b;
+  };
+  const nombreDe = (email: string) => {
+    const p = personas.find((x) => x.email === email);
+    return p?.nombre || email.split('@')[0];
+  };
+  /** Medianoche de un día de Argentina, como ISO. */
+  const inicioDia = (dia: string) => `${dia}T00:00:00-03:00`;
+  const sumarDias = (dia: string, n: number) => diaClave(new Date(new Date(`${dia}T12:00:00-03:00`).getTime() + n * 86400000));
+  const diaSemana = (dia: string) => new Date(`${dia}T12:00:00-03:00`).getUTCDay();
+  const lunesDe = (dia: string) => sumarDias(dia, -((diaSemana(dia) + 6) % 7));
+  const minutos = (hhmm: string) => {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  };
+  const minutosDe = (iso: string) => minutos(hora(iso));
+
+  // ---------- Estado ----------
+  let personas: Persona[] = [];
+  let ajustes: Ajustes = { similitud_min: 0.5, tolerancia_min: 15, horas_max_turno: 16, parpadeo: false };
+  let horarios: Horario[] = [];
+  let conCara = new Set<string>();
+  let lunes = lunesDe(diaClave(new Date()));
+  let semana: FichadaCompleta[] = [];
+
+  async function q<T>(p: PromiseLike<{ data: T | null; error: unknown }>): Promise<T> {
+    const { data, error } = await p;
+    if (error) throw error;
+    return data as T;
+  }
+
+  // ---------- Carga ----------
+  async function cargarTodo() {
+    const db = supabase!;
+    const [ps, aj, hs, cs] = await Promise.all([
+      q<Persona[]>(db.from('autorizados').select('email,nombre,rol,activo,horario_fijo').order('nombre')),
+      q<Ajustes[]>(db.from('ajustes_fichador').select('similitud_min,tolerancia_min,horas_max_turno,parpadeo')),
+      q<Horario[]>(db.from('horarios').select('email,dia,entrada,salida')),
+      q<{ email: string }[]>(db.from('caras').select('email')),
+    ]);
+    conCara = new Set(cs.map((c) => c.email));
+    personas = ps;
+    if (aj[0]) ajustes = aj[0];
+    horarios = hs;
+    await Promise.all([pintarAhora(), pintarRevisar(), cargarSemana(), pintarConfig()]);
+  }
+
+  // ---------- Ahora en el local ----------
+  async function pintarAhora() {
+    const hoy = diaClave(new Date());
+    const fs = await q<FichadaCompleta[]>(
+      supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(sumarDias(hoy, -1))).eq('anulada', false).order('hora'),
+    );
+    const ts = tramosPorPersona(fs).filter((t) => t.dia === hoy || (t.entrada && !t.salida && t.dia === sumarDias(hoy, -1)));
+    const caja = $('[data-ahora]');
+    if (!ts.length) {
+      caja.replaceChildren(el('p', 'text-sm text-texto-2 sm:col-span-3', 'Hoy todavía no fichó nadie.'));
+      return;
+    }
+    const adentro = ts.filter((t) => t.entrada && !t.salida);
+    const fueron = ts.filter((t) => t.salida && !adentro.some((a) => a.email === t.email));
+    const unicos = (lista: Tramo[]) => [...new Map(lista.map((t) => [t.email, t])).values()];
+    caja.replaceChildren(
+      ...unicos(adentro).map((t) => {
+        const c = el('div', 'rounded-2xl bg-white p-4 ring-2 ring-marca/40');
+        c.append(
+          el('p', 'flex items-center gap-2 font-bold text-profundo', ''),
+          el('p', 'mt-0.5 text-sm text-texto-2 tabular-nums', `Entró a las ${hora(t.entrada!.hora)} · lleva ${duracion(Date.now() - new Date(t.entrada!.hora).getTime())}`),
+        );
+        const n = c.firstElementChild!;
+        n.append(el('span', 'size-2.5 rounded-full bg-marca'), nombreDe(t.email));
+        return c;
+      }),
+      ...unicos(fueron).map((t) => {
+        const c = el('div', 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10');
+        const total = ts.filter((x) => x.email === t.email).reduce((s, x) => s + x.ms, 0);
+        c.append(el('p', 'font-bold text-texto-2', nombreDe(t.email)), el('p', 'mt-0.5 text-sm text-texto-2 tabular-nums', `Se fue a las ${hora(t.salida!.hora)} · ${duracion(total)} hoy`));
+        return c;
+      }),
+    );
+  }
+
+  // ---------- Para revisar ----------
+  async function pintarRevisar() {
+    const fs = await q<FichadaCompleta[]>(
+      supabase!
+        .from('fichadas')
+        .select(COLUMNAS)
+        .not('revisar', 'is', null)
+        .is('revisada_el', null)
+        .eq('anulada', false)
+        .gte('hora', new Date(Date.now() - 30 * 86400000).toISOString())
+        .order('hora', { ascending: false }),
+    );
+    $('[data-revisar-seccion]').classList.toggle('hidden', !fs.length);
+    $('[data-revisar-cuantas]').textContent = String(fs.length);
+    $('[data-revisar]').replaceChildren(
+      ...fs.map((f) => {
+        const li = el('li', 'flex gap-3 rounded-2xl bg-white p-3 ring-1 ring-ambar/30');
+        const img = el('img', 'foto-fichada');
+        img.alt = `Foto de la fichada de ${nombreDe(f.email)}`;
+        const txt = el('div', 'min-w-0 flex-1');
+        txt.append(
+          el('p', 'font-bold text-profundo', nombreDe(f.email)),
+          el('p', 'text-sm text-texto-2 tabular-nums first-letter:uppercase', `${diaLargo(f.hora)} · ${f.tipo} ${hora(f.hora)}`),
+          el('p', 'mt-1 text-xs font-semibold text-ambar', f.revisar ?? ''),
+        );
+        const acciones = el('div', 'mt-2 flex flex-wrap gap-2');
+        acciones.append(
+          boton('Está bien', 'boton-principal', async () => {
+            await supabase!.rpc('marcar_revisada', { p_id: f.id });
+            void refrescar();
+          }),
+          boton('Anular', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', () => void anular(f)),
+        );
+        txt.append(acciones);
+        li.append(img, txt);
+        void ponerFoto(img, f.id);
+        return li;
+      }),
+    );
+  }
+
+  const fotos = new Map<number, string | null>();
+  async function ponerFoto(img: HTMLImageElement, id: number) {
+    if (!fotos.has(id)) {
+      const { data } = await supabase!.from('fotos_fichada').select('foto').eq('fichada_id', id).maybeSingle();
+      fotos.set(id, (data?.foto as string) ?? null);
+    }
+    const f = fotos.get(id);
+    if (f) img.src = f;
+    else img.replaceWith(el('span', 'foto-fichada flex items-center justify-center text-center text-[0.7rem] text-texto-2', 'Sin foto'));
+  }
+
+  // ---------- Semana ----------
+  function tramosPorPersona(fs: Fichada[]) {
+    const por = new Map<string, Fichada[]>();
+    for (const f of fs) por.set(f.email, [...(por.get(f.email) ?? []), f]);
+    return [...por.values()].flatMap((lista) => tramos(lista, ajustes.horas_max_turno));
+  }
+
+  /** Marcas de horario (solo si la persona tiene horario fijo prendido). */
+  function marcasHorario(email: string, dia: string, ts: Tramo[]): string[] {
+    const p = personas.find((x) => x.email === email);
+    if (!p?.horario_fijo) return [];
+    const h = horarios.find((x) => x.email === email && x.dia === diaSemana(dia));
+    if (!h) return ts.length ? ['Día fuera de su horario'] : [];
+    const marcas: string[] = [];
+    const tol = ajustes.tolerancia_min;
+    const primera = ts.find((t) => t.entrada)?.entrada;
+    const ultima = [...ts].reverse().find((t) => t.salida)?.salida;
+    if (primera) {
+      const tarde = minutosDe(primera.hora) - minutos(h.entrada);
+      if (tarde > tol) marcas.push(`Llegó ${tarde} min tarde`);
+    }
+    if (ultima) {
+      const antes = minutos(h.salida) - minutosDe(ultima.hora);
+      if (antes > tol) marcas.push(`Se fue ${antes} min antes`);
+    }
+    return marcas;
+  }
+
+  async function cargarSemana() {
+    const desde = inicioDia(sumarDias(lunes, -1));
+    const hasta = inicioDia(sumarDias(lunes, 8));
+    semana = await q<FichadaCompleta[]>(supabase!.from('fichadas').select(COLUMNAS).gte('hora', desde).lt('hora', hasta).order('hora'));
+    pintarSemana();
+  }
+
+  function pintarSemana() {
+    const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i));
+    const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', timeZone: 'America/Argentina/Buenos_Aires' });
+    $('[data-semana-texto]').textContent = `${fmt.format(new Date(`${dias[0]}T12:00:00-03:00`))} al ${fmt.format(new Date(`${dias[6]}T12:00:00-03:00`))}`;
+    const ts = tramosPorPersona(semana).filter((t) => dias.includes(t.dia));
+    // Las que fichan: empleadas, y admins con cara registrada (la encargada también ficha).
+    const activas = personas.filter((p) => p.activo && (p.rol === 'empleada' || conCara.has(p.email)));
+    const conFichadas = personas.filter((p) => ts.some((t) => t.email === p.email));
+    const sin = activas.filter((p) => !conFichadas.includes(p));
+    $('[data-semana-sin]').textContent = sin.length ? `Sin fichadas esta semana: ${sin.map((p) => p.nombre || p.email.split('@')[0]).join(', ')}.` : '';
+
+    const caja = $('[data-semana-personas]');
+    if (!conFichadas.length) {
+      caja.replaceChildren(el('p', 'text-sm text-texto-2 lg:col-span-2', 'No hay fichadas en esta semana.'));
+      return;
+    }
+    caja.replaceChildren(
+      ...conFichadas.map((p) => {
+        const mios = ts.filter((t) => t.email === p.email);
+        const total = mios.reduce((s, t) => s + t.ms, 0);
+        const tarjeta = el('article', 'tarjeta !p-4');
+        const cab = el('div', 'flex items-baseline justify-between gap-3 px-2');
+        cab.append(el('h3', 'text-lg font-bold text-profundo', p.nombre || p.email.split('@')[0]), el('span', 'text-lg font-bold tabular-nums text-marca', duracion(total)));
+        const lista = el('ul', 'mt-2 flex flex-col');
+        for (const dia of dias) {
+          const delDia = mios.filter((t) => t.dia === dia);
+          if (!delDia.length) continue;
+          const li = el('li');
+          const fila = el('button', 'dia-fila');
+          fila.type = 'button';
+          const nombreDia = el('span', 'w-12 shrink-0 pt-0.5 text-sm font-semibold text-texto-2', `${DIAS[diaSemana(dia)].slice(0, 3)} ${Number(dia.slice(8))}`);
+          const cuerpo = el('span', 'flex min-w-0 flex-1 flex-col gap-1');
+          for (const t of delDia) {
+            const linea = el('span', 'flex flex-wrap items-center gap-1.5 text-sm tabular-nums text-texto');
+            linea.append(el('span', 'font-semibold', `${t.entrada ? hora(t.entrada.hora) : '¿?'} – ${t.salida ? hora(t.salida.hora) : '¿?'}`));
+            if (t.ms) linea.append(el('span', 'text-texto-2', `· ${duracion(t.ms)}`));
+            if (!t.salida && dia !== diaClave(new Date())) linea.append(el('span', 'marca marca-ambar', 'Falta la salida'));
+            if (!t.salida && dia === diaClave(new Date())) linea.append(el('span', 'marca marca-verde', 'Adentro'));
+            if (!t.entrada) linea.append(el('span', 'marca marca-ambar', 'Falta la entrada'));
+            for (const f of [t.entrada, t.salida].filter(Boolean) as FichadaCompleta[]) {
+              if (f.revisar && !f.revisada_el) linea.append(el('span', 'marca marca-ambar', 'Revisar'));
+              if (f.metodo === 'manual') linea.append(el('span', 'marca marca-gris', 'A mano'));
+              if (f.hora_original) linea.append(el('span', 'marca marca-gris', 'Corregida'));
+            }
+            cuerpo.append(linea);
+          }
+          for (const m of marcasHorario(p.email, dia, delDia)) cuerpo.append(el('span', 'marca marca-ambar self-start', m));
+          fila.append(nombreDia, cuerpo);
+          fila.addEventListener('click', () => abrirDetalle(p.email, dia));
+          li.append(fila);
+          lista.append(li);
+        }
+        tarjeta.append(cab, lista);
+        return tarjeta;
+      }),
+    );
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-semana]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const n = Number(b.dataset.semana);
+      lunes = n === 0 ? lunesDe(diaClave(new Date())) : sumarDias(lunes, n * 7);
+      void cargarSemana();
+    }),
+  );
+
+  // ---------- Detalle de un día ----------
+  const dialogo = $<HTMLDialogElement>('[data-detalle]');
+  let detalle: { email: string; dia: string } | null = null;
+  $('[data-detalle-cerrar]').addEventListener('click', () => dialogo.close());
+  dialogo.addEventListener('click', (e) => e.target === dialogo && dialogo.close());
+
+  const METODO: Record<string, string> = { cara: 'Con la cara', codigo: 'Con el código del celular', manual: 'Cargada a mano' };
+
+  function abrirDetalle(email: string, dia: string) {
+    detalle = { email, dia };
+    $('[data-detalle-titulo]').textContent = nombreDe(email);
+    $('[data-detalle-sub]').textContent = diaLargo(`${dia}T12:00:00-03:00`);
+    const fs = semana.filter((f) => f.email === email && diaClave(f.hora) === dia);
+    const lista = $('[data-detalle-lista]');
+    lista.replaceChildren(
+      ...fs.map((f) => {
+        const li = el('li', `flex gap-3 rounded-2xl p-3 ring-1 ring-profundo/10 ${f.anulada ? 'opacity-60' : ''}`);
+        const img = el('img', 'foto-fichada');
+        img.alt = 'Foto de la fichada';
+        const txt = el('div', 'min-w-0 flex-1');
+        const titulo = el('p', `font-bold text-profundo tabular-nums ${f.anulada ? 'line-through' : ''}`, `${f.tipo === 'entrada' ? 'Entrada' : 'Salida'} · ${hora(f.hora)}`);
+        txt.append(titulo);
+        const datos: string[] = [METODO[f.metodo]];
+        if (f.similitud != null) datos.push(`parecido ${Math.round(f.similitud * 100)}%`);
+        txt.append(el('p', 'text-xs text-texto-2', datos.join(' · ')));
+        if (f.revisar) txt.append(el('p', 'mt-1 text-xs font-semibold text-ambar', f.revisada_el ? `${f.revisar} (revisada)` : f.revisar));
+        if (f.creada_por) txt.append(el('p', 'text-xs text-texto-2', `La cargó ${f.creada_por}${f.nota ? `: ${f.nota}` : ''}`));
+        if (f.hora_original) txt.append(el('p', 'text-xs text-texto-2', `Antes decía ${hora(f.hora_original)}. La corrigió ${f.corregida_por}${f.motivo && !f.anulada ? `: ${f.motivo}` : ''}`));
+        if (f.anulada) txt.append(el('p', 'text-xs font-semibold text-peligro', `Anulada por ${f.anulada_por}${f.motivo ? `: ${f.motivo}` : ''}`));
+
+        if (!f.anulada) {
+          const acciones = el('div', 'mt-2 flex flex-wrap items-center gap-2');
+          const corregir = el('form', 'flex items-center gap-1.5');
+          const input = el('input', 'campo !w-28 !py-1.5');
+          input.type = 'time';
+          input.value = hora(f.hora);
+          input.setAttribute('aria-label', 'Hora corregida');
+          const guardar = el('button', 'boton boton-secundario !py-1.5 !px-3 !text-sm', 'Corregir hora');
+          guardar.type = 'submit';
+          corregir.append(input, guardar);
+          corregir.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!input.value || input.value === hora(f.hora)) return;
+            const motivo = prompt('¿Por qué se corrige? (queda registrado)') ?? '';
+            await supabase!.rpc('corregir_fichada', { p_id: f.id, p_hora: new Date(`${dia}T${input.value}:00-03:00`).toISOString(), p_motivo: motivo });
+            await refrescar();
+            abrirDetalle(email, dia);
+          });
+          acciones.append(corregir, boton('Anular', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', () => void anular(f, true)));
+          if (f.revisar && !f.revisada_el)
+            acciones.append(
+              boton('Está bien', 'boton-principal', async () => {
+                await supabase!.rpc('marcar_revisada', { p_id: f.id });
+                await refrescar();
+                abrirDetalle(email, dia);
+              }),
+            );
+          txt.append(acciones);
+        }
+        li.append(img, txt);
+        void ponerFoto(img, f.id);
+        return li;
+      }),
+    );
+    if (!fs.length) lista.replaceChildren(el('li', 'text-sm text-texto-2', 'Sin fichadas este día.'));
+    if (!dialogo.open) dialogo.showModal();
+  }
+
+  async function anular(f: Fichada, reabrir = false) {
+    const motivo = prompt(`¿Anular la ${f.tipo} de ${nombreDe(f.email)} de las ${hora(f.hora)}? Contá por qué (queda registrado):`);
+    if (motivo === null) return;
+    await supabase!.rpc('anular_fichada', { p_id: f.id, p_motivo: motivo });
+    await refrescar();
+    if (reabrir && detalle) abrirDetalle(detalle.email, detalle.dia);
+  }
+
+  $<HTMLFormElement>('[data-agregar-fichada]').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!detalle) return;
+    const f = e.target as HTMLFormElement;
+    const d = new FormData(f);
+    const { error } = await supabase!.rpc('fichada_manual', {
+      p_email: detalle.email,
+      p_tipo: String(d.get('tipo')),
+      p_hora: new Date(`${detalle.dia}T${d.get('hora')}:00-03:00`).toISOString(),
+      p_nota: String(d.get('nota') ?? ''),
+    });
+    if (error) return alert('No se pudo agregar. Revisá la conexión.');
+    f.reset();
+    await refrescar();
+    abrirDetalle(detalle.email, detalle.dia);
+  });
+
+  // ---------- Excel ----------
+  const mes = $<HTMLInputElement>('[data-mes]');
+  mes.value = diaClave(new Date()).slice(0, 7);
+  document.querySelectorAll<HTMLButtonElement>('[data-excel]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const [a, m] = mes.value.split('-').map(Number);
+      if (!a || !m) return;
+      const primero = `${mes.value}-01`;
+      const siguiente = `${m === 12 ? a + 1 : a}-${String(m === 12 ? 1 : m + 1).padStart(2, '0')}-01`;
+      let fs: FichadaCompleta[];
+      try {
+        fs = await q<FichadaCompleta[]>(supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(primero)).lt('hora', inicioDia(siguiente)).order('hora').limit(10000));
+      } catch {
+        return alert('No se pudieron bajar los datos. Revisá la conexión.');
+      }
+      if (b.dataset.excel === 'detalle') {
+        const filas: (string | number)[][] = [['Nombre', 'Mail', 'Tipo', 'Fecha y hora', 'Cómo fichó', 'Parecido (%)', 'Para revisar', 'Revisada por', 'Cargada por', 'Nota', 'Hora original', 'Corregida por', 'Anulada', 'Motivo']];
+        for (const f of fs)
+          filas.push([
+            nombreDe(f.email),
+            f.email,
+            f.tipo === 'entrada' ? 'Entrada' : 'Salida',
+            fechaExcel(f.hora),
+            METODO[f.metodo],
+            f.similitud != null ? Math.round(f.similitud * 100) : '',
+            f.revisar ?? '',
+            f.revisada_por ?? '',
+            f.creada_por ?? '',
+            f.nota ?? '',
+            fechaExcel(f.hora_original ?? null),
+            f.corregida_por ?? '',
+            f.anulada ? 'Sí' : '',
+            f.motivo ?? '',
+          ]);
+        descargarCsv(`lola-fichadas-${mes.value}.csv`, filas);
+      } else {
+        const ts = tramosPorPersona(fs);
+        const filas: (string | number)[][] = [['Nombre', 'Mail', 'Días trabajados', 'Horas (h:mm)', 'Horas (decimal)', 'Tramos sin salida o sin entrada', 'Fichadas para revisar']];
+        for (const p of personas) {
+          const mios = ts.filter((t) => t.email === p.email);
+          if (!mios.length) continue;
+          const ms = mios.reduce((s, t) => s + t.ms, 0);
+          const min = Math.round(ms / 60000);
+          filas.push([
+            p.nombre || p.email.split('@')[0],
+            p.email,
+            new Set(mios.map((t) => t.dia)).size,
+            `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`,
+            (min / 60).toFixed(2).replace('.', ','),
+            mios.filter((t) => !t.entrada || !t.salida).length,
+            fs.filter((f) => f.email === p.email && !f.anulada && f.revisar && !f.revisada_el).length,
+          ]);
+        }
+        descargarCsv(`lola-horas-${mes.value}.csv`, filas);
+      }
+    }),
+  );
+
+  // ---------- Configuración ----------
+  async function pintarConfig() {
+    const db = supabase!;
+    const [compus, caras] = await Promise.all([
+      q<Compu[]>(db.from('dispositivos').select('id,nombre,activo,creado_por,creado_el,ultimo_uso').order('creado_el')),
+      q<Cara[]>(db.from('caras').select('id,email,foto,creada_el').order('id')),
+    ]);
+
+    // Compus
+    const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    $('[data-compus]').replaceChildren(
+      ...(compus.length
+        ? compus.map((c) => {
+            const li = el('li', `flex flex-wrap items-center gap-3 rounded-2xl bg-crema px-4 py-3 ${c.activo ? '' : 'opacity-60'}`);
+            const txt = el('div', 'min-w-0 flex-1');
+            txt.append(
+              el('p', 'font-semibold text-profundo', c.nombre),
+              el('p', 'text-xs text-texto-2', `${c.activo ? 'Activa' : 'Desactivada'} · último uso: ${c.ultimo_uso ? fmt.format(new Date(c.ultimo_uso)) : 'nunca'} · la activó ${c.creado_por}`),
+            );
+            li.append(
+              txt,
+              boton(c.activo ? 'Desactivar' : 'Reactivar', c.activo ? 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white' : 'boton-secundario', async () => {
+                if (c.activo && !confirm(`¿Desactivar "${c.nombre}"? Deja de fichar al instante.`)) return;
+                await db.from('dispositivos').update({ activo: !c.activo }).eq('id', c.id);
+                void pintarConfig();
+              }),
+            );
+            return li;
+          })
+        : [el('li', 'text-sm text-texto-2', 'Todavía no hay ninguna compu activada.')]),
+    );
+
+    // Caras
+    const activas = personas.filter((p) => p.activo);
+    $('[data-caras]').replaceChildren(
+      ...activas.map((p) => {
+        const suyas = caras.filter((c) => c.email === p.email);
+        const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-crema px-4 py-3');
+        const muestra = suyas.find((c) => c.foto);
+        if (muestra?.foto) {
+          const img = el('img', 'size-12 rounded-full object-cover -scale-x-100');
+          img.src = muestra.foto;
+          img.alt = `Cara registrada de ${p.nombre ?? p.email}`;
+          li.append(img);
+        } else li.append(el('span', 'flex size-12 items-center justify-center rounded-full bg-white text-lg font-bold text-texto-2', (p.nombre || p.email)[0].toUpperCase()));
+        const txt = el('div', 'min-w-0 flex-1');
+        txt.append(
+          el('p', 'font-semibold text-profundo', p.nombre || p.email.split('@')[0]),
+          el('p', `text-xs ${suyas.length ? 'text-marca font-semibold' : 'text-texto-2'}`, suyas.length ? `Cara registrada el ${fmt.format(new Date(suyas[0].creada_el))}` : 'Sin cara registrada'),
+        );
+        const codigo = el('p', 'w-full hidden rounded-xl bg-white px-4 py-3 text-center');
+        li.append(
+          txt,
+          boton(suyas.length ? 'Volver a registrar' : 'Generar código', 'boton-principal', async () => {
+            const { data, error } = await db.rpc('crear_codigo_cara', { p_email: p.email });
+            if (error) return alert('No se pudo generar el código.');
+            codigo.classList.remove('hidden');
+            codigo.replaceChildren(
+              el('span', 'block text-xs font-semibold text-texto-2', 'Código para la compu del local (vale 15 minutos):'),
+              el('span', 'block text-4xl font-extrabold tracking-[0.25em] text-profundo tabular-nums', String(data)),
+            );
+          }),
+        );
+        if (suyas.length)
+          li.append(
+            boton('Borrar cara', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
+              if (!confirm(`¿Borrar la cara registrada de ${p.nombre ?? p.email}? Va a tener que fichar con el código hasta que la registres de nuevo.`)) return;
+              await db.from('caras').delete().eq('email', p.email);
+              void pintarConfig();
+            }),
+          );
+        li.append(codigo);
+        return li;
+      }),
+    );
+
+    // Horarios
+    $('[data-horarios]').replaceChildren(...activas.map((p) => filaHorario(p)));
+
+    // Ajustes
+    const f = $<HTMLFormElement>('[data-ajustes]');
+    const exigencia = f.elements.namedItem('similitud_min') as HTMLSelectElement;
+    exigencia.value = [...exigencia.options].reduce((m, o) => (Math.abs(Number(o.value) - ajustes.similitud_min) < Math.abs(Number(m) - ajustes.similitud_min) ? o.value : m), '0.5');
+    (f.elements.namedItem('tolerancia_min') as HTMLInputElement).value = String(ajustes.tolerancia_min);
+    (f.elements.namedItem('parpadeo') as HTMLInputElement).checked = ajustes.parpadeo;
+  }
+
+  function filaHorario(p: Persona) {
+    const li = el('li');
+    const det = el('details', 'rounded-2xl bg-crema');
+    const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-2 px-4 py-3');
+    sum.append(
+      el('span', 'flex-1 font-semibold text-profundo', p.nombre || p.email.split('@')[0]),
+      el('span', `marca ${p.horario_fijo ? 'marca-verde' : 'marca-gris'}`, p.horario_fijo ? 'Horario fijo prendido' : 'Sin horario fijo'),
+    );
+    const cuerpo = el('form', 'px-4 pb-4');
+    const prender = el('label', 'flex items-center gap-2 text-sm font-semibold text-profundo');
+    const check = el('input');
+    check.type = 'checkbox';
+    check.checked = p.horario_fijo;
+    check.className = 'size-5 accent-[var(--color-marca)]';
+    prender.append(check, 'Marcar tardanzas con este horario');
+    const grilla = el('div', 'grilla-horario mt-3');
+    const orden = [1, 2, 3, 4, 5, 6, 0];
+    const campos = orden.map((dia) => {
+      const h = horarios.find((x) => x.email === p.email && x.dia === dia);
+      const desde = el('input', 'campo !py-1.5');
+      desde.type = 'time';
+      desde.value = h?.entrada.slice(0, 5) ?? '';
+      desde.setAttribute('aria-label', `${DIAS[dia]}: entrada`);
+      const hasta = el('input', 'campo !py-1.5');
+      hasta.type = 'time';
+      hasta.value = h?.salida.slice(0, 5) ?? '';
+      hasta.setAttribute('aria-label', `${DIAS[dia]}: salida`);
+      grilla.append(el('span', 'text-sm font-semibold text-texto-2', DIAS[dia]), desde, hasta);
+      return { dia, desde, hasta };
+    });
+    const pie = el('div', 'mt-3 flex items-center gap-3');
+    const guardar = el('button', 'boton boton-principal !py-2 !text-sm', 'Guardar horario');
+    guardar.type = 'submit';
+    const aviso = el('span', 'text-sm font-semibold text-marca');
+    pie.append(guardar, aviso);
+    cuerpo.append(prender, el('p', 'mt-1 text-xs text-texto-2', 'Dejá vacíos los días que no trabaja.'), grilla, pie);
+    cuerpo.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const filas = campos.filter((c) => c.desde.value && c.hasta.value).map((c) => ({ email: p.email, dia: c.dia, entrada: c.desde.value, salida: c.hasta.value }));
+      const db = supabase!;
+      const r1 = await db.from('horarios').delete().eq('email', p.email);
+      const r2 = filas.length ? await db.from('horarios').insert(filas) : { error: null };
+      const r3 = await db.from('autorizados').update({ horario_fijo: check.checked }).eq('email', p.email);
+      if (r1.error || r2.error || r3.error) {
+        aviso.className = 'text-sm font-semibold text-peligro';
+        aviso.textContent = 'No se pudo guardar.';
+        return;
+      }
+      aviso.textContent = 'Guardado ✓';
+      p.horario_fijo = check.checked;
+      horarios = [...horarios.filter((x) => x.email !== p.email), ...filas];
+      pintarSemana();
+    });
+    det.append(sum, cuerpo);
+    li.append(det);
+    return li;
+  }
+
+  $<HTMLFormElement>('[data-ajustes]').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const d = new FormData(e.target as HTMLFormElement);
+    const nuevos = { similitud_min: Number(d.get('similitud_min')), parpadeo: d.get('parpadeo') === 'on', tolerancia_min: Math.max(0, Math.min(60, Number(d.get('tolerancia_min')) || 0)) };
+    const { error } = await supabase!.from('ajustes_fichador').update(nuevos).eq('id', 1);
+    if (error) return alert('No se pudieron guardar los ajustes.');
+    ajustes = { ...ajustes, ...nuevos };
+    pintarSemana();
+    alert('Ajustes guardados.');
+  });
+
+  // ---------- Arranque ----------
+  async function refrescar() {
+    try {
+      await cargarTodo();
+    } catch {
+      alert('No se pudieron cargar los datos. Revisá la conexión.');
+    }
+  }
+  $('[data-recargar]').addEventListener('click', () => void refrescar());
+
+  sesionLista.then(async (acceso) => {
+    if (!acceso || acceso.rol !== 'admin' || !supabase) {
+      $('[data-cargando]').classList.add('hidden');
+      $('[data-sin-permiso]').classList.remove('hidden');
+      return;
+    }
+    await refrescar();
+    $('[data-cargando]').classList.add('hidden');
+    $('[data-panel]').classList.remove('hidden');
+    setInterval(() => document.visibilityState === 'visible' && !dialogo.open && void pintarAhora(), 60000);
+  });
+</script>

@@ -1,0 +1,408 @@
+---
+// Fichador de la compu del local: la persona mira la cámara (o muestra el código de la app en el
+// celular) y queda registrada su entrada o salida. Se instala como app y queda abierto todo el día.
+import { Image } from 'astro:assets';
+import Kiosco from '../layouts/Kiosco.astro';
+import Icon from '../components/Icon.astro';
+import logo from '../assets/logo-lola-circulo.png';
+---
+
+<Kiosco title="Fichador">
+  <div class="kiosco fondo-hojas">
+    <header class="flex items-center gap-3 px-6 pt-5 lg:px-10">
+      <Image src={logo} alt="" width={56} height={56} class="size-14 rounded-full shadow-[0_6px_20px_rgb(33_76_59/0.15)]" loading="eager" />
+      <div class="leading-tight">
+        <p class="text-lg font-bold text-profundo">El Almacén de Lola</p>
+        <p class="text-sm font-semibold text-marca">Fichador del equipo</p>
+      </div>
+      <div class="ml-auto flex items-center gap-2">
+        <span class="chip hidden" data-cola-chip><Icon name="wifi-slash" class="size-4" /> <span data-cola-texto></span></span>
+        <span class="chip chip-ok hidden" data-conexion><Icon name="wifi-high" class="size-4" /> Conectado</span>
+        <button type="button" class="boton-icono" aria-label="Pantalla completa" title="Pantalla completa" data-pantalla-completa>
+          <Icon name="arrows-out" class="size-6" />
+        </button>
+      </div>
+    </header>
+
+    <main class="cuerpo">
+      <!-- Cámara -->
+      <section class="flex flex-col items-center justify-center">
+        <div class="marco" data-marco>
+          <video data-video autoplay muted playsinline></video>
+          <svg class="anillo" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="48.5" class="anillo-fondo"></circle>
+            <circle cx="50" cy="50" r="48.5" class="anillo-avance" pathLength="100" data-anillo></circle>
+          </svg>
+          <div class="marco-tapa" data-tapa>
+            <span class="size-10 animate-spin rounded-full border-4 border-marca border-t-transparent"></span>
+          </div>
+        </div>
+        <p class="mensaje" data-mensaje aria-live="polite">Preparando la cámara…</p>
+        <p class="ayuda" data-ayuda>
+          ¿No te reconoce? Abrí <strong>Fichar</strong> en la app del celular y mostrá el código a la cámara, al lado de tu cara.
+        </p>
+      </section>
+
+      <!-- Reloj y quién está -->
+      <aside class="lateral">
+        <p class="reloj tabular-nums" data-reloj>--:--</p>
+        <p class="fecha" data-fecha></p>
+        <section class="hoy">
+          <h2 class="flex items-center gap-2 text-lg font-bold text-profundo"><Icon name="storefront" class="size-6 text-marca" /> Hoy en el local</h2>
+          <ul class="mt-3 flex flex-col gap-2" data-hoy></ul>
+          <p class="mt-2 text-sm text-texto-2" data-hoy-vacio>Todavía no fichó nadie hoy.</p>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="flex items-center gap-3 px-6 pb-4 lg:px-10">
+      <button type="button" class="boton boton-secundario !py-2 !text-sm" data-abrir-registro>
+        <Icon name="user-focus" class="size-5" /> Registrar cara
+      </button>
+      <p class="ml-auto text-xs text-texto-2" data-pie></p>
+    </footer>
+
+    <!-- Resultado de la fichada -->
+    <div class="capa hidden" data-capa="resultado">
+      <div class="tarjeta-grande" data-resultado-caja>
+        <span class="icono-grande" data-resultado-icono><Icon name="check" class="size-14" /></span>
+        <p class="mt-5 text-4xl font-bold text-profundo" data-resultado-titulo></p>
+        <p class="mt-3 text-2xl font-semibold" data-resultado-detalle></p>
+        <p class="mt-2 text-lg text-texto-2" data-resultado-sub></p>
+        <button type="button" class="boton mt-7 bg-peligro-suave text-peligro hover:bg-peligro hover:text-white" data-no-soy-yo>
+          No soy yo <span class="tabular-nums" data-no-soy-yo-cuenta></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Activar la compu -->
+    <div class="capa hidden" data-capa="activar">
+      <div class="tarjeta-grande text-left">
+        <Image src={logo} alt="" width={88} height={88} class="mx-auto size-20 rounded-full" />
+        <h1 class="titulo-degrade mt-4 text-center text-3xl font-bold">Activar el fichador</h1>
+        <div data-activar="inicio">
+          <p class="mt-3 text-center text-texto-2" data-activar-texto>
+            Esta compu todavía no es un fichador. Una admin la activa una sola vez con su cuenta de Google.
+          </p>
+          <button type="button" class="boton boton-principal mt-6 w-full" data-activar-entrar>Activar con mi cuenta de admin</button>
+        </div>
+        <form class="hidden" data-activar="form">
+          <p class="mt-3 text-center text-texto-2">Entraste como <strong data-activar-quien></strong>. Ponele un nombre a esta compu.</p>
+          <label class="mt-5 block text-sm font-semibold text-profundo" for="nombre-compu">Nombre de la compu</label>
+          <input id="nombre-compu" name="nombre" class="campo mt-1" value="Compu del local" maxlength="40" required />
+          <button type="submit" class="boton boton-principal mt-5 w-full">Activar esta compu</button>
+          <p class="mt-3 text-center text-xs text-texto-2">Después se cierra tu sesión: la compu queda solo para fichar.</p>
+        </form>
+        <div class="hidden" data-activar="no-admin">
+          <p class="mt-4 rounded-2xl bg-ambar-suave p-4 text-sm text-texto"><strong data-activar-quien2></strong> no es admin. Tiene que activarla una admin.</p>
+          <button type="button" class="boton boton-secundario mt-4 w-full" data-activar-otra>Entrar con otra cuenta</button>
+        </div>
+        <p class="mt-4 hidden text-center text-sm font-semibold text-peligro" data-activar-error></p>
+      </div>
+    </div>
+
+    <!-- Registrar una cara -->
+    <div class="capa hidden" data-capa="registro">
+      <div class="tarjeta-grande registro">
+        <div data-registro="codigo">
+          <span class="icono-grande mx-auto"><Icon name="user-focus" class="size-12" /></span>
+          <h2 class="mt-4 text-3xl font-bold text-profundo">Registrar una cara</h2>
+          <p class="mt-2 text-texto-2">Escribí el código de 6 números que generó la admin en el panel <strong>Fichadas</strong>.</p>
+          <form class="mt-5 flex flex-col items-center gap-3" data-registro-form>
+            <label class="sr-only" for="codigo-cara">Código</label>
+            <input id="codigo-cara" class="campo codigo" inputmode="numeric" autocomplete="off" maxlength="6" pattern="\d{6}" required placeholder="000000" />
+            <div class="flex gap-2">
+              <button type="button" class="boton boton-secundario" data-registro-cancelar>Cancelar</button>
+              <button type="submit" class="boton boton-principal">Seguir</button>
+            </div>
+          </form>
+        </div>
+        <div class="hidden" data-registro="tomas">
+          <h2 class="text-3xl font-bold text-profundo">Hola, <span data-registro-nombre></span></h2>
+          <p class="mt-2 text-xl font-semibold text-marca" data-registro-paso>Mirá de frente a la cámara</p>
+          <p class="mt-1 text-texto-2" data-registro-estado>Buscando tu cara…</p>
+          <ol class="mt-5 flex justify-center gap-2" data-registro-tomas></ol>
+          <button type="button" class="boton boton-secundario mt-6" data-registro-cancelar>Cancelar</button>
+        </div>
+        <div class="hidden" data-registro="fin">
+          <span class="icono-grande mx-auto" data-registro-fin-icono><Icon name="check" class="size-12" /></span>
+          <p class="mt-4 text-2xl font-bold text-profundo" data-registro-fin-titulo></p>
+          <p class="mt-2 text-texto-2" data-registro-fin-texto></p>
+          <button type="button" class="boton boton-principal mt-6" data-registro-cerrar>Listo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Algo no anda (cámara, internet, compu desactivada) -->
+    <div class="capa hidden" data-capa="problema">
+      <div class="tarjeta-grande">
+        <span class="icono-grande mx-auto bg-ambar-suave text-ambar"><Icon name="warning-circle" class="size-12" /></span>
+        <p class="mt-4 text-2xl font-bold text-profundo" data-problema-titulo></p>
+        <p class="mt-2 text-texto-2" data-problema-texto></p>
+        <button type="button" class="boton boton-principal mt-6" data-problema-reintentar>Reintentar</button>
+      </div>
+    </div>
+  </div>
+</Kiosco>
+
+<style>
+  .kiosco {
+    position: relative;
+    display: flex;
+    height: 100svh;
+    flex-direction: column;
+    background-color: var(--color-crema);
+  }
+  .cuerpo {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+    gap: 24px;
+    padding: 12px 24px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 900px) {
+    .cuerpo {
+      grid-template-columns: 1.2fr 1fr;
+      padding: 12px 40px;
+      gap: 40px;
+    }
+  }
+  .marco {
+    position: relative;
+    width: min(46vh, 80vw, 460px);
+    aspect-ratio: 1;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+    box-shadow: 0 30px 80px -40px rgb(33 76 59 / 0.6);
+  }
+  .marco video {
+    position: absolute;
+    inset: 9px;
+    width: calc(100% - 18px);
+    height: calc(100% - 18px);
+    border-radius: 9999px;
+    object-fit: cover;
+    transform: scaleX(-1);
+    background: var(--color-profundo);
+  }
+  .marco-tapa {
+    position: absolute;
+    inset: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+  }
+  .anillo {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+  .anillo circle {
+    fill: none;
+    stroke-width: 3;
+  }
+  .anillo-fondo {
+    stroke: rgb(33 76 59 / 0.1);
+  }
+  .anillo-avance {
+    stroke: var(--color-marca);
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    transition: stroke-dashoffset 300ms var(--ease-fluid);
+  }
+  .marco.ok .anillo-avance {
+    stroke: var(--color-profundo);
+  }
+  .mensaje {
+    margin-top: 22px;
+    min-height: 2.5rem;
+    text-align: center;
+    font-size: clamp(1.4rem, 3vh, 2rem);
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .ayuda {
+    margin-top: 6px;
+    max-width: 30rem;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--color-texto-2);
+  }
+  .lateral {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .reloj {
+    font-size: clamp(4rem, 14vh, 9rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--color-profundo);
+  }
+  .fecha {
+    margin-top: 6px;
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-texto-2);
+  }
+  .fecha::first-letter {
+    text-transform: uppercase;
+  }
+  .hoy {
+    margin-top: 28px;
+    min-height: 0;
+    overflow-y: auto;
+    border-radius: 24px;
+    background: rgb(255 255 255 / 0.85);
+    padding: 18px 20px;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 9999px;
+    background: var(--color-ambar-suave);
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-ambar);
+  }
+  .chip-ok {
+    background: var(--color-menta-suave);
+    color: var(--color-profundo);
+  }
+  .boton-icono {
+    display: flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    color: var(--color-profundo);
+  }
+  .boton-icono:hover {
+    background: var(--color-menta-suave);
+  }
+  .capa {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgb(251 248 242 / 0.82);
+    backdrop-filter: blur(10px);
+  }
+  /* Los estilos de esta página ganan sobre la clase hidden de Tailwind: se repite acá. */
+  .capa.hidden,
+  .chip.hidden,
+  .marco-tapa.hidden {
+    display: none;
+  }
+  .tarjeta-grande {
+    width: min(560px, 100%);
+    border-radius: 36px;
+    background: #fff;
+    padding: 40px 36px;
+    text-align: center;
+    box-shadow: 0 40px 100px -40px rgb(33 76 59 / 0.6);
+    animation: entrar 380ms var(--ease-fluid);
+  }
+  .tarjeta-grande.salida .icono-grande {
+    background: var(--color-profundo);
+  }
+  .tarjeta-grande.aviso .icono-grande {
+    background: var(--color-ambar-suave);
+    color: var(--color-ambar);
+  }
+  .icono-grande {
+    display: inline-flex;
+    width: 96px;
+    height: 96px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-marca);
+    color: #fff;
+  }
+  .campo {
+    width: 100%;
+    border-radius: 14px;
+    background: var(--color-crema);
+    padding: 12px 14px;
+    font-size: 1.05rem;
+    color: var(--color-texto);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
+    outline: none;
+  }
+  .campo:focus {
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  .campo.codigo {
+    width: 14rem;
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 0.25em;
+    font-variant-numeric: tabular-nums;
+  }
+  :global([data-registro-tomas] li) {
+    width: 64px;
+    height: 64px;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+    box-shadow: inset 0 0 0 2px rgb(33 76 59 / 0.12);
+  }
+  :global([data-registro-tomas] li.actual) {
+    box-shadow: inset 0 0 0 3px var(--color-marca);
+  }
+  :global([data-registro-tomas] img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+  :global(.persona-hoy) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 16px;
+    background: var(--color-crema);
+    padding: 10px 14px;
+  }
+  :global(.punto) {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    border-radius: 9999px;
+    background: rgb(33 76 59 / 0.25);
+  }
+  :global(.punto.adentro) {
+    background: var(--color-marca);
+    box-shadow: 0 0 0 4px var(--color-menta);
+  }
+  @keyframes entrar {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta-grande {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/fichador/kiosco';
+</script>

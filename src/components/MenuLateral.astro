@@ -21,6 +21,7 @@ const principales = [
   { href: url('/buscar'), icono: 'magnifying-glass', label: 'Buscar', activa: ruta.startsWith('/buscar') },
   { href: url('/guardados'), icono: 'bookmark-simple', label: 'Guardados', activa: ruta.startsWith('/guardados') },
   { href: url('/examen'), icono: 'exam', label: 'Examinarme', activa: ruta.startsWith('/examen') },
+  { href: url('/fichar'), icono: 'qr-code', label: 'Fichar', activa: ruta.startsWith('/fichar') },
 ];
 ---
 
@@ -52,6 +53,12 @@ const principales = [
         <a href={url('/admin')} class="menu-item" aria-current={ruta.startsWith('/admin') ? 'page' : undefined}>
           <Icon name="users-three" class="size-5 shrink-0" />
           Panel de admin
+        </a>
+      </li>
+      <li class="hidden" data-solo-admin>
+        <a href={url('/fichadas')} class="menu-item" aria-current={ruta.startsWith('/fichadas') ? 'page' : undefined}>
+          <Icon name="clock" class="size-5 shrink-0" />
+          Fichadas
         </a>
       </li>
       <li class="solo-navegador">

@@ -1,0 +1,32 @@
+{
+  "id": "./fichador",
+  "name": "Lola · Fichador",
+  "short_name": "Fichador",
+  "description": "Fichador del equipo de El Almacén de Lola: entrada y salida con la cara o el código del celular.",
+  "lang": "es-AR",
+  "start_url": "./fichador",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FBF8F2",
+  "theme_color": "#FBF8F2",
+  "icons": [
+    {
+      "src": "iconos/icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/icono-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

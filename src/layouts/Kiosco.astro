@@ -1,0 +1,36 @@
+---
+// Pantalla completa para la compu del local (fichador): sin menú, sin barra y sin login de la app.
+// Se instala como app aparte ("Lola · Fichador") con su propio manifest.
+import { url } from '../lib/url';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} | El Almacén de Lola</title>
+    <meta name="theme-color" content="#FBF8F2" />
+    <link rel="icon" type="image/png" href={url('/favicon.png')} />
+    <link rel="manifest" href={url('/manifest-fichador.webmanifest')} />
+    {
+      import.meta.env.PROD && (
+        <script is:inline define:vars={{ sw: url('/sw.js') }}>
+          if ('serviceWorker' in navigator) {
+            addEventListener('load', () => navigator.serviceWorker.register(sw));
+          }
+        </script>
+      )
+    }
+  </head>
+  <body class="h-svh overflow-hidden bg-crema font-sans text-texto select-none">
+    <slot />
+  </body>
+</html>

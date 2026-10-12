@@ -98,6 +98,13 @@ const datos = {
           <ul class="mt-4 flex flex-col gap-3" data-equipo></ul>
         </section>
 
+        <!-- Dadas de baja: no entran ni fichan, pero su historial queda -->
+        <section class="mt-8 hidden" data-bajas-seccion>
+          <h2 class="text-lg font-bold text-profundo">Dadas de baja</h2>
+          <p class="mt-1 text-sm text-texto-2">No pueden entrar ni fichar. Su avance y sus fichadas quedan guardados.</p>
+          <ul class="mt-3 flex flex-col gap-2" data-bajas></ul>
+        </section>
+
         <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
       </div>
     </div>
@@ -277,6 +284,7 @@ const datos = {
 <script>
   import { supabase } from '../lib/supabase';
   import { sesionLista } from '../scripts/sesion';
+  import { descargarCsv, fechaExcel } from '../lib/csv';
 
   // ---------- Tipos ----------
   interface Autorizado {
@@ -287,6 +295,9 @@ const datos = {
     agregado_el: string;
     primer_ingreso: string | null;
     ultimo_ingreso: string | null;
+    /** Sin la columna (base sin actualizar) cuenta como activa. */
+    activo?: boolean;
+    baja_el?: string | null;
   }
   interface Gondola {
     user_id: string;
@@ -319,9 +330,12 @@ const datos = {
   }
   interface Datos {
     equipo: Autorizado[];
+    bajas: Autorizado[];
     gondolas: Gondola[];
     intentos: Intento[];
     leidas: Lectura[];
+    /** Mails con cara registrada en el fichador. */
+    conCara: Set<string>;
   }
 
   const info: {
@@ -343,13 +357,6 @@ const datos = {
   };
   const fecha = (iso: string | null) =>
     iso ? new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso)) : 'Nunca';
-  /** Fecha para Excel en español: 12/10/2026 14:30 (la reconoce como fecha y se puede ordenar). */
-  const fechaExcel = (iso: string | null) => {
-    if (!iso) return '';
-    const d = new Date(iso);
-    const dos = (n: number) => String(n).padStart(2, '0');
-    return `${dos(d.getDate())}/${dos(d.getMonth() + 1)}/${d.getFullYear()} ${dos(d.getHours())}:${dos(d.getMinutes())}`;
-  };
   const hace = (iso: string | null) => {
     if (!iso) return 'Nunca entró';
     const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
@@ -511,7 +518,17 @@ const datos = {
       db.from('secciones_leidas').select('user_id,seccion,leida_el'),
     ]);
     if (a.error || g.error || i.error || l.error) throw a.error ?? g.error ?? i.error ?? l.error;
-    return { equipo: a.data as Autorizado[], gondolas: g.data as Gondola[], intentos: i.data as Intento[], leidas: l.data as Lectura[] };
+    // Caras del fichador: si la base todavía no tiene el fichador, el panel anda igual.
+    const c = await db.from('caras').select('email');
+    const todos = a.data as Autorizado[];
+    return {
+      equipo: todos.filter((p) => p.activo !== false),
+      bajas: todos.filter((p) => p.activo === false),
+      gondolas: g.data as Gondola[],
+      intentos: i.data as Intento[],
+      leidas: l.data as Lectura[],
+      conCara: new Set(c.error ? [] : (c.data as { email: string }[]).map((x) => x.email)),
+    };
   }
 
   // ---------- Pintar ----------
@@ -559,6 +576,29 @@ const datos = {
 
     // Equipo, con el tablero de cada persona
     $('[data-equipo]').replaceChildren(...d.equipo.map((p) => persona(p, d, evs, total)));
+
+    // Dadas de baja
+    $('[data-bajas-seccion]').classList.toggle('hidden', !d.bajas.length);
+    $('[data-bajas]').replaceChildren(
+      ...d.bajas.map((p) => {
+        const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-profundo/10');
+        const quien = el('span', 'min-w-0 flex-1');
+        quien.append(
+          el('span', 'block truncate font-semibold text-texto-2', nombreDe(p)),
+          el('span', 'block truncate text-sm text-texto-2', `${p.email}${p.baja_el ? ` · de baja desde ${fecha(p.baja_el)}` : ''}`),
+        );
+        const reactivar = el('button', 'boton boton-secundario !py-2 !text-sm', 'Reactivar');
+        reactivar.type = 'button';
+        reactivar.addEventListener('click', async () => {
+          if (!confirm(`¿Reactivar a ${nombreDe(p)}? Vuelve a poder entrar y fichar.`)) return;
+          const { error } = await supabase!.from('autorizados').update({ activo: true, baja_el: null }).eq('email', p.email);
+          if (error) alert('No se pudo reactivar.');
+          void refrescar();
+        });
+        li.append(quien, reactivar);
+        return li;
+      }),
+    );
   }
 
   function persona(p: Autorizado, d: Datos, evs: Evento[], total: number) {
@@ -576,6 +616,7 @@ const datos = {
     const quien = el('span', 'min-w-0 flex-1');
     const nombre = el('span', 'block truncate font-semibold text-profundo', nombreDe(p));
     if (p.rol === 'admin') nombre.append(el('span', 'ml-2 rounded-full bg-profundo px-2 py-0.5 text-[0.7rem] font-bold text-white uppercase', 'Admin'));
+    if (d.conCara.has(p.email)) nombre.append(el('span', 'ml-2 rounded-full bg-menta-suave px-2 py-0.5 text-[0.7rem] font-bold text-profundo', 'Cara ✓'));
     quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
     const avance = el('span', 'w-full sm:w-56');
     const cab = el('span', 'mb-1 flex justify-between text-xs font-semibold text-texto-2');
@@ -677,12 +718,12 @@ const datos = {
         if (error) alert('No se pudo cambiar el rol.');
         void refrescar();
       });
-      const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Quitar acceso');
+      const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Dar de baja');
       quitar.type = 'button';
       quitar.addEventListener('click', async () => {
-        if (!confirm(`¿Quitarle el acceso a ${nombreDe(p)}? Su avance queda guardado por si vuelve.`)) return;
-        const { error } = await supabase!.from('autorizados').delete().eq('email', p.email);
-        if (error) alert('No se pudo quitar el acceso.');
+        if (!confirm(`¿Dar de baja a ${nombreDe(p)}? Ya no va a poder entrar ni fichar. Su avance y sus fichadas quedan guardados, y la podés reactivar cuando quieras.`)) return;
+        const { error } = await supabase!.from('autorizados').update({ activo: false, baja_el: new Date().toISOString() }).eq('email', p.email);
+        if (error) alert('No se pudo dar de baja. Si es la primera vez, falta actualizar la base (supabase/schema.sql).');
         void refrescar();
       });
       acciones.append(rol, quitar);
@@ -696,23 +737,7 @@ const datos = {
     return li;
   }
 
-  // ---------- Descargas para Excel ----------
-  // CSV con punto y coma y BOM: Excel en español lo abre con columnas y acentos bien.
-  function descargarCsv(nombre: string, filas: (string | number)[][]) {
-    const celda = (v: string | number) => {
-      const s = String(v ?? '');
-      return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    };
-    const texto = '﻿' + filas.map((f) => f.map(celda).join(';')).join('\r\n');
-    const a = el('a');
-    a.href = URL.createObjectURL(new Blob([texto], { type: 'text/csv;charset=utf-8' }));
-    a.download = nombre;
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  }
-
+  // ---------- Descargas para Excel (descargarCsv y fechaExcel vienen de lib/csv) ----------
   function descargar(tipo: 'resumen' | 'detalle') {
     if (!ultimo) return;
     const d = ultimo;
@@ -796,7 +821,7 @@ const datos = {
     const { error } = await supabase!.from('autorizados').insert({ email, nombre, rol });
     if (error) {
       estado.className = 'mt-3 text-sm font-semibold text-peligro';
-      estado.textContent = error.code === '23505' ? 'Ese mail ya tiene acceso.' : 'No se pudo agregar. Revisá el mail y la conexión.';
+      estado.textContent = error.code === '23505' ? 'Ese mail ya está en la lista (si está dado de baja, reactivalo abajo, en Dadas de baja).' : 'No se pudo agregar. Revisá el mail y la conexión.';
       return;
     }
     estado.className = 'mt-3 text-sm font-semibold text-marca';

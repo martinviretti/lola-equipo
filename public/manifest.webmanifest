@@ -31,6 +31,16 @@
   ],
   "shortcuts": [
     {
+      "name": "Fichar",
+      "url": "./fichar",
+      "icons": [
+        {
+          "src": "iconos/icono-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
       "name": "Buscar un producto",
       "url": "./buscar",
       "icons": [

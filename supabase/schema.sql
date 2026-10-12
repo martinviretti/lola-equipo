@@ -154,12 +154,14 @@ create extension if not exists pgcrypto with schema extensions;
 -- ---------- Ajustes (una sola fila, se cambian desde el panel de Fichadas) ----------
 create table if not exists public.ajustes_fichador (
   id               int primary key default 1 check (id = 1),
-  similitud_min    real not null default 0.5,   -- parecido mínimo con la cara registrada (0 a 1, más alto = más estricto)
-  margen           real not null default 0.05,  -- ventaja mínima sobre la segunda persona más parecida
+  similitud_min    real not null default 0.5,   -- parecido mínimo con la cara registrada (0 a 1 = 1 - distancia; más alto = más estricto)
+  margen           real not null default 0.06,  -- ventaja mínima sobre la segunda persona más parecida
   horas_max_turno  int  not null default 16,    -- una entrada sin salida más vieja que esto se toma como olvidada
   tolerancia_min   int  not null default 15,    -- minutos de tolerancia antes de marcar "fuera de horario"
   dias_fotos       int  not null default 90     -- las fotos de las fichadas se borran solas después de esto
 );
+-- Pedir un parpadeo antes de fichar con la cara (una foto impresa no parpadea). Apagado: más rápido.
+alter table public.ajustes_fichador add column if not exists parpadeo boolean not null default false;
 insert into public.ajustes_fichador (id) values (1) on conflict (id) do nothing;
 
 -- ---------- Horario fijo por persona (opcional: solo cuenta si autorizados.horario_fijo) ----------
@@ -186,7 +188,7 @@ create table if not exists public.dispositivos (
 create table if not exists public.caras (
   id           bigint generated always as identity primary key,
   email        text not null references public.autorizados (email) on delete cascade,
-  embedding    extensions.vector(1024) not null,   -- huella numérica de la cara (no es una foto)
+  embedding    extensions.vector(128) not null,    -- huella numérica de la cara (no es una foto)
   foto         text,                               -- miniatura de la toma, para que la admin vea a quién se registró
   creada_el    timestamptz not null default now(),
   dispositivo  uuid references public.dispositivos (id) on delete set null
@@ -261,16 +263,17 @@ begin
   end if;
 end $$;
 
--- Huella de la cara que manda la compu (lista de 1024 números) → vector.
+-- Huella de la cara que manda la compu (lista de 128 números, red de reconocimiento de face-api) → vector.
 create or replace function public._vector(p jsonb) returns extensions.vector
 language sql immutable set search_path = public, extensions as $$
-  select replace(p::text, ' ', '')::extensions.vector(1024)
+  select replace(p::text, ' ', '')::extensions.vector(128)
 $$;
 
--- Distancia entre caras → parecido de 0 a 1 (misma fórmula que la librería Human: order 2, multiplier 25, min 0.2, max 0.8).
+-- Distancia entre huellas → parecido de 0 a 1. Con face-api, la misma persona suele quedar a menos de 0,5
+-- y dos personas distintas a más de 0,6 (por eso el mínimo de parecido por defecto es 0,5).
 create or replace function public._similitud(d double precision) returns real
 language sql immutable as $$
-  select greatest(0, least(1, (0.8 - 0.05 * d) / 0.6))::real
+  select greatest(0, least(1, 1 - d))::real
 $$;
 
 -- Persona más parecida (y el parecido de la segunda), entre las activas con cara registrada.
@@ -357,6 +360,7 @@ begin
     'ahora', now(),
     'nombre', (select nombre from public.dispositivos where id = p_dispositivo),
     'caras', (select count(distinct c.email) from public.caras c join public.autorizados a on a.email = c.email and a.activo),
+    'ajustes', (select jsonb_build_object('parpadeo', parpadeo) from public.ajustes_fichador where id = 1),
     'hoy', coalesce((
       select jsonb_agg(jsonb_build_object(
                'email', f.email,
@@ -384,7 +388,8 @@ begin
   if r.segunda is not null and r.similitud - r.segunda < v_aj.margen then
     return jsonb_build_object('estado', 'dudosa', 'similitud', r.similitud);
   end if;
-  return public._registrar_fichada(r.email, 'cara', p_dispositivo, r.similitud, p_foto, p_hora_pc, null);
+  return public._registrar_fichada(r.email, 'cara', p_dispositivo, r.similitud, p_foto, p_hora_pc, null)
+         || jsonb_build_object('similitud', r.similitud);
 end $$;
 
 -- Fichar con el QR del celular. La cámara tiene que ver una cara al mismo tiempo: si es la de otra
@@ -491,17 +496,17 @@ begin
   end if;
   select array_agg(public._vector(e)) into v_vectores from jsonb_array_elements(p_embeddings) e;
 
-  -- Todas las tomas tienen que ser de la misma persona.
+  -- Todas las tomas tienen que ser de la misma persona (con margen: entre tomas cambian la pose y la expresión).
   select min(public._similitud(a.v <-> b.v)) into v_peor
     from unnest(v_vectores) with ordinality a(v, n) join unnest(v_vectores) with ordinality b(v, n) on a.n < b.n;
-  if v_peor < v_aj.similitud_min then
+  if v_peor < v_aj.similitud_min - 0.2 then
     return jsonb_build_object('estado', 'tomas_distintas', 'similitud', v_peor);
   end if;
 
-  -- Ninguna toma se puede parecer a la cara de otra persona registrada.
+  -- Ninguna toma se puede parecer a la cara de otra persona registrada (acá se es más exigente que al fichar).
   foreach v in array v_vectores loop
     select * into r from public._reconocer(v, v_cod.email);
-    if r.email is not null and r.similitud >= v_aj.similitud_min then
+    if r.email is not null and r.similitud >= v_aj.similitud_min - 0.08 then
       return jsonb_build_object('estado', 'parecida_a_otra', 'nombre', v_nombre,
         'otra', (select coalesce(nullif(a.nombre, ''), split_part(a.email, '@', 1)) from public.autorizados a where a.email = r.email));
     end if;
