@@ -202,7 +202,7 @@ const iphone = [
   // Compartir el link (o copiarlo si el teléfono no puede compartir).
   const compartir = document.querySelector<HTMLButtonElement>('[data-compartir]')!;
   compartir.addEventListener('click', async () => {
-    const datos = { title: 'Lola · Equipo', text: 'Instalá la app del equipo de El Almacén de Lola:', url: enlaceApp() };
+    const datos = { title: 'Lola · Equipo', text: 'Instalá la app del equipo de La Almacén de Lola:', url: enlaceApp() };
     if (navigator.share) {
       try {
         await navigator.share(datos);

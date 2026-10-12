@@ -1,6 +1,6 @@
 # Lola · Equipo — guía de productos
 
-App web instalable (PWA) para el equipo de El Almacén de Lola.
+App web instalable (PWA) para el equipo de La Almacén de Lola.
 
 ## La app en el celular
 

@@ -544,7 +544,7 @@ html {
   size: A4;
   margin: 16mm 15mm 18mm;
   @bottom-center {
-    content: "El Almacén de Lola · " counter(page);
+    content: "La Almacén de Lola · " counter(page);
     font-family: "Manrope Variable", sans-serif;
     font-size: 8pt;
     color: #52655b;
