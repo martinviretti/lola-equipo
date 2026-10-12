@@ -1,5 +1,5 @@
-// Pantalla del fichador (compu del local). Un solo ciclo mira la cámara: busca caras y códigos QR,
-// y según el modo ficha, guía el registro de una cara o espera.
+// Pantalla del fichador (la compu o el celular del local). Un solo ciclo mira la cámara: busca caras
+// y códigos QR, y según el modo ficha, guía el registro de una cara o espera.
 import jsQR from 'jsqr';
 import { supabase } from '../../lib/supabase';
 import { url } from '../../lib/url';
@@ -8,6 +8,7 @@ import { cargarCaras, leer, huella, promedio, ojosCerrados, type Lectura } from 
 import { encolar, mandarPendientes, pendientes, esSinConexion } from './cola';
 import { iniciarRegistro, registroActivo, alimentarRegistro } from './registrar';
 import { mostrarCapa, capaVisible } from './capas';
+import { sonar } from './sonidos';
 
 const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector<T>(s)!;
 const video = $<HTMLVideoElement>('[data-video]');
@@ -16,30 +17,6 @@ let disp: Dispositivo | null = dispositivoGuardado();
 /** Diferencia entre el reloj de la base y el de la compu (la hora que vale es la de la base). */
 let desfase = 0;
 const ahora = () => new Date(Date.now() + desfase);
-
-// ---------- Sonidos cortos ----------
-let audio: AudioContext | null = null;
-addEventListener('pointerdown', () => {
-  audio ??= new AudioContext();
-  void audio.resume();
-});
-function sonar(tipo: 'ok' | 'error') {
-  if (!audio || audio.state !== 'running') return;
-  const notas = tipo === 'ok' ? [660, 880] : [330, 247];
-  notas.forEach((f, i) => {
-    const o = audio!.createOscillator();
-    const g = audio!.createGain();
-    o.frequency.value = f;
-    o.type = 'sine';
-    const t = audio!.currentTime + i * 0.14;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.25, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-    o.connect(g).connect(audio!.destination);
-    o.start(t);
-    o.stop(t + 0.25);
-  });
-}
 
 // ---------- Reloj y "Hoy en el local" ----------
 interface EventoHoy {
@@ -118,7 +95,7 @@ addEventListener('offline', pintarCola);
 function compuDesactivada() {
   guardarDispositivo(null);
   disp = null;
-  $('[data-activar-texto]').textContent = 'Esta compu fue desactivada desde el panel. Para volver a usarla como fichador, activala de nuevo con una cuenta de admin.';
+  $('[data-activar-texto]').textContent = 'Este fichador fue desactivado desde el panel. Para volver a usarlo, activalo de nuevo con una cuenta de admin.';
   void mostrarActivar();
 }
 
@@ -133,7 +110,7 @@ function mostrarCalibracion(l: Lectura) {
     `caras en cámara: ${l.cantidad}`,
     `ojos: ${l.ojos.toFixed(2)} (cerrados por debajo de 0.20)`,
     `giro de la cabeza: ${l.giro.toFixed(2)}`,
-    `tamaño de la cara: ${l.lado}px (mínimo ${Math.round(Math.max(130, video.videoHeight * 0.24))})`,
+    `tamaño de la cara: ${l.lado}px (mínimo ${Math.round(Math.max(110, Math.min(video.videoWidth, video.videoHeight) * 0.2))})`,
     `parpadeo: ${pedirParpadeo ? (parpadeo ? 'visto' : 'esperando') : 'no se pide'}`,
     `qué falta: ${l.falta ?? 'nada'}`,
     ultimaSimilitud,
@@ -156,6 +133,9 @@ let pausaHasta = 0;
 let ultimaFichada: { id: number; hasta: number } | null = null;
 
 function mostrarResultado(o: { titulo: string; detalle?: string; sub?: string; tipo: 'entrada' | 'salida' | 'aviso'; id?: number; segundos?: number }) {
+  // Una respuesta que llega tarde no tapa el registro de una cara ni la activación.
+  const visible = capaVisible();
+  if (visible && visible !== 'resultado') return;
   const caja = $('[data-resultado-caja]');
   caja.classList.toggle('salida', o.tipo === 'salida');
   caja.classList.toggle('aviso', o.tipo === 'aviso');
@@ -223,7 +203,7 @@ function contarRespuesta(r: { estado: string; nombre?: string; tipo?: 'entrada' 
       mostrarResultado({
         titulo: 'Ese código no es tuyo',
         detalle: `Es de ${primerNombre(r.nombre!)}, y la cara es de ${primerNombre(r.otra!)}`,
-        sub: 'Cada una ficha con su cara o su propio celular.',
+        sub: 'Cada una ficha con su cara o con el código de su celular.',
         tipo: 'aviso',
       });
       return true;
@@ -313,7 +293,8 @@ async function ficharConCara(embedding: number[]) {
   }
 }
 
-async function ficharConCodigo(qr: string, embedding: number[]) {
+/** Con el código del celular. La cara es opcional: si se ve, se controla que no sea la de otra persona. */
+async function ficharConCodigo(qr: string, embedding: number[] | null) {
   if (!disp) return;
   ocupado = true;
   mensaje('Un segundo…');
@@ -322,7 +303,7 @@ async function ficharConCodigo(qr: string, embedding: number[]) {
       p_dispositivo: disp.id,
       p_secreto: disp.secreto,
       p_qr: qr,
-      p_embedding: huella(embedding),
+      p_embedding: embedding ? huella(embedding) : null,
       p_foto: foto(),
     });
     if (error) {
@@ -376,17 +357,18 @@ async function ciclo() {
         }
         const conQr = qrVisto && Date.now() - qrVisto.t < 2500;
         if (conQr) {
+          // El código vale igual que la cara: si además se ve una cara, va junto (para controlar que no
+          // sea la de otra compañera); si no aparece ninguna en un momento, ficha con el código solo.
           anillo(0.5);
-          if (ojosCerrados(l)) parpadeo = true;
-          const caraLista = l.cantidad === 1 && l.embedding && l.falta !== 'varias' && l.falta !== 'quieta' && l.falta !== 'lejos';
-          if (caraLista && pedirParpadeo && !parpadeo) {
-            mensaje('Parpadeá una vez, despacio');
-          } else if (caraLista) {
-            parpadeo = false;
-            await ficharConCodigo(qrVisto!.texto, l.embedding!);
+          // Una cara chiquita (alguien que pasa atrás) no cuenta: con eso no se puede comparar bien.
+          if (l.cantidad === 1 && l.embedding && l.falta !== 'lejos') {
+            await ficharConCodigo(qrVisto!.texto, l.embedding);
             qrVisto = null;
-          } else if (Date.now() - qrVisto!.desde > 1500) {
-            mensaje('Ahora mirá a la cámara con el celular al lado de la cara');
+          } else if (l.cantidad > 1) {
+            mensaje(MENSAJES.varias);
+          } else if (Date.now() - qrVisto!.desde > 1200) {
+            await ficharConCodigo(qrVisto!.texto, null);
+            qrVisto = null;
           } else mensaje('Leyendo el código…');
         } else {
           qrVisto = null;
@@ -437,6 +419,10 @@ async function mostrarActivar() {
   const { data: esAdmin } = await supabase!.rpc('es_admin');
   if (esAdmin === true) {
     $('[data-activar-quien]').textContent = email;
+    // Celular (pantalla táctil): se propone dejar la sesión abierta; en la compu, cerrarla.
+    const celular = matchMedia('(pointer: coarse)').matches;
+    $<HTMLInputElement>('#mantener-sesion').checked = celular;
+    $<HTMLInputElement>('#nombre-compu').value = celular ? 'Celular del local' : 'Compu del local';
     verActivar('form');
   } else {
     $('[data-activar-quien2]').textContent = email;
@@ -456,7 +442,9 @@ $('[data-activar-otra]').addEventListener('click', async () => {
 });
 $<HTMLFormElement>('[data-activar="form"]').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const nombre = String(new FormData(e.target as HTMLFormElement).get('nombre') ?? '').trim();
+  const datos = new FormData(e.target as HTMLFormElement);
+  const nombre = String(datos.get('nombre') ?? '').trim();
+  const mantener = datos.get('mantener') === 'on';
   const { data, error } = await supabase!.rpc('activar_dispositivo', { p_nombre: nombre });
   const err = $('[data-activar-error]');
   if (error || !data) {
@@ -464,17 +452,23 @@ $<HTMLFormElement>('[data-activar="form"]').addEventListener('submit', async (e)
     err.classList.remove('hidden');
     return;
   }
-  guardarDispositivo({ id: data.id, secreto: data.secreto, nombre: nombre || 'Compu del local' });
-  // La sesión de la admin no queda abierta en la compu del local.
-  await supabase!.auth.signOut();
-  DATOS_DE_SESION.forEach((k) => localStorage.removeItem(k));
+  guardarDispositivo({ id: data.id, secreto: data.secreto, nombre: nombre || 'Fichador del local' });
+  // En la compu, la sesión de la admin no queda abierta. En el celular del local, que ya usa la cuenta
+  // de admin para la app, se puede dejar (y así se registran caras sin código).
+  if (!mantener) {
+    await supabase!.auth.signOut();
+    DATOS_DE_SESION.forEach((k) => localStorage.removeItem(k));
+  }
   location.reload();
 });
 
 // ---------- Registrar cara ----------
-$('[data-abrir-registro]').addEventListener('click', () => {
+$('[data-abrir-registro]').addEventListener('click', async () => {
   if (!disp) return;
-  iniciarRegistro(disp, () => {
+  // Si justo estaba fichando a alguien, primero termina eso.
+  while (ocupado) await new Promise((ok) => setTimeout(ok, 100));
+  validas = [];
+  void iniciarRegistro(disp, () => {
     mostrarCapa(null);
     // Quien se acaba de registrar sigue adelante de la cámara: que no quede fichada sin querer.
     validas = [];
@@ -484,6 +478,8 @@ $('[data-abrir-registro]').addEventListener('click', () => {
 });
 
 // ---------- Pantalla completa y pantalla siempre prendida ----------
+// En el iPhone no existe la pantalla completa: ahí el botón no se muestra.
+if (!document.documentElement.requestFullscreen) $('[data-pantalla-completa]').classList.add('hidden');
 $('[data-pantalla-completa]').addEventListener('click', () => {
   if (document.fullscreenElement) void document.exitFullscreen();
   else void document.documentElement.requestFullscreen().catch(() => {});

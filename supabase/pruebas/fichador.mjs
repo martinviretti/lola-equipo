@@ -50,7 +50,7 @@ await db.exec(`
 `);
 
 // --- Ejecutar como un rol ---
-const usuarios = { martin: ['00000000-0000-0000-0000-000000000001', 'martinviretti@gmail.com'], ana: ['00000000-0000-0000-0000-000000000003', 'ana@gmail.com'], sofi: ['00000000-0000-0000-0000-000000000004', 'sofi@gmail.com'] };
+const usuarios = { martin: ['00000000-0000-0000-0000-000000000001', 'martinviretti@gmail.com'], ana: ['00000000-0000-0000-0000-000000000003', 'ana@gmail.com'], sofi: ['00000000-0000-0000-0000-000000000004', 'sofi@gmail.com'], lu: ['00000000-0000-0000-0000-000000000005', 'lu@gmail.com'] };
 /** Conexión de internet desde la que "llega" el pedido (Supabase la pasa en x-forwarded-for). */
 let IP = null;
 async function como(quien, consulta, params = []) {
@@ -163,7 +163,6 @@ const q = await qr('sofi');
 ok(q.c.paso === 3 && q.c.clave.length === 64, 'Sofía pide su código en el celular');
 const otra = await uno('anon', `select public.fichar_codigo($1, $2, $3, $4::jsonb, null)`, [...D, q.texto(), JSON.stringify(toma(ANA))]);
 ok(otra.estado === 'cara_de_otra' && otra.nombre === 'Sofía' && otra.otra === 'Ana López', 'el código de Sofía mostrado por Ana se rechaza');
-ok((await uno('anon', `select public.fichar_codigo($1, $2, $3, null, null)`, [...D, q.texto()])).estado === 'falta_cara', 'el código solo no alcanza: hace falta una cara');
 ok((await uno('anon', `select public.fichar_codigo($1, $2, $3, $4::jsonb, null)`, [...D, q.texto(q.paso - 5), JSON.stringify(toma(SOFI))])).estado === 'codigo_vencido', 'una captura de hace 15 segundos no sirve');
 ok((await uno('anon', `select public.fichar_codigo($1, $2, $3, $4::jsonb, null)`, [...D, q.texto().slice(0, -1) + (q.texto().endsWith('0') ? '1' : '0'), JSON.stringify(toma(SOFI))])).estado === 'codigo_vencido', 'un código con la firma cambiada no sirve');
 await db.exec(`delete from public.fichadas where email = 'sofi@gmail.com'`);
@@ -175,7 +174,12 @@ const q2 = await qr('ana');
 await db.exec(`update public.fichadas set hora = hora - interval '2 days' where email = 'ana@gmail.com'`);
 const sinCara = await uno('anon', `select public.fichar_codigo($1, $2, $3, $4::jsonb, null)`, [...D, q2.texto(), JSON.stringify(toma(DESCONOCIDA))]);
 const filaSin = (await db.query(`select revisar, tipo from public.fichadas where id = $1`, [sinCara.id])).rows[0];
-ok(sinCara.estado === 'ok' && filaSin.revisar?.includes('mirá la foto') && filaSin.tipo === 'entrada', 'con código y cara no reconocida: ficha pero queda para revisar (y una salida olvidada no la confunde)');
+ok(sinCara.estado === 'ok' && filaSin.revisar === null && filaSin.tipo === 'entrada', 'con código y una cara que no se conoce: ficha igual que con la cara (y una salida olvidada no la confunde)');
+const q3 = await qr('lu');
+const soloQr = await uno('anon', `select public.fichar_codigo($1, $2, $3, null, $4)`, [...D, q3.texto(), foto]);
+const filaSoloQr = (await db.query(`select metodo, revisar from public.fichadas where id = $1`, [soloQr.id])).rows[0];
+ok(soloQr.estado === 'ok' && soloQr.nombre === 'Lucía' && filaSoloQr.metodo === 'codigo' && filaSoloQr.revisar === null, 'el código solo, sin cara a la vista, también ficha (vale igual que la cara)');
+await db.exec(`delete from public.fichadas where id = ${soloQr.id}`);
 
 // --- Permisos de lectura ---
 ok((await como('sofi', `select email from public.fichadas`)).every((r) => r.email === 'sofi@gmail.com'), 'Sofía solo ve sus fichadas');

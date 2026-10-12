@@ -1,6 +1,7 @@
 ---
-// Fichar desde el celular: muestra un código QR que cambia cada 3 segundos para mostrarle a la
-// cámara de la compu del local. Solo sirve ahí y con la cara de la dueña del celular al lado.
+// El código para fichar: un QR que cambia cada 3 segundos para mostrarle a la cámara del fichador del
+// local (la compu o el celular del local). Vale igual que la cara, pero solo ahí: desde el celular
+// propio no se ficha, solo se muestra el código.
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 ---
@@ -10,7 +11,7 @@ import Icon from '../components/Icon.astro';
     <div class="mx-auto max-w-[520px]">
       <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Fichar</h1>
       <p class="mt-1 text-base text-texto-2">
-        Por lo general alcanza con mirar a la cámara de la compu del local. Si no te reconoce, mostrale este código, al lado de tu cara.
+        Mostrale este código a la cámara del fichador del local (la compu o el celular del local). Vale igual que fichar con la cara.
       </p>
 
       <section class="tarjeta-qr mt-6" aria-live="polite">
@@ -27,8 +28,8 @@ import Icon from '../components/Icon.astro';
 
       <ul class="mt-5 flex flex-col gap-2 text-sm text-texto">
         <li class="flex gap-2"><Icon name="lightbulb" class="size-5 shrink-0 text-marca" /> Subí el brillo del celular al máximo.</li>
-        <li class="flex gap-2"><Icon name="user-focus" class="size-5 shrink-0 text-marca" /> Sostené el celular a la altura del pecho, con la pantalla hacia la cámara, y mirá a la cámara.</li>
-        <li class="flex gap-2"><Icon name="lock-key" class="size-5 shrink-0 text-marca" /> El código cambia cada 3 segundos: una foto o una captura no sirve, y si lo muestra otra persona se rechaza.</li>
+        <li class="flex gap-2"><Icon name="qr-code" class="size-5 shrink-0 text-marca" /> Acercá la pantalla a la cámara, a un palmo, hasta que suene.</li>
+        <li class="flex gap-2"><Icon name="lock-key" class="size-5 shrink-0 text-marca" /> El código cambia cada 3 segundos: una foto o una captura no sirve. Y solo lo lee la cámara del local: desde otro lado no se puede fichar.</li>
       </ul>
 
       <section class="mt-9">

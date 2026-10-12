@@ -1,6 +1,7 @@
 ---
-// Fichador de la compu del local: la persona mira la cámara (o muestra el código de la app en el
-// celular) y queda registrada su entrada o salida. Se instala como app y queda abierto todo el día.
+// Fichador del local (en la compu o en el celular del local): la persona mira la cámara (o muestra el
+// código de la app en su celular) y queda registrada su entrada o salida. Se instala como app y queda
+// abierto todo el día. Se adapta a pantalla de compu (acostada) o de celular (parada).
 import { Image } from 'astro:assets';
 import Kiosco from '../layouts/Kiosco.astro';
 import Icon from '../components/Icon.astro';
@@ -9,10 +10,10 @@ import logo from '../assets/logo-lola-circulo.png';
 
 <Kiosco title="Fichador">
   <div class="kiosco fondo-hojas">
-    <header class="flex items-center gap-3 px-6 pt-5 lg:px-10">
-      <Image src={logo} alt="" width={56} height={56} class="size-14 rounded-full shadow-[0_6px_20px_rgb(33_76_59/0.15)]" loading="eager" />
+    <header class="cabecera">
+      <Image src={logo} alt="" width={56} height={56} class="logo rounded-full shadow-[0_6px_20px_rgb(33_76_59/0.15)]" loading="eager" />
       <div class="leading-tight">
-        <p class="text-lg font-bold text-profundo">La Almacén de Lola</p>
+        <p class="font-bold text-profundo sm:text-lg">La Almacén de Lola</p>
         <p class="text-sm font-semibold text-marca">Fichador del equipo</p>
       </div>
       <div class="ml-auto flex items-center gap-2">
@@ -25,8 +26,14 @@ import logo from '../assets/logo-lola-circulo.png';
     </header>
 
     <main class="cuerpo">
+      <!-- Reloj -->
+      <div class="zona-reloj">
+        <p class="reloj tabular-nums" data-reloj>--:--</p>
+        <p class="fecha" data-fecha></p>
+      </div>
+
       <!-- Cámara -->
-      <section class="flex flex-col items-center justify-center">
+      <section class="zona-camara">
         <div class="marco" data-marco>
           <video data-video autoplay muted playsinline></video>
           <svg class="anillo" viewBox="0 0 100 100" aria-hidden="true">
@@ -39,27 +46,23 @@ import logo from '../assets/logo-lola-circulo.png';
         </div>
         <p class="mensaje" data-mensaje aria-live="polite">Preparando la cámara…</p>
         <p class="ayuda" data-ayuda>
-          ¿No te reconoce? Abrí <strong>Fichar</strong> en la app del celular y mostrá el código a la cámara, al lado de tu cara.
+          ¿No te reconoce o no tenés la cara registrada? Abrí <strong>Fichar</strong> en la app de tu celular y mostrale el código a la cámara.
         </p>
       </section>
 
-      <!-- Reloj y quién está -->
-      <aside class="lateral">
-        <p class="reloj tabular-nums" data-reloj>--:--</p>
-        <p class="fecha" data-fecha></p>
-        <section class="hoy">
-          <h2 class="flex items-center gap-2 text-lg font-bold text-profundo"><Icon name="storefront" class="size-6 text-marca" /> Hoy en el local</h2>
-          <ul class="mt-3 flex flex-col gap-2" data-hoy></ul>
-          <p class="mt-2 text-sm text-texto-2" data-hoy-vacio>Todavía no fichó nadie hoy.</p>
-        </section>
-      </aside>
+      <!-- Quién está -->
+      <section class="hoy zona-hoy">
+        <h2 class="flex items-center gap-2 text-lg font-bold text-profundo"><Icon name="storefront" class="size-6 text-marca" /> Hoy en el local</h2>
+        <ul class="mt-3 flex flex-col gap-2" data-hoy></ul>
+        <p class="mt-2 text-sm text-texto-2" data-hoy-vacio>Todavía no fichó nadie hoy.</p>
+      </section>
     </main>
 
-    <footer class="flex items-center gap-3 px-6 pb-4 lg:px-10">
+    <footer class="pie">
       <button type="button" class="boton boton-secundario !py-2 !text-sm" data-abrir-registro>
         <Icon name="user-focus" class="size-5" /> Registrar cara
       </button>
-      <p class="ml-auto text-xs text-texto-2" data-pie></p>
+      <p class="ml-auto text-right text-xs text-texto-2" data-pie></p>
     </footer>
 
     <!-- Resultado de la fichada -->
@@ -69,7 +72,7 @@ import logo from '../assets/logo-lola-circulo.png';
           <span class="icono-ok"><Icon name="check" class="size-14" /></span>
           <span class="icono-mal"><Icon name="warning-circle" class="size-14" /></span>
         </span>
-        <p class="mt-5 text-4xl font-bold text-profundo" data-resultado-titulo></p>
+        <p class="mt-5 text-3xl font-bold text-profundo sm:text-4xl" data-resultado-titulo></p>
         <p class="mt-3 text-2xl font-semibold" data-resultado-detalle></p>
         <p class="mt-2 text-lg text-texto-2" data-resultado-sub></p>
         <button type="button" class="boton mt-7 bg-peligro-suave text-peligro hover:bg-peligro hover:text-white" data-no-soy-yo>
@@ -78,26 +81,32 @@ import logo from '../assets/logo-lola-circulo.png';
       </div>
     </div>
 
-    <!-- Activar la compu -->
+    <!-- Activar el aparato -->
     <div class="capa hidden" data-capa="activar">
       <div class="tarjeta-grande text-left">
         <Image src={logo} alt="" width={88} height={88} class="mx-auto size-20 rounded-full" />
         <h1 class="titulo-degrade mt-4 text-center text-3xl font-bold">Activar el fichador</h1>
         <div data-activar="inicio">
           <p class="mt-3 text-center text-texto-2" data-activar-texto>
-            Esta compu todavía no es un fichador. Una admin la activa una sola vez con su cuenta de Google.
+            Este aparato todavía no es un fichador. Una admin lo activa una sola vez con su cuenta de Google.
           </p>
           <button type="button" class="boton boton-principal mt-6 w-full" data-activar-entrar>Activar con mi cuenta de admin</button>
         </div>
         <form class="hidden" data-activar="form">
-          <p class="mt-3 text-center text-texto-2">Entraste como <strong data-activar-quien></strong>. Ponele un nombre a esta compu.</p>
-          <label class="mt-5 block text-sm font-semibold text-profundo" for="nombre-compu">Nombre de la compu</label>
+          <p class="mt-3 text-center text-texto-2">Entraste como <strong data-activar-quien></strong>. Ponele un nombre a este fichador.</p>
+          <label class="mt-5 block text-sm font-semibold text-profundo" for="nombre-compu">Nombre</label>
           <input id="nombre-compu" name="nombre" class="campo mt-1" value="Compu del local" maxlength="40" required />
-          <button type="submit" class="boton boton-principal mt-5 w-full">Activar esta compu</button>
-          <p class="mt-3 text-center text-xs text-texto-2">Después se cierra tu sesión: la compu queda solo para fichar.</p>
+          <label class="mt-4 flex items-start gap-3 text-sm text-texto">
+            <input id="mantener-sesion" type="checkbox" name="mantener" class="mt-0.5 size-5 shrink-0 accent-[var(--color-marca)]" />
+            <span
+              ><strong class="text-profundo">Dejar mi sesión abierta en este aparato.</strong> Para el celular del local, que ya usa la cuenta de admin. Así las caras se registran
+              eligiendo a la persona, sin código. En la compu, mejor dejalo sin tildar.</span
+            >
+          </label>
+          <button type="submit" class="boton boton-principal mt-5 w-full">Activar</button>
         </form>
         <div class="hidden" data-activar="no-admin">
-          <p class="mt-4 rounded-2xl bg-ambar-suave p-4 text-sm text-texto"><strong data-activar-quien2></strong> no es admin. Tiene que activarla una admin.</p>
+          <p class="mt-4 rounded-2xl bg-ambar-suave p-4 text-sm text-texto"><strong data-activar-quien2></strong> no es admin. Tiene que activarlo una admin.</p>
           <button type="button" class="boton boton-secundario mt-4 w-full" data-activar-otra>Entrar con otra cuenta</button>
         </div>
         <p class="mt-4 hidden text-center text-sm font-semibold text-peligro" data-activar-error></p>
@@ -107,9 +116,24 @@ import logo from '../assets/logo-lola-circulo.png';
     <!-- Registrar una cara -->
     <div class="capa hidden" data-capa="registro">
       <div class="tarjeta-grande registro">
-        <div data-registro="codigo">
+        <div data-registro="esperar">
+          <span class="mx-auto block size-10 animate-spin rounded-full border-4 border-marca border-t-transparent"></span>
+        </div>
+
+        <div class="hidden" data-registro="elegir">
           <span class="icono-grande mx-auto"><Icon name="user-focus" class="size-12" /></span>
-          <h2 class="mt-4 text-3xl font-bold text-profundo">Registrar una cara</h2>
+          <h2 class="mt-4 text-2xl font-bold text-profundo sm:text-3xl">¿A quién registramos?</h2>
+          <p class="mt-2 text-texto-2">Tocá su nombre y que se ponga adelante de la cámara.</p>
+          <div class="mt-5 flex max-h-[45svh] flex-col gap-2 overflow-y-auto text-left" data-registro-personas></div>
+          <div class="mt-5 flex flex-wrap justify-center gap-2">
+            <button type="button" class="boton boton-secundario" data-registro-cancelar>Cancelar</button>
+            <button type="button" class="boton boton-secundario" data-registro-con-codigo>Tengo un código</button>
+          </div>
+        </div>
+
+        <div class="hidden" data-registro="codigo">
+          <span class="icono-grande mx-auto"><Icon name="user-focus" class="size-12" /></span>
+          <h2 class="mt-4 text-2xl font-bold text-profundo sm:text-3xl">Registrar una cara</h2>
           <p class="mt-2 text-texto-2">Escribí el código de 6 números que generó la admin en el panel <strong>Fichadas</strong>.</p>
           <form class="mt-5 flex flex-col items-center gap-3" data-registro-form>
             <label class="sr-only" for="codigo-cara">Código</label>
@@ -120,13 +144,21 @@ import logo from '../assets/logo-lola-circulo.png';
             </div>
           </form>
         </div>
+
         <div class="hidden" data-registro="tomas">
-          <h2 class="text-3xl font-bold text-profundo">Hola, <span data-registro-nombre></span></h2>
-          <p class="mt-2 text-xl font-semibold text-marca" data-registro-paso>Mirá de frente a la cámara</p>
-          <p class="mt-1 text-texto-2" data-registro-estado>Buscando tu cara…</p>
-          <ol class="mt-5 flex justify-center gap-2" data-registro-tomas></ol>
-          <button type="button" class="boton boton-secundario mt-6" data-registro-cancelar>Cancelar</button>
+          <p class="text-sm font-semibold text-texto-2">Registrando a <span class="text-profundo" data-registro-nombre></span> · <span data-registro-numero></span></p>
+          <div class="guia-marco mx-auto mt-3" data-guia-marco>
+            <video data-guia-video autoplay muted playsinline></video>
+            <svg class="guia-anillo" viewBox="0 0 100 100" aria-hidden="true" data-guia-anillo></svg>
+            <span class="guia-flecha izquierda" data-flecha="izquierda"><Icon name="caret-left" class="size-9" /></span>
+            <span class="guia-flecha derecha" data-flecha="derecha"><Icon name="caret-right" class="size-9" /></span>
+          </div>
+          <p class="mt-4 text-xl font-bold text-profundo sm:text-2xl" data-registro-paso aria-live="polite"></p>
+          <p class="mt-1 min-h-6 font-semibold text-marca" data-registro-estado></p>
+          <ol class="mt-3 flex justify-center gap-2" data-registro-tomas></ol>
+          <button type="button" class="boton boton-secundario mt-4" data-registro-cancelar>Cancelar</button>
         </div>
+
         <div class="hidden" data-registro="fin">
           <span class="icono-grande mx-auto" data-registro-fin-icono>
             <span class="icono-ok"><Icon name="check" class="size-12" /></span>
@@ -142,7 +174,7 @@ import logo from '../assets/logo-lola-circulo.png';
       </div>
     </div>
 
-    <!-- Algo no anda (cámara, internet, compu desactivada) -->
+    <!-- Algo no anda (cámara, internet, aparato desactivado) -->
     <div class="capa hidden" data-capa="problema">
       <div class="tarjeta-grande aviso">
         <span class="icono-grande mx-auto"><Icon name="warning-circle" class="size-12" /></span>
@@ -162,29 +194,149 @@ import logo from '../assets/logo-lola-circulo.png';
     flex-direction: column;
     background-color: var(--color-crema);
   }
+  .cabecera {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: max(10px, env(safe-area-inset-top)) 16px 0;
+  }
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+  .pie {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 16px max(10px, env(safe-area-inset-bottom));
+  }
+
+  /* Celular parado (o pantalla angosta): reloj arriba, cámara, y abajo quién está. */
   .cuerpo {
     display: grid;
     flex: 1;
     min-height: 0;
-    gap: 24px;
-    padding: 12px 24px;
-    grid-template-columns: 1fr;
+    gap: 10px 40px;
+    padding: 4px 16px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: 'reloj' 'camara' 'hoy';
   }
-  @media (min-width: 900px) {
-    .cuerpo {
-      grid-template-columns: 1.2fr 1fr;
-      padding: 12px 40px;
-      gap: 40px;
-    }
+  .zona-reloj {
+    grid-area: reloj;
+    text-align: center;
+  }
+  .zona-camara {
+    grid-area: camara;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .zona-hoy {
+    grid-area: hoy;
   }
   .marco {
     position: relative;
-    width: min(46vh, 80vw, 460px);
+    width: min(72vw, 40svh, 460px);
     aspect-ratio: 1;
     border-radius: 9999px;
     background: var(--color-menta-suave);
     box-shadow: 0 30px 80px -40px rgb(33 76 59 / 0.6);
   }
+  .reloj {
+    font-size: clamp(2.6rem, 8svh, 4.5rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--color-profundo);
+  }
+  .fecha {
+    margin-top: 2px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-texto-2);
+  }
+  .mensaje {
+    margin-top: 14px;
+    min-height: 2rem;
+    text-align: center;
+    font-size: clamp(1.2rem, 2.8svh, 2rem);
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .ayuda {
+    margin-top: 4px;
+    max-width: 30rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--color-texto-2);
+  }
+  .hoy {
+    min-height: 0;
+    overflow-y: auto;
+    border-radius: 24px;
+    background: rgb(255 255 255 / 0.85);
+    padding: 14px 16px;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+
+  /* Compu (o celular acostado): la cámara a la izquierda, el reloj y quién está a la derecha. */
+  @media (orientation: landscape) and (min-width: 760px) {
+    .cabecera {
+      gap: 12px;
+      padding: 20px 40px 0;
+    }
+    .logo {
+      width: 56px;
+      height: 56px;
+    }
+    .pie {
+      padding: 6px 40px 16px;
+    }
+    .cuerpo {
+      padding: 12px 40px;
+      grid-template-columns: 1.2fr 1fr;
+      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas: 'camara reloj' 'camara hoy';
+      align-content: center;
+      row-gap: 24px;
+    }
+    .zona-reloj {
+      align-self: end;
+      text-align: left;
+    }
+    .zona-hoy {
+      align-self: start;
+      max-height: 100%;
+      padding: 18px 20px;
+    }
+    .marco {
+      width: min(46svh, 40vw, 460px);
+    }
+    .reloj {
+      font-size: clamp(4rem, 14svh, 9rem);
+    }
+    .fecha {
+      margin-top: 6px;
+      font-size: 1.375rem;
+    }
+    .mensaje {
+      margin-top: 22px;
+    }
+    .ayuda {
+      margin-top: 6px;
+      font-size: 1rem;
+    }
+  }
+  /* Celular acostado: muy bajo para la cámara grande. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .ayuda,
+    .fecha {
+      display: none;
+    }
+  }
+
   .marco video {
     position: absolute;
     inset: 9px;
@@ -226,51 +378,8 @@ import logo from '../assets/logo-lola-circulo.png';
   .marco.ok .anillo-avance {
     stroke: var(--color-profundo);
   }
-  .mensaje {
-    margin-top: 22px;
-    min-height: 2.5rem;
-    text-align: center;
-    font-size: clamp(1.4rem, 3vh, 2rem);
-    font-weight: 700;
-    color: var(--color-profundo);
-  }
-  .ayuda {
-    margin-top: 6px;
-    max-width: 30rem;
-    text-align: center;
-    font-size: 1rem;
-    color: var(--color-texto-2);
-  }
-  .lateral {
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .reloj {
-    font-size: clamp(4rem, 14vh, 9rem);
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    color: var(--color-profundo);
-  }
-  .fecha {
-    margin-top: 6px;
-    font-size: 1.375rem;
-    font-weight: 600;
-    color: var(--color-texto-2);
-  }
   .fecha::first-letter {
     text-transform: uppercase;
-  }
-  .hoy {
-    margin-top: 28px;
-    min-height: 0;
-    overflow-y: auto;
-    border-radius: 24px;
-    background: rgb(255 255 255 / 0.85);
-    padding: 18px 20px;
-    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
   }
   .chip {
     display: inline-flex;
@@ -286,6 +395,11 @@ import logo from '../assets/logo-lola-circulo.png';
   .chip-ok {
     background: var(--color-menta-suave);
     color: var(--color-profundo);
+  }
+  @media (max-width: 480px) {
+    .chip-ok {
+      display: none;
+    }
   }
   .boton-icono {
     display: flex;
@@ -304,26 +418,37 @@ import logo from '../assets/logo-lola-circulo.png';
     inset: 0;
     z-index: 20;
     display: flex;
-    align-items: center;
+    overflow-y: auto;
+    align-items: safe center;
     justify-content: center;
-    padding: 24px;
+    padding: 16px;
     background: rgb(251 248 242 / 0.82);
     backdrop-filter: blur(10px);
   }
   /* Los estilos de esta página ganan sobre la clase hidden de Tailwind: se repite acá. */
   .capa.hidden,
   .chip.hidden,
+  .boton-icono.hidden,
   .marco-tapa.hidden {
     display: none;
   }
   .tarjeta-grande {
     width: min(560px, 100%);
-    border-radius: 36px;
+    border-radius: 28px;
     background: #fff;
-    padding: 40px 36px;
+    padding: 28px 20px;
     text-align: center;
     box-shadow: 0 40px 100px -40px rgb(33 76 59 / 0.6);
     animation: entrar 380ms var(--ease-fluid);
+  }
+  @media (min-width: 640px) {
+    .capa {
+      padding: 24px;
+    }
+    .tarjeta-grande {
+      border-radius: 36px;
+      padding: 40px 36px;
+    }
   }
   .tarjeta-grande.salida .icono-grande {
     background: var(--color-profundo);
@@ -370,9 +495,94 @@ import logo from '../assets/logo-lola-circulo.png';
     letter-spacing: 0.25em;
     font-variant-numeric: tabular-nums;
   }
+
+  /* ---------- Registro de cara: cámara grande, círculo por partes y flechas ---------- */
+  .guia-marco {
+    position: relative;
+    width: min(76vw, 42svh, 340px);
+    aspect-ratio: 1;
+    border-radius: 9999px;
+  }
+  .guia-marco video {
+    position: absolute;
+    inset: 14px;
+    width: calc(100% - 28px);
+    height: calc(100% - 28px);
+    border-radius: 9999px;
+    object-fit: cover;
+    transform: scaleX(-1);
+    background: var(--color-profundo);
+  }
+  .guia-anillo {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+  :global(.guia-anillo circle) {
+    fill: none;
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+  :global(.guia-anillo .tramo-fondo) {
+    stroke: rgb(33 76 59 / 0.12);
+  }
+  :global(.guia-anillo .tramo) {
+    stroke: var(--color-marca);
+    stroke-dasharray: 0 100;
+  }
+  :global(.guia-anillo .tramo.hecho) {
+    stroke: var(--color-profundo);
+  }
+  /* Cada toma: un destello verde alrededor de la cámara. */
+  .guia-marco.toma {
+    animation: destello 450ms var(--ease-fluid);
+  }
+  .guia-flecha {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    width: 54px;
+    height: 54px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: #fff;
+    color: var(--color-marca);
+    box-shadow: 0 10px 30px -10px rgb(33 76 59 / 0.5);
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+    transition:
+      opacity 200ms,
+      transform 200ms,
+      background 200ms,
+      color 200ms;
+    pointer-events: none;
+  }
+  .guia-flecha.izquierda {
+    left: -14px;
+  }
+  .guia-flecha.derecha {
+    right: -14px;
+  }
+  .guia-flecha.pedida {
+    opacity: 1;
+    transform: translateY(-50%) scale(calc(0.9 + 0.25 * var(--avance, 0)));
+    background: color-mix(in srgb, var(--color-marca) calc(var(--avance, 0) * 100%), #fff);
+    color: color-mix(in srgb, #fff calc(var(--avance, 0) * 100%), var(--color-marca));
+  }
+  .guia-flecha.izquierda.pedida:not(.lograda) {
+    animation: empujar-izquierda 1s ease-in-out infinite;
+  }
+  .guia-flecha.derecha.pedida:not(.lograda) {
+    animation: empujar-derecha 1s ease-in-out infinite;
+  }
+  .guia-flecha.lograda {
+    background: var(--color-profundo);
+    color: #fff;
+  }
   :global([data-registro-tomas] li) {
-    width: 64px;
-    height: 64px;
+    width: 52px;
+    height: 52px;
     overflow: hidden;
     border-radius: 9999px;
     background: var(--color-menta-suave);
@@ -386,6 +596,24 @@ import logo from '../assets/logo-lola-circulo.png';
     height: 100%;
     object-fit: cover;
     transform: scaleX(-1);
+  }
+  :global(.persona-elegir) {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    border-radius: 16px;
+    background: var(--color-crema);
+    padding: 14px 16px;
+    text-align: left;
+  }
+  :global(.persona-elegir:hover),
+  :global(.persona-elegir:focus-visible) {
+    background: var(--color-menta-suave);
+  }
+  :global(.persona-elegir:disabled) {
+    opacity: 0.6;
   }
   :global(.persona-hoy) {
     display: flex;
@@ -412,9 +640,26 @@ import logo from '../assets/logo-lola-circulo.png';
       transform: translateY(12px) scale(0.98);
     }
   }
+  @keyframes destello {
+    40% {
+      box-shadow: 0 0 0 10px var(--color-menta);
+    }
+  }
+  @keyframes empujar-izquierda {
+    50% {
+      translate: -8px 0;
+    }
+  }
+  @keyframes empujar-derecha {
+    50% {
+      translate: 8px 0;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .tarjeta-grande {
-      animation: none;
+    .tarjeta-grande,
+    .guia-marco.toma,
+    .guia-flecha.pedida {
+      animation: none !important;
     }
   }
 </style>

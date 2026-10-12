@@ -1,15 +1,16 @@
 # Fichador del equipo
 
-Entradas y salidas del equipo, fichadas **solo en la compu del local**:
+Entradas y salidas del equipo, fichadas **solo en los aparatos del local**: la compu del local y el celular del local. Los dos funcionan igual.
 
 - **Con la cara**: la persona mira la cámara y en 1 o 2 segundos aparece "¡Hola, Sofi! Entrada 09:52".
-- **Con el celular, de respaldo**: si no la reconoce (poca luz, barbijo), abre **Fichar** en la app y le muestra el código a la cámara, al lado de su cara.
+- **Con el código del celular propio**: abre **Fichar** en la app (con su cuenta) y le muestra el código a la cámara del local. Vale igual que la cara.
 
 Lo que nadie puede hacer:
 
-- **Fichar por otra persona.** Si muestra el código de una compañera, la cámara ve que la cara es de otra y lo rechaza.
+- **Fichar desde otro lado.** El celular propio solo muestra el código: el que ficha es el aparato del local, que lo lee con su cámara. No se usa GPS (con un GPS falso o una VPN se engaña).
+- **Fichar por otra persona.** Si muestra el código de una compañera y la cámara ve la cara de otra persona registrada, lo rechaza.
 - **Fichar con una captura del código.** El código cambia cada 3 segundos, así que una foto o una captura mandada por WhatsApp no sirve.
-- **Cambiar la hora.** La hora la pone la base, no la compu.
+- **Cambiar la hora.** La hora la pone la base, no el aparato.
 
 Cada fichada guarda una foto chica como prueba.
 
@@ -49,6 +50,15 @@ Se puede volver a correr sin romper nada. Prende solo las extensiones que necesi
 
 La primera vez baja el reconocimiento facial (unos 8 MB, desde jsDelivr). Después queda guardado en la compu.
 
+### 2 bis. Preparar el celular del local
+
+1. Abrí **Chrome** en el celular del local (el que ya tiene la cuenta de admin) en:
+   `https://martinviretti.github.io/lola-equipo/fichador`
+2. Permití la cámara y tocá **Activar con mi cuenta de admin**.
+3. Ponele un nombre ("Celular del local") y dejá tildado **Dejar mi sesión abierta en este aparato**: así la app de Lola sigue entrando con esa cuenta y las caras se registran eligiendo a la persona, sin código.
+4. Menú `⋮` → **Agregar a la pantalla principal** (o **Instalar app**). Queda el ícono **Fichador**.
+5. Para fichar, dejalo parado y apoyado, con la cámara de adelante mirando a la persona, y enchufado. Mientras el fichador está abierto, la pantalla no se apaga.
+
 **Recomendado: que nadie pueda sacar la "llave" de la compu.** La compu guarda un secreto propio para fichar. Alguien que sepa de computación podría copiarlo con las herramientas de desarrollador del navegador (F12) e intentar fichar desde otro lado.
 
 Igual quedaría a la vista: cada fichada registra desde qué conexión de internet llegó y, si no es la del local, aparece en **Para revisar**. Para cerrarlo del todo:
@@ -59,16 +69,18 @@ Igual quedaría a la vista: cada fichada registra desde qué conexión de intern
   New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability -Value 2 -Type DWord
   ```
   Para Chrome es lo mismo, cambiando `Microsoft\Edge` por `Google\Chrome`. Para deshacerlo: `Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability`.
-- Si alguna vez sospechás que copiaron el secreto: **Fichadas → Configurar → Compus → Desactivar** y activala de nuevo. El secreto viejo deja de servir.
+- Si alguna vez sospechás que copiaron el secreto: **Fichadas → Configurar → Aparatos que fichan → Desactivar** y activalo de nuevo. El secreto viejo deja de servir.
 
 ### 3. Registrar la cara de cada una
 
-Hacelo con la persona adelante de la compu, con buena luz de frente:
+Siempre en un aparato del local (nunca desde el celular propio), con la persona adelante y buena luz de frente:
 
-1. En el celular o en cualquier compu: **Fichadas → Configurar el fichador → Caras registradas → Generar código**. Sale un código de 6 números que dura 15 minutos.
-2. En la compu del local: **Registrar cara** (abajo a la izquierda), escribí el código y seguí las indicaciones. Son 5 tomas: de frente, un poco a cada lado, la pera arriba y de frente otra vez.
+- **En el celular del local** (con la sesión de admin abierta): **Registrar cara** → tocá su nombre.
+- **En la compu del local**: primero **Fichadas → Configurar el fichador → Caras registradas → Generar código** (6 números, dura 15 minutos). Después **Registrar cara** y escribí el código.
 
-Si la cara se parece mucho a la de otra persona ya registrada, el sistema no la deja registrar y avisa.
+Son 5 tomas guiadas: de frente, girando hacia su izquierda, hacia su derecha, con una sonrisa y de frente otra vez. Las indicaciones se dicen en voz alta, una flecha marca hacia dónde girar y se llena a medida que gira, y cada toma suena, vibra (en el celular) y completa una parte del círculo.
+
+Si la cara se parece mucho a la de otra persona ya registrada, avisa. Si es de verdad otra persona (por ejemplo, un familiar), tocá **Es otra persona: registrar igual**.
 
 ### 4. Probar y ajustar (10 minutos)
 
@@ -85,7 +97,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 
 - **Llegar e irse**: mirar la cámara. Si es entrada o salida lo decide solo.
 - **Si dice "Hola" a la persona equivocada**: tocar **No soy yo** (está 8 segundos) y volver a mirar de frente.
-- **Con el celular**: menú → **Fichar** → acercar la pantalla a la cámara con el brillo al máximo, mirando a la cámara.
+- **Con el código del celular**: menú → **Fichar** → acercar la pantalla a la cámara del local, a un palmo, con el brillo al máximo.
 - **Sin internet en el local**: con la cara se guarda y se manda sola cuando vuelve la conexión. Queda marcada "sin internet" para revisar. Con el celular no se puede sin conexión.
 - **Fichar dos veces seguidas** (dentro de los 10 minutos de la entrada) cuenta como la misma fichada: no la convierte en salida.
 
@@ -93,7 +105,6 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 
 - **Ahora en el local**: quién está adentro y desde qué hora.
 - **Para revisar**: mirás la foto y tocás **Está bien** o **Anular**. Aparecen acá:
-  - las fichadas con el código del celular en las que la cámara no reconoció la cara;
   - las guardadas sin internet;
   - las que llegaron desde otra conexión que la del local.
 
@@ -107,7 +118,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
   Nada se borra: queda quién lo cambió y por qué.
 - **Descargar para Excel**: por mes, en dos versiones: horas por persona y todas las fichadas.
 - **Configurar el fichador**:
-  - las compus activas;
+  - los aparatos que fichan (la compu y el celular del local);
   - las caras registradas;
   - el **horario fijo** (opcional, apagado por defecto). Si lo prendés para una persona, en la semana se marca "llegó tarde", "se fue antes" o "día fuera de su horario". Nunca bloquea: los reemplazos y cambios de turno se fichan igual;
   - los ajustes.
@@ -118,7 +129,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 
 - **"Falta el permiso de la cámara"**: tocá el candado al lado de la dirección → Cámara → Permitir → Reintentar.
 - **"No encontramos la cámara"**: revisá el cable USB y que ninguna otra app (Zoom, Teams) la esté usando.
-- **Cambiaste de compu o se rompió**: en **Fichadas → Configurar → Compus**, tocá **Desactivar** en la vieja y activá la nueva.
+- **Cambiaste de compu o de celular, o se rompió**: en **Fichadas → Configurar → Aparatos que fichan**, tocá **Desactivar** en el viejo y activá el nuevo.
 - **Alguien se olvidó de fichar**: en la semana, tocá el día → **Agregar una fichada que faltó**.
 
 ## Antes de usarlo con el equipo
@@ -135,13 +146,14 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 ## Para mantenerlo (técnico)
 
 - **Páginas**:
-  - `src/pages/fichador.astro`: la compu del local, con el layout `src/layouts/Kiosco.astro` y el manifest `public/manifest-fichador.webmanifest`;
-  - `src/pages/fichar.astro`: el celular;
+  - `src/pages/fichador.astro`: el fichador (compu o celular del local), con el layout `src/layouts/Kiosco.astro` y el manifest `public/manifest-fichador.webmanifest`;
+  - `src/pages/fichar.astro`: el código para mostrar desde el celular propio;
   - `src/pages/fichadas.astro`: el panel.
-- **Lógica de la compu** (`src/scripts/fichador/`):
+- **Lógica del fichador** (`src/scripts/fichador/`):
   - `kiosco.ts`: ciclo de la cámara, QR y pantallas;
   - `caras.ts`: face-api;
-  - `registrar.ts`: registro de caras;
+  - `registrar.ts`: registro de caras (círculo por partes, flechas, voz);
+  - `sonidos.ts`: tonos, voz y vibración;
   - `cola.ts`: fichadas sin internet;
   - `capas.ts`: pantallas encima de la cámara.
 - **Comunes**: `src/lib/fichador.ts` (QR con HMAC, fechas, tramos entrada→salida) y `src/lib/csv.ts`.
@@ -152,7 +164,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
   - la compu se identifica con un secreto propio (en la base, solo su hash);
   - el QR del celular se firma con HMAC-SHA256 por paso de 3 segundos;
   - todas las escrituras pasan por funciones `security definer`, con RLS en todas las tablas.
-- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 87 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", entrada y salida del mismo día, sin internet, la conexión del local, los permisos, las bajas y las correcciones. Se corre así:
+- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 90 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", entrada y salida del mismo día, sin internet, la conexión del local, los permisos, las bajas y las correcciones. Se corre así:
   ```
   npm i --no-save @electric-sql/pglite @electric-sql/pglite-pgvector
   node supabase/pruebas/fichador.mjs

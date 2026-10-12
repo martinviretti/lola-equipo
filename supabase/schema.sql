@@ -144,8 +144,8 @@ revoke all on public.autorizados, public.progreso_gondola, public.intentos_exame
 
 -- =====================================================================
 -- Fichador: entradas y salidas del equipo
--- Se ficha SOLO en la compu del local (/fichador): con la cara, o mostrando a la cámara el código
--- QR que da la app en el celular (cambia cada 3 segundos). La hora la pone siempre la base, nunca
+-- Se ficha SOLO en el fichador del local (/fichador, en la compu o en el celular del local): con la
+-- cara, o mostrando a la cámara el código QR que da la app en el celular (cambia cada 3 segundos). La hora la pone siempre la base, nunca
 -- la compu. La compu no tiene sesión: la activa una admin y queda con un secreto propio.
 -- =====================================================================
 create extension if not exists vector with schema extensions;
@@ -446,8 +446,10 @@ begin
          || jsonb_build_object('similitud', r.similitud);
 end $$;
 
--- Fichar con el QR del celular. La cámara tiene que ver una cara al mismo tiempo: si es la de otra
--- persona registrada, se rechaza; si no se reconoce, se acepta pero queda para revisar con la foto.
+-- Fichar con el QR del celular: vale igual que la cara. El código cambia cada 3 segundos, lo tiene solo
+-- la dueña de la cuenta y lo tiene que leer la cámara del local (desde otro lado no se puede fichar).
+-- Si la cámara ve a la vez la cara de OTRA persona registrada, se rechaza; si no ve ninguna cara (o no
+-- la conoce), ficha igual y queda la foto.
 create or replace function public.fichar_codigo(
   p_dispositivo uuid, p_secreto text, p_qr text, p_embedding jsonb, p_foto text default null
 ) returns jsonb
@@ -459,7 +461,8 @@ declare
   v_paso bigint;
   v_ahora bigint := floor(extract(epoch from now()) / 3)::bigint;
   v_duena text;
-  r record;
+  v_cara text;
+  v_similitud real;
   v_res jsonb;
 begin
   perform public._dispositivo(p_dispositivo, p_secreto);
@@ -478,21 +481,17 @@ begin
   end if;
 
   select coalesce(nullif(a.nombre, ''), split_part(a.email, '@', 1)) into v_duena from public.autorizados a where a.email = v_cod.email;
-  if p_embedding is null then
-    return jsonb_build_object('estado', 'falta_cara', 'nombre', v_duena);
-  end if;
-
-  select * into r from public._reconocer(public._vector(p_embedding));
-  if r.email is not null and r.email <> v_cod.email and r.similitud >= v_aj.similitud_min then
-    return jsonb_build_object('estado', 'cara_de_otra', 'nombre', v_duena,
-      'otra', (select coalesce(nullif(a.nombre, ''), split_part(a.email, '@', 1)) from public.autorizados a where a.email = r.email));
+  if p_embedding is not null then
+    select r.email, r.similitud into v_cara, v_similitud from public._reconocer(public._vector(p_embedding)) r;
+    if v_cara is not null and v_cara <> v_cod.email and v_similitud >= v_aj.similitud_min then
+      return jsonb_build_object('estado', 'cara_de_otra', 'nombre', v_duena,
+        'otra', (select coalesce(nullif(a.nombre, ''), split_part(a.email, '@', 1)) from public.autorizados a where a.email = v_cara));
+    end if;
   end if;
 
   v_res := public._registrar_fichada(
     v_cod.email, 'codigo', p_dispositivo,
-    case when r.email = v_cod.email then r.similitud end, p_foto, null,
-    case when r.email = v_cod.email and r.similitud >= v_aj.similitud_min then null
-         else 'Con código del celular y la cara no se reconoció: mirá la foto' end);
+    case when v_cara = v_cod.email then v_similitud end, p_foto, null, null);
   if v_res ->> 'estado' = 'ok' then
     update public.codigos_fichaje set usado_el = now() where id = v_cod.id;
   end if;

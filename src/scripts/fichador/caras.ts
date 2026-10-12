@@ -1,5 +1,5 @@
-// Reconocimiento facial en la compu del local con face-api (corre en el navegador: el video no sale
-// de la compu; a la base solo viaja la huella numérica de la cara y una foto chica).
+// Reconocimiento facial en el fichador del local con face-api (corre en el navegador: el video no sale
+// del aparato; a la base solo viaja la huella numérica de la cara y una foto chica).
 // Se eligió face-api (red de reconocimiento estilo dlib) porque en las pruebas distinguía mejor a
 // personas parecidas que el modelo que trae Human.
 import { FACEAPI_CDN } from '../../lib/fichador';
@@ -73,7 +73,8 @@ export async function leer(video: HTMLVideoElement): Promise<Lectura> {
   const lado = Math.round(Math.min(c.detection.box.width, c.detection.box.height));
   const lectura = { ...base, puntaje: c.detection.score, ojos, giro, lado, embedding: Array.from(c.descriptor) };
 
-  if (lectura.puntaje < CONFIANZA_MIN || lado < Math.max(110, video.videoHeight * 0.2)) return { ...lectura, falta: 'lejos' };
+  // El lado corto del video: en el celular parado la imagen es más alta que ancha.
+  if (lectura.puntaje < CONFIANZA_MIN || lado < Math.max(110, Math.min(video.videoWidth, video.videoHeight) * 0.2)) return { ...lectura, falta: 'lejos' };
   if (ojos < OJOS_CERRADOS) return { ...lectura, falta: 'quieta' };
   return { ...lectura, valida: true };
 }
