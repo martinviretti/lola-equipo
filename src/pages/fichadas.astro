@@ -168,7 +168,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     font-size: 0.875rem;
     color: var(--color-ambar);
   }
-  .tarjeta {
+  /* :global porque también los usan las tarjetas y campos que se arman desde el script. */
+  :global(.tarjeta) {
     border-radius: 24px;
     background: #fff;
     padding: 20px;
@@ -198,7 +199,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     text-underline-offset: 3px;
     word-break: break-all;
   }
-  .campo {
+  :global(.campo) {
     width: 100%;
     border-radius: 14px;
     background: var(--color-crema);
@@ -208,7 +209,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
     outline: none;
   }
-  .campo:focus {
+  :global(.campo:focus) {
     box-shadow: inset 0 0 0 2px var(--color-marca);
   }
   .boton-icono {
@@ -309,6 +310,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     similitud: number | null;
     revisada_por: string | null;
     anulada_por: string | null;
+    anulada_motivo: string | null;
     motivo: string | null;
     nota: string | null;
     corregida_por: string | null;
@@ -333,6 +335,11 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     entrada: string;
     salida: string;
   }
+  interface SinReconocer {
+    id: number;
+    hora: string;
+    foto: string | null;
+  }
   interface Ajustes {
     similitud_min: number;
     tolerancia_min: number;
@@ -340,7 +347,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     parpadeo: boolean;
   }
 
-  const COLUMNAS = 'id,email,tipo,hora,metodo,similitud,sin_conexion,revisar,revisada_el,revisada_por,anulada,anulada_por,motivo,creada_por,nota,hora_original,corregida_por';
+  const COLUMNAS = 'id,email,tipo,hora,metodo,similitud,sin_conexion,revisar,revisada_el,revisada_por,anulada,anulada_por,anulada_motivo,motivo,creada_por,nota,hora_original,corregida_por';
   const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
   // ---------- Utilidades ----------
@@ -386,6 +393,23 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     return data as T;
   }
 
+  /** Supabase devuelve como mucho 1000 filas por pedido: se piden de a 1000 hasta traer todo. */
+  async function todas<T>(armar: (desde: number, hasta: number) => PromiseLike<{ data: T[] | null; error: unknown }>): Promise<T[]> {
+    const filas: T[] = [];
+    for (let desde = 0; ; desde += 1000) {
+      const parte = await q<T[]>(armar(desde, desde + 999));
+      filas.push(...parte);
+      if (parte.length < 1000) return filas;
+    }
+  }
+
+  /** Ejecuta un cambio y avisa si falló (nada falla en silencio). */
+  async function accion(p: PromiseLike<{ error: unknown }>, texto = 'No se pudo guardar. Revisá la conexión y probá de nuevo.') {
+    const { error } = await p;
+    if (error) alert(texto);
+    return !error;
+  }
+
   // ---------- Carga ----------
   async function cargarTodo() {
     const db = supabase!;
@@ -405,10 +429,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   // ---------- Ahora en el local ----------
   async function pintarAhora() {
     const hoy = diaClave(new Date());
-    const fs = await q<FichadaCompleta[]>(
-      supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(sumarDias(hoy, -1))).eq('anulada', false).order('hora'),
-    );
-    const ts = tramosPorPersona(fs).filter((t) => t.dia === hoy || (t.entrada && !t.salida && t.dia === sumarDias(hoy, -1)));
+    const fs = await q<FichadaCompleta[]>(supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(hoy)).eq('anulada', false).order('hora'));
+    // Solo lo de hoy: una entrada de ayer sin salida es un olvido (se ve en la semana), no alguien que sigue adentro.
+    const ts = tramosPorPersona(fs).filter((t) => t.dia === hoy);
     const caja = $('[data-ahora]');
     if (!ts.length) {
       caja.replaceChildren(el('p', 'text-sm text-texto-2 sm:col-span-3', 'Hoy todavía no fichó nadie.'));
@@ -449,9 +472,13 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         .gte('hora', new Date(Date.now() - 30 * 86400000).toISOString())
         .order('hora', { ascending: false }),
     );
-    $('[data-revisar-seccion]').classList.toggle('hidden', !fs.length);
-    $('[data-revisar-cuantas]').textContent = String(fs.length);
+    const sin = await q<SinReconocer[]>(
+      supabase!.from('fichadas_sin_reconocer').select('id,hora,foto').is('resuelta_el', null).order('hora', { ascending: false }),
+    );
+    $('[data-revisar-seccion]').classList.toggle('hidden', !fs.length && !sin.length);
+    $('[data-revisar-cuantas]').textContent = String(fs.length + sin.length);
     $('[data-revisar]').replaceChildren(
+      ...sin.map((x) => filaSinReconocer(x)),
       ...fs.map((f) => {
         const li = el('li', 'flex gap-3 rounded-2xl bg-white p-3 ring-1 ring-ambar/30');
         const img = el('img', 'foto-fichada');
@@ -465,8 +492,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         const acciones = el('div', 'mt-2 flex flex-wrap gap-2');
         acciones.append(
           boton('Está bien', 'boton-principal', async () => {
-            await supabase!.rpc('marcar_revisada', { p_id: f.id });
-            void refrescar();
+            if (await accion(supabase!.rpc('marcar_revisada', { p_id: f.id }))) void refrescar();
           }),
           boton('Anular', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', () => void anular(f)),
         );
@@ -476,6 +502,48 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         return li;
       }),
     );
+  }
+
+  /** Guardada sin internet y la cara no se reconoció: la admin mira la foto y dice de quién es. */
+  function filaSinReconocer(x: SinReconocer) {
+    const li = el('li', 'flex gap-3 rounded-2xl bg-white p-3 ring-1 ring-ambar/30');
+    if (x.foto) {
+      const img = el('img', 'foto-fichada');
+      img.src = x.foto;
+      img.alt = 'Foto de la fichada sin reconocer';
+      li.append(img);
+    } else li.append(el('span', 'foto-fichada flex items-center justify-center text-center text-[0.7rem] text-texto-2', 'Sin foto'));
+    const txt = el('div', 'min-w-0 flex-1');
+    txt.append(
+      el('p', 'font-bold text-profundo', '¿Quién es?'),
+      el('p', 'text-sm text-texto-2 tabular-nums first-letter:uppercase', `${diaLargo(x.hora)} · ${hora(x.hora)}`),
+      el('p', 'mt-1 text-xs font-semibold text-ambar', 'Se guardó sin internet y la cara no se reconoció al mandarla'),
+    );
+    const form = el('form', 'mt-2 flex flex-wrap gap-2');
+    const quien = el('select', 'campo !w-auto !py-1.5 !text-sm');
+    quien.setAttribute('aria-label', 'Persona');
+    for (const p of personas.filter((p) => p.activo)) quien.append(Object.assign(el('option', '', p.nombre || p.email.split('@')[0]), { value: p.email }));
+    const tipo = el('select', 'campo !w-auto !py-1.5 !text-sm');
+    tipo.setAttribute('aria-label', 'Entrada o salida');
+    tipo.append(Object.assign(el('option', '', 'Entrada'), { value: 'entrada' }), Object.assign(el('option', '', 'Salida'), { value: 'salida' }));
+    const asignar = el('button', 'boton boton-principal !py-1.5 !px-3 !text-sm', 'Asignar');
+    asignar.type = 'submit';
+    form.append(
+      quien,
+      tipo,
+      asignar,
+      boton('Descartar', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
+        if (!confirm('¿Descartarla? No se va a contar para nadie.')) return;
+        if (await accion(supabase!.rpc('descartar_sin_reconocer', { p_id: x.id }))) void refrescar();
+      }),
+    );
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (await accion(supabase!.rpc('asignar_sin_reconocer', { p_id: x.id, p_email: quien.value, p_tipo: tipo.value }))) void refrescar();
+    });
+    txt.append(form);
+    li.append(txt);
+    return li;
   }
 
   const fotos = new Map<number, string | null>();
@@ -520,7 +588,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   async function cargarSemana() {
     const desde = inicioDia(sumarDias(lunes, -1));
     const hasta = inicioDia(sumarDias(lunes, 8));
-    semana = await q<FichadaCompleta[]>(supabase!.from('fichadas').select(COLUMNAS).gte('hora', desde).lt('hora', hasta).order('hora'));
+    semana = await todas<FichadaCompleta>((a, b) => supabase!.from('fichadas').select(COLUMNAS).gte('hora', desde).lt('hora', hasta).order('hora').order('id').range(a, b));
     pintarSemana();
   }
 
@@ -617,8 +685,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         txt.append(el('p', 'text-xs text-texto-2', datos.join(' · ')));
         if (f.revisar) txt.append(el('p', 'mt-1 text-xs font-semibold text-ambar', f.revisada_el ? `${f.revisar} (revisada)` : f.revisar));
         if (f.creada_por) txt.append(el('p', 'text-xs text-texto-2', `La cargó ${f.creada_por}${f.nota ? `: ${f.nota}` : ''}`));
-        if (f.hora_original) txt.append(el('p', 'text-xs text-texto-2', `Antes decía ${hora(f.hora_original)}. La corrigió ${f.corregida_por}${f.motivo && !f.anulada ? `: ${f.motivo}` : ''}`));
-        if (f.anulada) txt.append(el('p', 'text-xs font-semibold text-peligro', `Anulada por ${f.anulada_por}${f.motivo ? `: ${f.motivo}` : ''}`));
+        if (f.hora_original) txt.append(el('p', 'text-xs text-texto-2', `Antes decía ${hora(f.hora_original)}. La corrigió ${f.corregida_por}${f.motivo ? `: ${f.motivo}` : ''}`));
+        else if (f.corregida_por) txt.append(el('p', 'text-xs text-texto-2', `La corrigió ${f.corregida_por}${f.motivo ? `: ${f.motivo}` : ''}`));
+        if (f.anulada) txt.append(el('p', 'text-xs font-semibold text-peligro', `Anulada por ${f.anulada_por}${f.anulada_motivo ? `: ${f.anulada_motivo}` : ''}`));
 
         if (!f.anulada) {
           const acciones = el('div', 'mt-2 flex flex-wrap items-center gap-2');
@@ -633,16 +702,28 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           corregir.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!input.value || input.value === hora(f.hora)) return;
-            const motivo = prompt('¿Por qué se corrige? (queda registrado)') ?? '';
-            await supabase!.rpc('corregir_fichada', { p_id: f.id, p_hora: new Date(`${dia}T${input.value}:00-03:00`).toISOString(), p_motivo: motivo });
+            const motivo = prompt('¿Por qué se corrige? (queda registrado)');
+            if (motivo === null) return;
+            if (!(await accion(supabase!.rpc('corregir_fichada', { p_id: f.id, p_hora: new Date(`${dia}T${input.value}:00-03:00`).toISOString(), p_motivo: motivo })))) return;
             await refrescar();
             abrirDetalle(email, dia);
           });
-          acciones.append(corregir, boton('Anular', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', () => void anular(f, true)));
+          const otro = f.tipo === 'entrada' ? 'salida' : 'entrada';
+          acciones.append(
+            corregir,
+            boton(`Es ${otro}`, 'boton-secundario', async () => {
+              const motivo = prompt(`¿Cambiar esta ${f.tipo} por ${otro}? Contá por qué (queda registrado):`);
+              if (motivo === null) return;
+              if (!(await accion(supabase!.rpc('cambiar_tipo', { p_id: f.id, p_motivo: motivo })))) return;
+              await refrescar();
+              abrirDetalle(email, dia);
+            }),
+            boton('Anular', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', () => void anular(f, true)),
+          );
           if (f.revisar && !f.revisada_el)
             acciones.append(
               boton('Está bien', 'boton-principal', async () => {
-                await supabase!.rpc('marcar_revisada', { p_id: f.id });
+                if (!(await accion(supabase!.rpc('marcar_revisada', { p_id: f.id })))) return;
                 await refrescar();
                 abrirDetalle(email, dia);
               }),
@@ -661,7 +742,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   async function anular(f: Fichada, reabrir = false) {
     const motivo = prompt(`¿Anular la ${f.tipo} de ${nombreDe(f.email)} de las ${hora(f.hora)}? Contá por qué (queda registrado):`);
     if (motivo === null) return;
-    await supabase!.rpc('anular_fichada', { p_id: f.id, p_motivo: motivo });
+    if (!(await accion(supabase!.rpc('anular_fichada', { p_id: f.id, p_motivo: motivo })))) return;
     await refrescar();
     if (reabrir && detalle) abrirDetalle(detalle.email, detalle.dia);
   }
@@ -694,7 +775,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       const siguiente = `${m === 12 ? a + 1 : a}-${String(m === 12 ? 1 : m + 1).padStart(2, '0')}-01`;
       let fs: FichadaCompleta[];
       try {
-        fs = await q<FichadaCompleta[]>(supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(primero)).lt('hora', inicioDia(siguiente)).order('hora').limit(10000));
+        fs = await todas<FichadaCompleta>((a, b) =>
+          supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(primero)).lt('hora', inicioDia(siguiente)).order('hora').order('id').range(a, b),
+        );
       } catch {
         return alert('No se pudieron bajar los datos. Revisá la conexión.');
       }
@@ -750,7 +833,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     ]);
 
     // Compus
-    const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' });
     $('[data-compus]').replaceChildren(
       ...(compus.length
         ? compus.map((c) => {
@@ -764,8 +847,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
               txt,
               boton(c.activo ? 'Desactivar' : 'Reactivar', c.activo ? 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white' : 'boton-secundario', async () => {
                 if (c.activo && !confirm(`¿Desactivar "${c.nombre}"? Deja de fichar al instante.`)) return;
-                await db.from('dispositivos').update({ activo: !c.activo }).eq('id', c.id);
-                void pintarConfig();
+                if (await accion(db.from('dispositivos').update({ activo: !c.activo }).eq('id', c.id))) void pintarConfig();
               }),
             );
             return li;
@@ -808,8 +890,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           li.append(
             boton('Borrar cara', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
               if (!confirm(`¿Borrar la cara registrada de ${p.nombre ?? p.email}? Va a tener que fichar con el código hasta que la registres de nuevo.`)) return;
-              await db.from('caras').delete().eq('email', p.email);
-              void pintarConfig();
+              if (await accion(db.from('caras').delete().eq('email', p.email), 'No se pudo borrar la cara.')) void pintarConfig();
             }),
           );
         li.append(codigo);
@@ -867,11 +948,13 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     cuerpo.addEventListener('submit', async (e) => {
       e.preventDefault();
       const filas = campos.filter((c) => c.desde.value && c.hasta.value).map((c) => ({ email: p.email, dia: c.dia, entrada: c.desde.value, salida: c.hasta.value }));
-      const db = supabase!;
-      const r1 = await db.from('horarios').delete().eq('email', p.email);
-      const r2 = filas.length ? await db.from('horarios').insert(filas) : { error: null };
-      const r3 = await db.from('autorizados').update({ horario_fijo: check.checked }).eq('email', p.email);
-      if (r1.error || r2.error || r3.error) {
+      // Todo junto en la base: si algo falla, el horario anterior queda como estaba.
+      const { error } = await supabase!.rpc('guardar_horario', {
+        p_email: p.email,
+        p_fijo: check.checked,
+        p_dias: filas.map(({ dia, entrada, salida }) => ({ dia, entrada, salida })),
+      });
+      if (error) {
         aviso.className = 'text-sm font-semibold text-peligro';
         aviso.textContent = 'No se pudo guardar.';
         return;

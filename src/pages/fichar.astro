@@ -94,17 +94,27 @@ import Icon from '../components/Icon.astro';
   let desfase = 0;
   let pidiendo = false;
   let ultimoPaso = -1;
-  let ultimaVista = Date.now();
+  /** Después de un error se espera antes de volver a pedir (y si no tiene acceso, no se pide más). */
+  let esperarHasta = 0;
+  let sinAcceso = false;
+  /** Última fichada vista: para avisar "Listo" una sola vez por fichada nueva. */
+  let ultimaId: number | null = null;
 
   async function pedir() {
-    if (pidiendo) return;
+    if (pidiendo || sinAcceso || Date.now() < esperarHasta) return;
     pidiendo = true;
     try {
       const { data, error } = await supabase!.rpc('pedir_codigo_fichaje');
       if (error) {
         codigo = null;
         $('[data-qr]').replaceChildren();
-        estado(navigator.onLine ? 'No se pudo armar tu código. Probá de nuevo en un momento.' : 'Necesitás internet para mostrar tu código.');
+        if (/sin_acceso/.test(error.message)) {
+          sinAcceso = true;
+          estado('Tu acceso está dado de baja. Hablá con la encargada.');
+          return;
+        }
+        esperarHasta = Date.now() + 10000;
+        estado(navigator.onLine ? 'No se pudo armar tu código. Probamos de nuevo en unos segundos…' : 'Necesitás internet para mostrar tu código.');
         return;
       }
       desfase = new Date(data.ahora).getTime() - Date.now();
@@ -158,9 +168,10 @@ import Icon from '../components/Icon.astro';
     const lista = data as Fichada[];
 
     // ¿Fichó recién? Se avisa acá también y se pide un código nuevo (el usado ya no sirve).
-    const nueva = lista.filter((f) => !f.anulada && new Date(f.hora).getTime() > ultimaVista - 5000).pop();
+    const ultima = lista.filter((f) => !f.anulada).pop();
+    const nueva = ultimaId !== null && ultima && ultima.id > ultimaId && Date.now() - new Date(ultima.hora).getTime() < 120000 ? ultima : null;
+    ultimaId = Math.max(ultimaId ?? 0, ultima?.id ?? 0);
     if (nueva) {
-      ultimaVista = Date.now();
       $('[data-listo]').classList.remove('hidden');
       $('[data-listo-texto]').textContent = `Listo: ${nueva.tipo === 'entrada' ? 'entrada' : 'salida'} a las ${hora(nueva.hora)}`;
       navigator.vibrate?.(120);

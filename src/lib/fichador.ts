@@ -84,8 +84,8 @@ export interface Tramo {
 }
 
 /**
- * Arma los tramos de una persona en orden: entrada → salida. Una salida sin entrada o una entrada
- * sin salida quedan como tramo incompleto (para que la admin lo complete).
+ * Arma los tramos de una persona en orden: entrada → salida del MISMO día (igual que la base). Una
+ * salida sin entrada o una entrada sin salida quedan como tramo incompleto, para que la admin lo complete.
  */
 export function tramos(fichadas: Fichada[], horasMax = 16): Tramo[] {
   const lista = fichadas.filter((f) => !f.anulada).sort((a, b) => a.hora.localeCompare(b.hora));
@@ -95,7 +95,7 @@ export function tramos(fichadas: Fichada[], horasMax = 16): Tramo[] {
     if (f.tipo === 'entrada') {
       if (abierto) salida.push(abierto);
       abierto = { email: f.email, dia: diaClave(f.hora), entrada: f, ms: 0 };
-    } else if (abierto && new Date(f.hora).getTime() - new Date(abierto.entrada!.hora).getTime() < horasMax * 3600000) {
+    } else if (abierto && abierto.dia === diaClave(f.hora) && new Date(f.hora).getTime() - new Date(abierto.entrada!.hora).getTime() < horasMax * 3600000) {
       abierto.salida = f;
       abierto.ms = new Date(f.hora).getTime() - new Date(abierto.entrada!.hora).getTime();
       salida.push(abierto);

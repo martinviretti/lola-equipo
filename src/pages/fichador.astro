@@ -65,7 +65,10 @@ import logo from '../assets/logo-lola-circulo.png';
     <!-- Resultado de la fichada -->
     <div class="capa hidden" data-capa="resultado">
       <div class="tarjeta-grande" data-resultado-caja>
-        <span class="icono-grande" data-resultado-icono><Icon name="check" class="size-14" /></span>
+        <span class="icono-grande" data-resultado-icono>
+          <span class="icono-ok"><Icon name="check" class="size-14" /></span>
+          <span class="icono-mal"><Icon name="warning-circle" class="size-14" /></span>
+        </span>
         <p class="mt-5 text-4xl font-bold text-profundo" data-resultado-titulo></p>
         <p class="mt-3 text-2xl font-semibold" data-resultado-detalle></p>
         <p class="mt-2 text-lg text-texto-2" data-resultado-sub></p>
@@ -125,7 +128,10 @@ import logo from '../assets/logo-lola-circulo.png';
           <button type="button" class="boton boton-secundario mt-6" data-registro-cancelar>Cancelar</button>
         </div>
         <div class="hidden" data-registro="fin">
-          <span class="icono-grande mx-auto" data-registro-fin-icono><Icon name="check" class="size-12" /></span>
+          <span class="icono-grande mx-auto" data-registro-fin-icono>
+            <span class="icono-ok"><Icon name="check" class="size-12" /></span>
+            <span class="icono-mal"><Icon name="warning-circle" class="size-12" /></span>
+          </span>
           <p class="mt-4 text-2xl font-bold text-profundo" data-registro-fin-titulo></p>
           <p class="mt-2 text-texto-2" data-registro-fin-texto></p>
           <button type="button" class="boton boton-principal mt-6" data-registro-cerrar>Listo</button>
@@ -135,8 +141,8 @@ import logo from '../assets/logo-lola-circulo.png';
 
     <!-- Algo no anda (cámara, internet, compu desactivada) -->
     <div class="capa hidden" data-capa="problema">
-      <div class="tarjeta-grande">
-        <span class="icono-grande mx-auto bg-ambar-suave text-ambar"><Icon name="warning-circle" class="size-12" /></span>
+      <div class="tarjeta-grande aviso">
+        <span class="icono-grande mx-auto"><Icon name="warning-circle" class="size-12" /></span>
         <p class="mt-4 text-2xl font-bold text-profundo" data-problema-titulo></p>
         <p class="mt-2 text-texto-2" data-problema-texto></p>
         <button type="button" class="boton boton-principal mt-6" data-problema-reintentar>Reintentar</button>
@@ -322,6 +328,13 @@ import logo from '../assets/logo-lola-circulo.png';
   .tarjeta-grande.aviso .icono-grande {
     background: var(--color-ambar-suave);
     color: var(--color-ambar);
+  }
+  .icono-mal,
+  .tarjeta-grande.aviso .icono-ok {
+    display: none;
+  }
+  .tarjeta-grande.aviso .icono-mal {
+    display: inline;
   }
   .icono-grande {
     display: inline-flex;

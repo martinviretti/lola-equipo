@@ -31,8 +31,9 @@ const guardarCola = (c: Pendiente[]) => {
 
 export const pendientes = () => leerCola().length;
 
-export function encolar(embedding: number[], foto: string | null) {
-  guardarCola([...leerCola(), { t: new Date().toISOString(), embedding, foto }]);
+/** `hora`: la hora ya corregida con el reloj de la base (la de la compu puede estar mal). */
+export function encolar(embedding: number[], foto: string | null, hora: Date) {
+  guardarCola([...leerCola(), { t: hora.toISOString(), embedding, foto }]);
 }
 
 /** Error de red (no de la base): conviene guardar y reintentar. */

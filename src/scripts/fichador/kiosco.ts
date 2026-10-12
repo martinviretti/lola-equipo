@@ -260,20 +260,30 @@ async function ficharConCara(embedding: number[]) {
   mensaje('Un segundo…');
   const f = foto();
   const e = huella(embedding);
+  const avisarGuardada = () =>
+    mostrarResultado({
+      titulo: 'Sin internet',
+      detalle: 'Guardamos tu fichada',
+      sub: 'Se confirma sola cuando vuelva la conexión. Si querés, avisale a la encargada.',
+      tipo: 'aviso',
+      segundos: 6,
+    });
   try {
+    // Si quedaron fichadas guardadas sin internet, primero van esas (para respetar el orden).
+    if (pendientes()) await mandarPendientes(disp);
+    if (pendientes()) {
+      encolar(e, f, ahora());
+      pintarCola();
+      avisarGuardada();
+      return;
+    }
     const { data, error } = await supabase!.rpc('fichar_cara', { p_dispositivo: disp.id, p_secreto: disp.secreto, p_embedding: e, p_foto: f });
     if (error) {
       if (/dispositivo_invalido/.test(error.message)) return compuDesactivada();
       if (esSinConexion(error)) {
-        encolar(e, f);
+        encolar(e, f, ahora());
         pintarCola();
-        mostrarResultado({
-          titulo: 'Sin internet',
-          detalle: 'Guardamos tu fichada',
-          sub: 'Se confirma sola cuando vuelva la conexión. Si querés, avisale a la encargada.',
-          tipo: 'aviso',
-          segundos: 6,
-        });
+        avisarGuardada();
         return;
       }
       throw error;
@@ -367,8 +377,13 @@ async function ciclo() {
         const conQr = qrVisto && Date.now() - qrVisto.t < 2500;
         if (conQr) {
           anillo(0.5);
-          if (l.cantidad === 1 && l.embedding && l.falta !== 'varias' && l.falta !== 'quieta' && l.falta !== 'lejos') {
-            await ficharConCodigo(qrVisto!.texto, l.embedding);
+          if (ojosCerrados(l)) parpadeo = true;
+          const caraLista = l.cantidad === 1 && l.embedding && l.falta !== 'varias' && l.falta !== 'quieta' && l.falta !== 'lejos';
+          if (caraLista && pedirParpadeo && !parpadeo) {
+            mensaje('Parpadeá una vez, despacio');
+          } else if (caraLista) {
+            parpadeo = false;
+            await ficharConCodigo(qrVisto!.texto, l.embedding!);
             qrVisto = null;
           } else if (Date.now() - qrVisto!.desde > 1500) {
             mensaje('Ahora mirá a la cámara con el celular al lado de la cara');

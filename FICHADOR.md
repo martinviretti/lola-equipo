@@ -49,6 +49,18 @@ Se puede volver a correr sin romper nada. Prende solo las extensiones que necesi
 
 La primera vez baja el reconocimiento facial (unos 8 MB, desde jsDelivr). Después queda guardado en la compu.
 
+**Recomendado: que nadie pueda sacar la "llave" de la compu.** La compu guarda un secreto propio para fichar. Alguien que sepa de computación podría copiarlo con las herramientas de desarrollador del navegador (F12) e intentar fichar desde otro lado.
+
+Igual quedaría a la vista: cada fichada registra desde qué conexión de internet llegó y, si no es la del local, aparece en **Para revisar**. Para cerrarlo del todo:
+
+- Que en la compu del local las empleadas usen un **usuario de Windows sin permisos de administrador**.
+- Bloqueá F12 en Edge. Se hace una vez, desde **PowerShell como administrador**:
+  ```powershell
+  New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability -Value 2 -Type DWord
+  ```
+  Para Chrome es lo mismo, cambiando `Microsoft\Edge` por `Google\Chrome`. Para deshacerlo: `Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability`.
+- Si alguna vez sospechás que copiaron el secreto: **Fichadas → Configurar → Compus → Desactivar** y activala de nuevo. El secreto viejo deja de servir.
+
 ### 3. Registrar la cara de cada una
 
 Hacelo con la persona adelante de la compu, con buena luz de frente:
@@ -75,12 +87,24 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 - **Si dice "Hola" a la persona equivocada**: tocar **No soy yo** (está 8 segundos) y volver a mirar de frente.
 - **Con el celular**: menú → **Fichar** → acercar la pantalla a la cámara con el brillo al máximo, mirando a la cámara.
 - **Sin internet en el local**: con la cara se guarda y se manda sola cuando vuelve la conexión. Queda marcada "sin internet" para revisar. Con el celular no se puede sin conexión.
+- **Fichar dos veces seguidas** (dentro de los 10 minutos de la entrada) cuenta como la misma fichada: no la convierte en salida.
 
 ## El panel (Fichadas)
 
 - **Ahora en el local**: quién está adentro y desde qué hora.
-- **Para revisar**: fichadas con el código del celular en las que la cámara no reconoció la cara, o guardadas sin internet. Mirás la foto y tocás **Está bien** o **Anular**.
-- **Semana**: cada persona con sus días y horas. Tocá un día para ver las fotos, **corregir una hora**, **anular** o **agregar una fichada que faltó**. Nada se borra: queda quién lo cambió y por qué.
+- **Para revisar**: mirás la foto y tocás **Está bien** o **Anular**. Aparecen acá:
+  - las fichadas con el código del celular en las que la cámara no reconoció la cara;
+  - las guardadas sin internet;
+  - las que llegaron desde otra conexión que la del local.
+
+  Si una fichada guardada sin internet no se pudo reconocer al mandarla, aparece como **"¿Quién es?"** con la foto: elegís la persona y si fue entrada o salida.
+- **Semana**: cada persona con sus días y horas. Una salida solo cierra una entrada **del mismo día**, así que un olvido no desordena los días siguientes: queda marcado "Falta la salida" o "Falta la entrada". Tocá un día para ver las fotos y:
+  - **corregir una hora**;
+  - **cambiar entrada por salida** (por ejemplo, si alguien se olvidó de fichar la entrada y su salida quedó como entrada);
+  - **anular**;
+  - **agregar una fichada que faltó**.
+
+  Nada se borra: queda quién lo cambió y por qué.
 - **Descargar para Excel**: por mes, en dos versiones: horas por persona y todas las fichadas.
 - **Configurar el fichador**:
   - las compus activas;
@@ -128,7 +152,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
   - la compu se identifica con un secreto propio (en la base, solo su hash);
   - el QR del celular se firma con HMAC-SHA256 por paso de 3 segundos;
   - todas las escrituras pasan por funciones `security definer`, con RLS en todas las tablas.
-- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 86 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", los permisos, las bajas y las correcciones. Se corre así:
+- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 87 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", entrada y salida del mismo día, sin internet, la conexión del local, los permisos, las bajas y las correcciones. Se corre así:
   ```
   npm i --no-save @electric-sql/pglite @electric-sql/pglite-pgvector
   node supabase/pruebas/fichador.mjs

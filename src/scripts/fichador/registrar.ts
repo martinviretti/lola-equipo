@@ -39,6 +39,7 @@ export function iniciarRegistro(d: Dispositivo, listo: () => void) {
   disp = d;
   alTerminar = listo;
   activo = false;
+  $('[data-registro-fin-icono]').closest('.tarjeta-grande')!.classList.remove('aviso');
   mostrarCapa('registro');
   verPaso('codigo');
   const input = $<HTMLInputElement>('#codigo-cara');
@@ -67,9 +68,7 @@ function pintarTomas() {
 function fin(ok: boolean, titulo: string, texto: string) {
   activo = false;
   verPaso('fin');
-  const icono = $('[data-registro-fin-icono]');
-  icono.classList.toggle('bg-ambar-suave', !ok);
-  icono.classList.toggle('text-ambar', !ok);
+  $('[data-registro-fin-icono]').closest('.tarjeta-grande')!.classList.toggle('aviso', !ok);
   $('[data-registro-fin-titulo]').textContent = titulo;
   $('[data-registro-fin-texto]').textContent = texto;
 }

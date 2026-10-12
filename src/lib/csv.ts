@@ -14,10 +14,19 @@ export function descargarCsv(nombre: string, filas: (string | number)[][]) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
-/** Fecha para Excel en español: 12/10/2026 14:30 (la reconoce como fecha y se puede ordenar). */
+const FORMATO = new Intl.DateTimeFormat('es-AR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  timeZone: 'America/Argentina/Buenos_Aires',
+});
+
+/** Fecha para Excel en español, en hora de Argentina: 12/10/2026 14:30 (la reconoce como fecha y se puede ordenar). */
 export const fechaExcel = (iso: string | null) => {
   if (!iso) return '';
-  const d = new Date(iso);
-  const dos = (n: number) => String(n).padStart(2, '0');
-  return `${dos(d.getDate())}/${dos(d.getMonth() + 1)}/${d.getFullYear()} ${dos(d.getHours())}:${dos(d.getMinutes())}`;
+  const p = Object.fromEntries(FORMATO.formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return `${p.day}/${p.month}/${p.year} ${p.hour === '24' ? '00' : p.hour}:${p.minute}`;
 };

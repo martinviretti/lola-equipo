@@ -51,8 +51,11 @@ await db.exec(`
 
 // --- Ejecutar como un rol ---
 const usuarios = { martin: ['00000000-0000-0000-0000-000000000001', 'martinviretti@gmail.com'], ana: ['00000000-0000-0000-0000-000000000003', 'ana@gmail.com'], sofi: ['00000000-0000-0000-0000-000000000004', 'sofi@gmail.com'] };
+/** Conexión de internet desde la que "llega" el pedido (Supabase la pasa en x-forwarded-for). */
+let IP = null;
 async function como(quien, consulta, params = []) {
   return db.transaction(async (tx) => {
+    await tx.query(`select set_config('request.headers', $1, true)`, [IP ? JSON.stringify({ 'x-forwarded-for': `${IP}, 10.0.0.1` }) : '']);
     if (quien === 'anon') {
       await tx.exec(`set local role anon; select set_config('request.jwt.claims', '', true);`);
     } else {
@@ -118,15 +121,27 @@ const f1 = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, $4)`,
 ok(f1.estado === 'ok' && f1.tipo === 'entrada' && f1.nombre === 'Ana López', 'Ana ficha la entrada con la cara');
 const f2 = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, $4)`, [...D, JSON.stringify(toma(ANA)), foto]);
 ok(f2.estado === 'repetida', 'una segunda fichada al toque cuenta como repetida');
-await db.exec(`update public.fichadas set hora = hora - interval '4 hours', registrada_el = registrada_el - interval '4 hours'`);
-const f3 = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null)`, [...D, JSON.stringify(toma(ANA))]);
-ok(f3.estado === 'ok' && f3.tipo === 'salida', 'cuatro horas después es la salida');
+await db.exec(`update public.fichadas set hora = hora - interval '5 minutes', registrada_el = registrada_el - interval '5 minutes' where id = ${f1.id}`);
+ok((await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null)`, [...D, JSON.stringify(toma(ANA))])).estado === 'repetida', 'una "salida" a los 5 minutos de la entrada cuenta como repetida');
+
+// Horas de ayer (Argentina), mandadas como fichadas guardadas sin internet
+const ayer = (hhmm) => {
+  const hoy = new Date(Date.now() - 3 * 3600e3);
+  const d = Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate() - 1);
+  const [h, m] = hhmm.split(':').map(Number);
+  return new Date(d + (h + 3) * 3600e3 + m * 60e3).toISOString();
+};
+const fa = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4)`, [...D, JSON.stringify(toma(ANA)), ayer('09:00')]);
+const fb = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4)`, [...D, JSON.stringify(toma(ANA)), ayer('13:00')]);
+ok(fa.tipo === 'entrada' && fb.tipo === 'salida', 'ayer a las 09:00 entrada y a las 13:00 salida (mismo día)');
 ok((await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null)`, [...D, JSON.stringify(toma(DESCONOCIDA))])).estado === 'desconocida', 'una cara no registrada no ficha');
 ok((await db.query(`select count(*)::int as n from public.fotos_fichada`)).rows[0].n === 1, 'se guardó la foto de la fichada');
 
-// "No soy yo"
+// Sofía entró ayer a las 18:00 y se olvidó de fichar la salida: hoy su fichada es una entrada, no una salida.
+const fs0 = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4)`, [...D, JSON.stringify(toma(SOFI)), ayer('18:00')]);
+ok(fs0.tipo === 'entrada', 'Sofía: entrada de ayer a las 18:00');
 const f4 = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null)`, [...D, JSON.stringify(toma(SOFI))]);
-ok(f4.estado === 'ok' && f4.nombre === 'Sofía', 'Sofía ficha la entrada');
+ok(f4.estado === 'ok' && f4.nombre === 'Sofía' && f4.tipo === 'entrada', 'una entrada de ayer sin salida no convierte la de hoy en salida');
 ok((await uno('anon', `select public.deshacer_fichada($1, $2, $3)`, [...D, f4.id])) === true, '"No soy yo" anula la fichada recién hecha');
 ok((await uno('anon', `select public.deshacer_fichada($1, $2, $3)`, [...D, f1.id])) === false, '"No soy yo" no anula fichadas viejas');
 
@@ -157,7 +172,7 @@ const filaBien = (await db.query(`select metodo, revisar from public.fichadas wh
 ok(bien.estado === 'ok' && filaBien.metodo === 'codigo' && filaBien.revisar === null, 'Sofía ficha con su código y su cara: sin nada para revisar');
 ok((await uno('anon', `select public.fichar_codigo($1, $2, $3, $4::jsonb, null)`, [...D, q.texto(), JSON.stringify(toma(SOFI))])).estado === 'codigo_vencido', 'el código ya usado no sirve de nuevo');
 const q2 = await qr('ana');
-await db.exec(`update public.fichadas set hora = hora - interval '20 hours' where email = 'ana@gmail.com'`);
+await db.exec(`update public.fichadas set hora = hora - interval '2 days' where email = 'ana@gmail.com'`);
 const sinCara = await uno('anon', `select public.fichar_codigo($1, $2, $3, $4::jsonb, null)`, [...D, q2.texto(), JSON.stringify(toma(DESCONOCIDA))]);
 const filaSin = (await db.query(`select revisar, tipo from public.fichadas where id = $1`, [sinCara.id])).rows[0];
 ok(sinCara.estado === 'ok' && filaSin.revisar?.includes('mirá la foto') && filaSin.tipo === 'entrada', 'con código y cara no reconocida: ficha pero queda para revisar (y una salida olvidada no la confunde)');
@@ -171,7 +186,7 @@ ok((await falla('martin', `select secreto_hash from public.dispositivos`))?.incl
 ok((await como('martin', `select id, email, foto from public.caras`)).length === 7, 'la admin ve las caras registradas (sin la huella)');
 ok((await como('martin', `select id from public.fichadas`)).length >= 4, 'la admin ve todas las fichadas');
 ok((await como('martin', `select fichada_id from public.fotos_fichada`)).length >= 1, 'la admin ve las fotos');
-for (const t of ['fichadas', 'fotos_fichada', 'caras', 'dispositivos', 'codigos_fichaje', 'codigos_cara', 'ajustes_fichador', 'horarios']) {
+for (const t of ['fichadas', 'fotos_fichada', 'caras', 'dispositivos', 'codigos_fichaje', 'codigos_cara', 'ajustes_fichador', 'horarios', 'fichadas_sin_reconocer']) {
   ok((await falla('anon', `select * from public.${t}`))?.includes('permission denied'), `sin sesión no se lee ${t}`);
 }
 ok((await falla('sofi', `select * from public.codigos_fichaje`))?.includes('permission denied'), 'nadie lee los códigos del celular directo');
@@ -188,12 +203,52 @@ await como('martin', `select public.corregir_fichada($1, now() - interval '2 hou
 const filaCor = (await db.query(`select hora_original, corregida_por, motivo from public.fichadas where id = $1`, [man])).rows[0];
 ok(filaCor.hora_original && filaCor.corregida_por === 'martinviretti@gmail.com' && filaCor.motivo === 'Llegó antes', 'corregir guarda la hora original y quién la cambió');
 await como('martin', `select public.anular_fichada($1, 'Error')`, [man]);
-ok((await db.query(`select anulada from public.fichadas where id = $1`, [man])).rows[0].anulada, 'anular la deja tachada');
+const filaAn = (await db.query(`select anulada, anulada_motivo, motivo from public.fichadas where id = $1`, [man])).rows[0];
+ok(filaAn.anulada && filaAn.anulada_motivo === 'Error' && filaAn.motivo === 'Llegó antes', 'anular la deja tachada sin borrar el motivo de la corrección');
+ok((await falla('sofi', `select public.cambiar_tipo($1, 'x')`, [sinCara.id]))?.includes('solo_admin'), 'una empleada no puede cambiar entrada/salida');
+await como('martin', `select public.cambiar_tipo($1, 'Se olvidó la entrada')`, [sinCara.id]);
+ok((await db.query(`select tipo, motivo from public.fichadas where id = $1`, [sinCara.id])).rows[0].tipo === 'salida', 'la admin cambia una entrada por salida');
+await como('martin', `select public.cambiar_tipo($1, null)`, [sinCara.id]);
+
+// Sin internet y la cara no se reconoce: queda para asignar, no se pierde
+const sr = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, $4, $5)`, [...D, JSON.stringify(toma(DESCONOCIDA)), foto, new Date(Date.now() - 3600e3).toISOString()]);
+ok(sr.estado === 'guardada_sin_reconocer', 'sin internet y sin reconocer: se guarda para que la admin la asigne');
+ok((await falla('sofi', `select id from public.fichadas_sin_reconocer`)) !== null || (await como('sofi', `select id from public.fichadas_sin_reconocer`)).length === 0, 'una empleada no ve las sin reconocer');
+const pend = await como('martin', `select id, foto from public.fichadas_sin_reconocer where resuelta_el is null`);
+ok(pend.length === 1 && pend[0].foto === foto, 'la admin ve la pendiente con la foto');
+const asignada = await uno('martin', `select public.asignar_sin_reconocer($1, 'lu@gmail.com', 'entrada')`, [pend[0].id]);
+const filaAsig = (await db.query(`select email, metodo, sin_conexion, creada_por from public.fichadas where id = $1`, [asignada])).rows[0];
+ok(filaAsig.email === 'lu@gmail.com' && filaAsig.metodo === 'manual' && filaAsig.creada_por === 'martinviretti@gmail.com', 'asignarla crea la fichada a nombre de quien corresponde');
+ok((await falla('martin', `select public.asignar_sin_reconocer($1, 'lu@gmail.com', 'entrada')`, [pend[0].id]))?.includes('ya_resuelta'), 'no se puede asignar dos veces');
+ok((await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4)`, [...D, JSON.stringify(toma(ANA)), new Date(Date.now() - 40 * 86400e3).toISOString()])).estado === 'vieja', 'una guardada hace más de 30 días se descarta');
+
+// Conexión de internet: la compu consulta desde el local; si alguien ficha con el secreto desde otro lado, queda para revisar
+const codLu = await uno('martin', `select public.crear_codigo_cara('lu@gmail.com')`);
+await uno('anon', `select public.registrar_cara($1, $2, $3, $4::jsonb, null)`, [...D, codLu, JSON.stringify([toma(LU), toma(LU), toma(LU)])]);
+IP = '200.1.1.1';
+await uno('anon', `select public.estado_fichador($1, $2)`, D);
+ok((await db.query(`select ultima_ip from public.dispositivos where id = $1`, [disp.id])).rows[0].ultima_ip === '200.1.1.1', 'la compu registra la conexión del local');
+await db.exec(`update public.fichadas set hora = hora - interval '3 days' where email = 'lu@gmail.com'`);
+const desdeLocal = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null)`, [...D, JSON.stringify(toma(LU))]);
+IP = '181.9.9.9';
+await db.exec(`update public.fichadas set hora = hora - interval '3 days' where email = 'lu@gmail.com'`);
+const desdeAfuera = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null)`, [...D, JSON.stringify(toma(LU))]);
+IP = null;
+const r1 = (await db.query(`select revisar, ip from public.fichadas where id = $1`, [desdeLocal.id])).rows[0];
+const r2 = (await db.query(`select revisar, ip from public.fichadas where id = $1`, [desdeAfuera.id])).rows[0];
+ok(r1.ip === '200.1.1.1' && r1.revisar === null, 'desde la conexión del local: sin nada para revisar');
+ok(r2.ip === '181.9.9.9' && r2.revisar?.includes('otra conexión'), 'desde otra conexión: queda para revisar');
+
+// Horario fijo, todo junto
+ok((await falla('ana', `select public.guardar_horario('ana@gmail.com', true, '[]'::jsonb)`))?.includes('solo_admin'), 'una empleada no puede guardar horarios');
+await como('martin', `select public.guardar_horario('sofi@gmail.com', true, $1::jsonb)`, [JSON.stringify([{ dia: 1, entrada: '14:00', salida: '20:00' }, { dia: 2, entrada: '14:00', salida: '20:00' }])]);
+ok((await db.query(`select count(*)::int as n from public.horarios where email = 'sofi@gmail.com'`)).rows[0].n === 2 && (await db.query(`select horario_fijo from public.autorizados where email = 'sofi@gmail.com'`)).rows[0].horario_fijo, 'guardar el horario de Sofía');
+ok((await falla('martin', `select public.guardar_horario('sofi@gmail.com', false, '[{"dia": 9, "entrada": "x"}]'::jsonb)`)) !== null && (await db.query(`select count(*)::int as n from public.horarios where email = 'sofi@gmail.com'`)).rows[0].n === 2, 'si el horario nuevo está mal, el anterior queda');
 await como('martin', `select public.marcar_revisada($1)`, [sinCara.id]);
 ok((await db.query(`select revisada_por from public.fichadas where id = $1`, [sinCara.id])).rows[0].revisada_por === 'martinviretti@gmail.com', 'marcar como revisada');
 await como('martin', `insert into public.horarios (email, dia, entrada, salida) values ('ana@gmail.com', 1, '09:00', '14:00')`);
 await como('martin', `update public.autorizados set horario_fijo = true where email = 'ana@gmail.com'`);
-ok((await como('ana', `select dia from public.horarios`)).length === 1 && (await como('sofi', `select dia from public.horarios`)).length === 0, 'cada una ve solo su horario');
+ok((await como('ana', `select email from public.horarios`)).every((r) => r.email === 'ana@gmail.com') && (await como('sofi', `select email from public.horarios`)).every((r) => r.email === 'sofi@gmail.com'), 'cada una ve solo su horario');
 ok((await falla('ana', `insert into public.horarios (email, dia, entrada, salida) values ('ana@gmail.com', 2, '09:00', '14:00')`)) !== null, 'una empleada no puede cambiar su horario');
 await como('martin', `update public.ajustes_fichador set similitud_min = 0.6`);
 ok((await db.query(`select similitud_min from public.ajustes_fichador`)).rows[0].similitud_min > 0.59, 'la admin cambia la exigencia');
@@ -212,7 +267,7 @@ await como('martin', `update public.dispositivos set activo = false where id = $
 ok((await falla('anon', `select public.estado_fichador($1, $2)`, D))?.includes('dispositivo_invalido'), 'la compu desactivada deja de fichar');
 await db.exec(`update public.dispositivos set activo = true`);
 const est = await uno('anon', `select public.estado_fichador($1, $2)`, D);
-ok(est.caras === 2 && est.hoy.length >= 1 && est.hoy.every((x) => !x.email.includes('lu@')), `estado del fichador: ${est.caras} caras, ${est.hoy.length} fichadas de hoy`);
+ok(est.caras === 3 && est.hoy.length >= 1 && est.hoy.every((x) => x.tipo && x.hora), `estado del fichador: ${est.caras} caras, ${est.hoy.length} fichadas de hoy`);
 
 // Similitud igual a la de Human
 const s = (await db.query(`select public._similitud(0.5) as a, public._similitud(0) as b, public._similitud(1.2) as c`)).rows[0];

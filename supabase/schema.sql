@@ -181,7 +181,8 @@ create table if not exists public.dispositivos (
   activo        boolean not null default true,
   creado_por    text not null,
   creado_el     timestamptz not null default now(),
-  ultimo_uso    timestamptz
+  ultimo_uso    timestamptz,
+  ultima_ip     text                            -- la conexión de internet desde la que consulta la compu (cada 20 s)
 );
 
 -- ---------- Caras registradas (varias tomas por persona) ----------
@@ -218,7 +219,9 @@ create table if not exists public.fichadas (
   anulada        boolean not null default false,
   anulada_por    text,
   anulada_el     timestamptz,
-  motivo         text                      -- por qué se corrigió o anuló
+  anulada_motivo text,
+  motivo         text,                     -- por qué se corrigió
+  ip             text                      -- conexión de internet desde la que llegó
 );
 create index if not exists fichadas_email_hora on public.fichadas (email, hora desc);
 create index if not exists fichadas_hora on public.fichadas (hora desc);
@@ -230,6 +233,18 @@ create table if not exists public.fotos_fichada (
   tomada_el   timestamptz not null default now()
 );
 create index if not exists fotos_fichada_fecha on public.fotos_fichada (tomada_el);
+
+-- Fichadas guardadas sin internet cuya cara no se reconoció al mandarlas: la admin las asigna a mano.
+create table if not exists public.fichadas_sin_reconocer (
+  id            bigint generated always as identity primary key,
+  dispositivo   uuid references public.dispositivos (id) on delete set null,
+  hora          timestamptz not null,       -- hora de la compu
+  foto          text,
+  creada_el     timestamptz not null default now(),
+  resuelta_el   timestamptz,
+  resuelta_por  text,
+  fichada_id    bigint references public.fichadas (id) on delete set null
+);
 
 -- Código del celular: el celular recibe una clave y arma un QR nuevo cada 3 segundos con ella.
 create table if not exists public.codigos_fichaje (
@@ -294,7 +309,19 @@ language sql stable security definer set search_path = public, extensions as $$
          (select public._similitud(o.d) from orden o where o.n = 2)
 $$;
 
+-- Conexión de internet desde la que llega el pedido (Supabase la pasa en los encabezados).
+create or replace function public._ip() returns text
+language sql stable as $$
+  select nullif(trim(split_part(coalesce(nullif(current_setting('request.headers', true), '')::json ->> 'x-forwarded-for', ''), ',', 1)), '')
+$$;
+
+-- Día de Argentina de una hora.
+create or replace function public._dia(t timestamptz) returns date
+language sql immutable as $$ select (t at time zone 'America/Argentina/Buenos_Aires')::date $$;
+
 -- Registra una fichada: decide sola si es entrada o salida y guarda la foto.
+-- Una salida solo cierra una entrada del MISMO día: si alguien se olvida de fichar, el error no se
+-- arrastra a los días siguientes y queda a la vista ("falta la salida") para que la admin lo arregle.
 create or replace function public._registrar_fichada(
   p_email text, p_metodo text, p_dispositivo uuid, p_similitud real, p_foto text, p_hora_pc timestamptz, p_revisar text
 ) returns jsonb
@@ -307,55 +334,76 @@ declare
   v_tipo text;
   v_id bigint;
   v_nombre text;
+  v_ip text := public._ip();
+  v_ip_local text;
 begin
   select * into v_aj from public.ajustes_fichador where id = 1;
   select coalesce(nullif(a.nombre, ''), split_part(a.email, '@', 1)) into v_nombre
     from public.autorizados a where a.email = p_email and a.activo;
   if v_nombre is null then return jsonb_build_object('estado', 'sin_acceso'); end if;
 
-  -- Guardada en la compu sin internet: vale la hora de la compu (de los últimos 3 días) y queda para revisar.
-  if p_hora_pc is not null and p_hora_pc < now() - interval '2 minutes' and p_hora_pc > now() - interval '3 days' then
-    v_hora := p_hora_pc;
-    v_sin_conexion := true;
+  -- Guardada en la compu sin internet: vale la hora de la compu (nunca en el futuro) y queda para revisar.
+  if p_hora_pc is not null then
+    if p_hora_pc < now() - interval '30 days' then return jsonb_build_object('estado', 'vieja'); end if;
+    v_hora := least(p_hora_pc, now());
+    v_sin_conexion := p_hora_pc < now() - interval '2 minutes';
   end if;
 
   select * into v_ult from public.fichadas f
    where f.email = p_email and not f.anulada and f.hora <= v_hora + interval '2 minutes'
    order by f.hora desc limit 1;
 
-  -- Dos fichadas en menos de 2 minutos: es la misma persona fichando dos veces.
-  if v_ult.id is not null and abs(extract(epoch from v_hora - v_ult.hora)) < 120 then
+  -- La misma persona fichando dos veces: en menos de 2 minutos, o una "salida" a menos de 10 de su entrada.
+  if v_ult.id is not null and (abs(extract(epoch from v_hora - v_ult.hora)) < 120
+                               or (v_ult.tipo = 'entrada' and v_hora - v_ult.hora < interval '10 minutes')) then
     return jsonb_build_object('estado', 'repetida', 'nombre', v_nombre, 'tipo', v_ult.tipo, 'hora', v_ult.hora);
   end if;
 
   v_tipo := case
-    when v_ult.tipo = 'entrada' and v_hora - v_ult.hora < make_interval(hours => v_aj.horas_max_turno) then 'salida'
+    when v_ult.tipo = 'entrada' and public._dia(v_ult.hora) = public._dia(v_hora)
+         and v_hora - v_ult.hora < make_interval(hours => v_aj.horas_max_turno) then 'salida'
     else 'entrada' end;
 
-  insert into public.fichadas (email, tipo, hora, metodo, dispositivo, similitud, sin_conexion, hora_pc, revisar)
+  -- Si llega de la compu pero desde otra conexión que la del local, puede ser alguien que copió el secreto
+  -- de la compu: se registra igual, pero queda para revisar.
+  if p_dispositivo is not null and v_ip is not null then
+    select d.ultima_ip into v_ip_local from public.dispositivos d where d.id = p_dispositivo;
+  end if;
+
+  insert into public.fichadas (email, tipo, hora, metodo, dispositivo, similitud, sin_conexion, hora_pc, revisar, ip)
   values (p_email, v_tipo, v_hora, p_metodo, p_dispositivo, p_similitud, v_sin_conexion,
           case when v_sin_conexion then p_hora_pc end,
-          nullif(concat_ws(' · ', p_revisar, case when v_sin_conexion then 'Se guardó sin internet: vale la hora de la compu' end), ''))
+          nullif(concat_ws(' · ', p_revisar,
+            case when v_sin_conexion then 'Se guardó sin internet: vale la hora de la compu' end,
+            case when v_ip_local is not null and v_ip <> v_ip_local then 'Llegó desde otra conexión de internet, no la del local' end), ''),
+          v_ip)
   returning id into v_id;
 
   if p_foto is not null and length(p_foto) < 300000 and p_foto like 'data:image/jpeg;base64,%' then
     insert into public.fotos_fichada (fichada_id, foto) values (v_id, p_foto);
   end if;
   delete from public.fotos_fichada where tomada_el < now() - make_interval(days => v_aj.dias_fotos);
+  update public.fichadas_sin_reconocer set foto = null where foto is not null and creada_el < now() - make_interval(days => v_aj.dias_fotos);
 
   return jsonb_build_object('estado', 'ok', 'id', v_id, 'nombre', v_nombre, 'tipo', v_tipo, 'hora', v_hora);
 end $$;
 
 revoke all on function public._dispositivo(uuid, text), public._vector(jsonb), public._similitud(double precision),
-  public._reconocer(extensions.vector, text), public._registrar_fichada(text, text, uuid, real, text, timestamptz, text)
+  public._reconocer(extensions.vector, text), public._registrar_fichada(text, text, uuid, real, text, timestamptz, text),
+  public._ip(), public._dia(timestamptz)
   from public, anon, authenticated;
 
 -- ---------- Lo que usa la compu del local (con su id y secreto) ----------
 -- Pantalla: hora de la base y las fichadas de hoy (hora de Argentina).
 create or replace function public.estado_fichador(p_dispositivo uuid, p_secreto text) returns jsonb
 language plpgsql security definer set search_path = public, extensions as $$
+declare v_ip text := public._ip();
 begin
   perform public._dispositivo(p_dispositivo, p_secreto);
+  -- La compu consulta esto cada 20 segundos desde el local: así se sabe cuál es la conexión del local.
+  if v_ip is not null then
+    update public.dispositivos set ultima_ip = v_ip where id = p_dispositivo and ultima_ip is distinct from v_ip;
+  end if;
   return jsonb_build_object(
     'ahora', now(),
     'nombre', (select nombre from public.dispositivos where id = p_dispositivo),
@@ -382,11 +430,17 @@ begin
   perform public._dispositivo(p_dispositivo, p_secreto);
   select * into v_aj from public.ajustes_fichador where id = 1;
   select * into r from public._reconocer(public._vector(p_embedding));
-  if r.email is null or r.similitud < v_aj.similitud_min then
-    return jsonb_build_object('estado', 'desconocida', 'similitud', r.similitud);
-  end if;
-  if r.segunda is not null and r.similitud - r.segunda < v_aj.margen then
-    return jsonb_build_object('estado', 'dudosa', 'similitud', r.similitud);
+  if r.email is null or r.similitud < v_aj.similitud_min
+     or (r.segunda is not null and r.similitud - r.segunda < v_aj.margen) then
+    -- Guardada sin internet y no se reconoce: no se pierde, queda con la foto para que la admin la asigne.
+    if p_hora_pc is not null then
+      insert into public.fichadas_sin_reconocer (dispositivo, hora, foto)
+      values (p_dispositivo, least(p_hora_pc, now()),
+              case when p_foto like 'data:image/jpeg;base64,%' and length(p_foto) < 300000 then p_foto end);
+      return jsonb_build_object('estado', 'guardada_sin_reconocer', 'similitud', r.similitud);
+    end if;
+    return jsonb_build_object('estado', case when r.email is null or r.similitud < v_aj.similitud_min then 'desconocida' else 'dudosa' end,
+                              'similitud', r.similitud);
   end if;
   return public._registrar_fichada(r.email, 'cara', p_dispositivo, r.similitud, p_foto, p_hora_pc, null)
          || jsonb_build_object('similitud', r.similitud);
@@ -451,7 +505,7 @@ language plpgsql security definer set search_path = public, extensions as $$
 begin
   perform public._dispositivo(p_dispositivo, p_secreto);
   update public.fichadas
-     set anulada = true, anulada_el = now(), anulada_por = 'fichador', motivo = 'Tocaron "No soy yo" en el fichador'
+     set anulada = true, anulada_el = now(), anulada_por = 'fichador', anulada_motivo = 'Tocaron "No soy yo" en el fichador'
    where id = p_id and dispositivo = p_dispositivo and not anulada and registrada_el > now() - interval '90 seconds';
   return found;
 end $$;
@@ -599,7 +653,19 @@ language plpgsql security definer set search_path = public, extensions as $$
 begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
   update public.fichadas
-     set anulada = true, anulada_por = public.mi_email(), anulada_el = now(), motivo = nullif(trim(p_motivo), '')
+     set anulada = true, anulada_por = public.mi_email(), anulada_el = now(), anulada_motivo = nullif(trim(p_motivo), '')
+   where id = p_id;
+end $$;
+
+-- Cambiar una entrada por salida o al revés (por ejemplo, cuando alguien se olvidó de fichar la entrada).
+create or replace function public.cambiar_tipo(p_id bigint, p_motivo text) returns void
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
+  update public.fichadas
+     set tipo = case tipo when 'entrada' then 'salida' else 'entrada' end,
+         corregida_por = public.mi_email(), corregida_el = now(),
+         motivo = concat_ws(' · ', nullif(trim(p_motivo), ''), 'Se cambió entrada/salida')
    where id = p_id;
 end $$;
 
@@ -611,6 +677,43 @@ begin
   update public.fichadas set revisada_por = public.mi_email(), revisada_el = now() where id = p_id;
 end $$;
 
+-- Horario fijo de una persona, todo junto (si algo falla no queda a medias).
+-- p_dias: [{"dia": 1, "entrada": "09:00", "salida": "14:00"}, ...]
+create or replace function public.guardar_horario(p_email text, p_fijo boolean, p_dias jsonb) returns void
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
+  delete from public.horarios where email = p_email;
+  insert into public.horarios (email, dia, entrada, salida)
+  select p_email, (d ->> 'dia')::smallint, (d ->> 'entrada')::time, (d ->> 'salida')::time
+    from jsonb_array_elements(coalesce(p_dias, '[]'::jsonb)) d;
+  update public.autorizados set horario_fijo = coalesce(p_fijo, false) where email = p_email;
+end $$;
+
+-- Una fichada guardada sin internet que no se reconoció: la admin dice de quién es (queda como cargada a mano).
+create or replace function public.asignar_sin_reconocer(p_id bigint, p_email text, p_tipo text) returns bigint
+language plpgsql security definer set search_path = public, extensions as $$
+declare v_s public.fichadas_sin_reconocer; v_id bigint;
+begin
+  if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
+  select * into v_s from public.fichadas_sin_reconocer where id = p_id and resuelta_el is null for update;
+  if v_s.id is null then raise exception 'ya_resuelta' using errcode = 'P0001'; end if;
+  insert into public.fichadas (email, tipo, hora, metodo, dispositivo, creada_por, nota, sin_conexion, hora_pc)
+  values (lower(p_email), p_tipo, v_s.hora, 'manual', v_s.dispositivo, public.mi_email(),
+          'Se guardó sin internet y la cara no se reconoció: la asignó una admin mirando la foto', true, v_s.hora)
+  returning id into v_id;
+  if v_s.foto is not null then insert into public.fotos_fichada (fichada_id, foto) values (v_id, v_s.foto); end if;
+  update public.fichadas_sin_reconocer set resuelta_el = now(), resuelta_por = public.mi_email(), fichada_id = v_id where id = p_id;
+  return v_id;
+end $$;
+
+create or replace function public.descartar_sin_reconocer(p_id bigint) returns void
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
+  update public.fichadas_sin_reconocer set resuelta_el = now(), resuelta_por = public.mi_email() where id = p_id and resuelta_el is null;
+end $$;
+
 -- ---------- Permisos ----------
 revoke all on function
   public.estado_fichador(uuid, text), public.fichar_cara(uuid, text, jsonb, text, timestamptz),
@@ -618,7 +721,9 @@ revoke all on function
   public.ver_codigo_cara(uuid, text, text), public.registrar_cara(uuid, text, text, jsonb, text),
   public.pedir_codigo_fichaje(), public.activar_dispositivo(text), public.crear_codigo_cara(text),
   public.fichada_manual(text, text, timestamptz, text), public.corregir_fichada(bigint, timestamptz, text),
-  public.anular_fichada(bigint, text), public.marcar_revisada(bigint)
+  public.anular_fichada(bigint, text), public.marcar_revisada(bigint), public.cambiar_tipo(bigint, text),
+  public.guardar_horario(text, boolean, jsonb), public.asignar_sin_reconocer(bigint, text, text),
+  public.descartar_sin_reconocer(bigint)
   from public, anon, authenticated;
 -- La compu no tiene sesión (entra como anon) y se identifica con su secreto.
 grant execute on function
@@ -629,9 +734,12 @@ grant execute on function
 grant execute on function
   public.pedir_codigo_fichaje(), public.activar_dispositivo(text), public.crear_codigo_cara(text),
   public.fichada_manual(text, text, timestamptz, text), public.corregir_fichada(bigint, timestamptz, text),
-  public.anular_fichada(bigint, text), public.marcar_revisada(bigint)
+  public.anular_fichada(bigint, text), public.marcar_revisada(bigint), public.cambiar_tipo(bigint, text),
+  public.guardar_horario(text, boolean, jsonb), public.asignar_sin_reconocer(bigint, text, text),
+  public.descartar_sin_reconocer(bigint)
   to authenticated;
 
+alter table public.fichadas_sin_reconocer enable row level security;
 alter table public.ajustes_fichador  enable row level security;
 alter table public.horarios          enable row level security;
 alter table public.dispositivos      enable row level security;
@@ -647,6 +755,8 @@ create policy "ver mis fichadas o admin" on public.fichadas
   for select to authenticated using ((email = public.mi_email() and public.es_autorizado()) or public.es_admin());
 drop policy if exists "admin ve fotos" on public.fotos_fichada;
 create policy "admin ve fotos" on public.fotos_fichada for select to authenticated using (public.es_admin());
+drop policy if exists "admin ve sin reconocer" on public.fichadas_sin_reconocer;
+create policy "admin ve sin reconocer" on public.fichadas_sin_reconocer for select to authenticated using (public.es_admin());
 
 drop policy if exists "admin ve caras" on public.caras;
 create policy "admin ve caras" on public.caras for select to authenticated using (public.es_admin());
@@ -670,12 +780,12 @@ drop policy if exists "admin maneja horarios" on public.horarios;
 create policy "admin maneja horarios" on public.horarios for all to authenticated using (public.es_admin()) with check (public.es_admin());
 
 revoke all on public.ajustes_fichador, public.horarios, public.dispositivos, public.caras, public.fichadas,
-  public.fotos_fichada, public.codigos_fichaje, public.codigos_cara from anon, authenticated;
-grant select on public.fichadas, public.fotos_fichada to authenticated;
+  public.fotos_fichada, public.codigos_fichaje, public.codigos_cara, public.fichadas_sin_reconocer from anon, authenticated;
+grant select on public.fichadas, public.fotos_fichada, public.fichadas_sin_reconocer to authenticated;
 grant select, insert, update, delete on public.horarios to authenticated;
 grant select, update on public.ajustes_fichador to authenticated;
 -- La huella de la cara y el hash del secreto no salen nunca de la base.
 grant select (id, email, foto, creada_el, dispositivo) on public.caras to authenticated;
 grant delete on public.caras to authenticated;
-grant select (id, nombre, activo, creado_por, creado_el, ultimo_uso) on public.dispositivos to authenticated;
+grant select (id, nombre, activo, creado_por, creado_el, ultimo_uso, ultima_ip) on public.dispositivos to authenticated;
 grant update (nombre, activo) on public.dispositivos to authenticated;
