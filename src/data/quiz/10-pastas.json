@@ -1,0 +1,40 @@
+[
+  {
+    "id": "10-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente celíaco te pide fideos. ¿Qué le ofrecés?",
+    "opciones": ["Fideos de arroz sueltos del granel", "Pastas envasadas con el logo sin TACC", "Fideos de espinaca o de verduras"],
+    "correcta": 1,
+    "explicacion": "Para celíacos solo sirven las pastas envasadas con logo. Nada suelto, y los de verdura son de trigo."
+  },
+  {
+    "id": "10-2",
+    "tipo": "vf",
+    "pregunta": "Los fideos integrales no tienen gluten.",
+    "correcta": false,
+    "explicacion": "Son de trigo integral: tienen más fibra, pero también TACC. Integral no quiere decir sin gluten."
+  },
+  {
+    "id": "10-3",
+    "tipo": "opcion",
+    "pregunta": "¿Qué cuidado hay que tener al cocinar fideos de arroz o de legumbres?",
+    "opciones": ["Necesitan remojo la noche anterior", "Van con poca agua y tapados", "Se pasan rápido: hay que probarlos antes"],
+    "correcta": 2,
+    "explicacion": "Se pasan enseguida. Conviene probarlos antes del tiempo del paquete y escurrirlos apenas estén."
+  },
+  {
+    "id": "10-4",
+    "tipo": "vf",
+    "pregunta": "En casa, la pasta para un celíaco va con olla, agua y colador aparte.",
+    "correcta": true,
+    "explicacion": "Un colador usado con fideos de trigo ya puede pasarles gluten. Por eso todo va aparte."
+  },
+  {
+    "id": "10-5",
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se cocina la pasta para que quede al dente?",
+    "opciones": ["Mucha agua con sal y probarla antes de escurrir", "Poca agua y tapada todo el tiempo", "En agua fría, esperando que hierva"],
+    "correcta": 0,
+    "explicacion": "La pasta va cuando el agua hierve fuerte. Se revuelve al principio y se prueba un minuto antes del tiempo."
+  }
+]

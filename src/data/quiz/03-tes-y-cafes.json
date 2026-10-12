@@ -1,0 +1,40 @@
+[
+  {
+    "id": "03-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere algo parecido al té, pero sin cafeína para la noche. ¿Qué le ofrecés?",
+    "opciones": ["Té blanco, que es muy suave", "Rooibos", "Té rojo"],
+    "correcta": 1,
+    "explicacion": "El rooibos no es té y no tiene cafeína. El blanco y el rojo son té de verdad y sí tienen."
+  },
+  {
+    "id": "03-2",
+    "tipo": "vf",
+    "pregunta": "El té rojo y el rooibos son lo mismo.",
+    "correcta": false,
+    "explicacion": "El té rojo sale de la planta del té y tiene cafeína. El rooibos es otra planta y no tiene."
+  },
+  {
+    "id": "03-3",
+    "tipo": "opcion",
+    "pregunta": "¿Con qué agua se prepara el té verde?",
+    "opciones": ["Caliente, sin que llegue a hervir", "Recién hervida, bien caliente", "Fría, con hielo"],
+    "correcta": 0,
+    "explicacion": "El verde y el blanco se amargan con agua hirviendo. Van con agua caliente que no hierva."
+  },
+  {
+    "id": "03-4",
+    "tipo": "vf",
+    "pregunta": "La malta es cebada y tiene TACC.",
+    "correcta": true,
+    "explicacion": "Por eso no es para celíacos. Para ellos, algarroba o achicoria envasadas con el logo sin TACC."
+  },
+  {
+    "id": "03-5",
+    "tipo": "opcion",
+    "pregunta": "Un cliente cuida el azúcar y busca café molido. ¿Cuál le mostrás?",
+    "opciones": ["El torrado", "Una mezcla de torrado y tostado", "El que dice tostado natural"],
+    "correcta": 2,
+    "explicacion": "El torrado se tuesta con azúcar. El tostado natural es solo café: mirá los ingredientes con el cliente."
+  }
+]

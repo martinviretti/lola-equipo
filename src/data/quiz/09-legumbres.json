@@ -1,0 +1,40 @@
+[
+  {
+    "id": "09-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere cocinar legumbres hoy y no remojó nada. ¿Qué le ofrecés?",
+    "opciones": ["Garbanzos secos", "Lentejas rojas", "Porotos colorados"],
+    "correcta": 1,
+    "explicacion": "Las lentejas rojas no necesitan remojo y se hacen rápido. Garbanzos y porotos llevan remojo largo."
+  },
+  {
+    "id": "09-2",
+    "tipo": "vf",
+    "pregunta": "El agua del remojo de las legumbres se tira.",
+    "correcta": true,
+    "explicacion": "Después del remojo se tira esa agua y se cocinan en agua nueva hasta que estén tiernas."
+  },
+  {
+    "id": "09-3",
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estas legumbres necesita remojo antes de cocinarse?",
+    "opciones": ["Garbanzo", "Lenteja común", "Arveja partida"],
+    "correcta": 0,
+    "explicacion": "Garbanzos, porotos, soja y habas llevan remojo. Lentejas y arvejas partidas se pueden hacer sin remojar."
+  },
+  {
+    "id": "09-4",
+    "tipo": "vf",
+    "pregunta": "Los porotos se pueden comer a medio cocer si se remojaron bien.",
+    "correcta": false,
+    "explicacion": "Las legumbres nunca se comen crudas ni a medio cocer. Los porotos tienen que hervir bien y quedar tiernos."
+  },
+  {
+    "id": "09-5",
+    "tipo": "opcion",
+    "pregunta": "Un cliente celíaco quiere llevar porotos sueltos del granel. ¿Qué le decís?",
+    "opciones": ["Que sí, porque las legumbres no tienen TACC", "Que los lave bien antes de cocinarlos", "Que para él, solo envasados con logo sin TACC"],
+    "correcta": 2,
+    "explicacion": "No tienen TACC naturalmente, pero el granel tiene contacto con otros productos. Para celíacos, solo envasado con logo."
+  }
+]

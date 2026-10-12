@@ -1,0 +1,40 @@
+[
+  {
+    "id": "20-1",
+    "tipo": "opcion",
+    "pregunta": "Una clienta celíaca pregunta por el seitán. ¿Qué le respondés?",
+    "opciones": ["Que sirve si lo cocina bien", "Que no, es gluten de trigo puro", "Que sí, porque es vegetal"],
+    "correcta": 1,
+    "explicacion": "El seitán es gluten puro. Ofrecele tofu, tempeh o legumbres envasados con logo sin TACC."
+  },
+  {
+    "id": "20-2",
+    "tipo": "vf",
+    "pregunta": "Un vegano no consume miel.",
+    "correcta": true,
+    "explicacion": "Vegano es nada de origen animal: ni carne, ni lácteos, ni huevo, ni miel."
+  },
+  {
+    "id": "20-3",
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre el tofu y el tempeh?",
+    "opciones": ["El tofu es cuajado y el tempeh, fermentado", "El tofu es de trigo y el tempeh, de soja", "Son el mismo producto con otro nombre"],
+    "correcta": 0,
+    "explicacion": "Los dos son de soja. El tofu es suave y neutro, y el tempeh tiene más gusto y textura."
+  },
+  {
+    "id": "20-4",
+    "tipo": "vf",
+    "pregunta": "Si un producto es vegano, no tiene alérgenos.",
+    "correcta": false,
+    "explicacion": "Puede tener soja, maní o frutos secos. Para un alérgico, mirá siempre la lista de ingredientes."
+  },
+  {
+    "id": "20-5",
+    "tipo": "opcion",
+    "pregunta": "Un cliente pregunta si un producto es vegano. ¿Qué hacés?",
+    "opciones": ["Le decís que sí, si es vegetal", "Te guiás por el color del envase", "Leen juntos la lista de ingredientes"],
+    "correcta": 2,
+    "explicacion": "Hay ingredientes animales escondidos, como gelatina, caseína, suero de leche, carmín, colágeno o miel."
+  }
+]

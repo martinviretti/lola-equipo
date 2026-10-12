@@ -1,0 +1,40 @@
+[
+  {
+    "id": "24-1",
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia hay entre un jugo y un néctar?",
+    "opciones": ["El néctar lleva agua y azúcar agregados", "El néctar es un jugo más puro", "Ninguna, es otro nombre"],
+    "correcta": 0,
+    "explicacion": "El néctar tiene menos fruta y lleva agua y azúcar o edulcorante. La lista de ingredientes lo dice."
+  },
+  {
+    "id": "24-2",
+    "tipo": "vf",
+    "pregunta": "Un jugo sin azúcar agregada no tiene nada de azúcar.",
+    "correcta": false,
+    "explicacion": "No le sumaron azúcar, pero tiene la propia de la fruta. Cuánta, lo dice la tabla nutricional."
+  },
+  {
+    "id": "24-3",
+    "tipo": "opcion",
+    "pregunta": "Un cliente busca una bebida sin cafeína. ¿Qué le ofrecés?",
+    "opciones": ["Una kombucha", "Agua de coco", "Un té frío de té verde"],
+    "correcta": 1,
+    "explicacion": "La kombucha y los tés negro y verde tienen cafeína. El agua de coco, los jugos o el rooibos, no."
+  },
+  {
+    "id": "24-4",
+    "tipo": "opcion",
+    "pregunta": "Un cliente celíaco pide cerveza. ¿Cuál le podés ofrecer?",
+    "opciones": ["Cualquier cerveza sin alcohol", "Una artesanal de cebada", "Solo la que tiene logo sin TACC"],
+    "correcta": 2,
+    "explicacion": "La cerveza común se hace con cebada y tiene gluten. Sin alcohol no quiere decir sin TACC."
+  },
+  {
+    "id": "24-5",
+    "tipo": "vf",
+    "pregunta": "Si el envase dice mantener refrigerado, la bebida va a la heladera desde que llega.",
+    "correcta": true,
+    "explicacion": "Las refrigeradas van siempre en frío. Las de góndola aguantan afuera hasta que se abren."
+  }
+]

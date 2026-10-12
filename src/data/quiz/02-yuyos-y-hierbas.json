@@ -1,0 +1,40 @@
+[
+  {
+    "id": "02-1",
+    "tipo": "vf",
+    "pregunta": "Ninguna hierba de esta góndola tiene cafeína.",
+    "correcta": true,
+    "explicacion": "Por eso son la opción para la noche. La cafeína está en la yerba, el té y el café."
+  },
+  {
+    "id": "02-2",
+    "tipo": "opcion",
+    "pregunta": "Un cliente te pide algo para el dolor de estómago. ¿Qué le decís?",
+    "opciones": ["Le contás la costumbre y sugerís consultar al médico", "Le recomendás boldo todos los días", "Le indicás cuántas tazas de manzanilla tomar"],
+    "correcta": 0,
+    "explicacion": "Los yuyos se cuentan por sabor y costumbre. No prometas efectos ni indiques cantidades: si le pasa seguido, al médico."
+  },
+  {
+    "id": "02-3",
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se prepara una raíz o una corteza, como el jengibre?",
+    "opciones": ["Con agua sin hervir, tapada unos minutos", "Con agua fría, toda la noche", "Hirviéndola unos minutos en el agua"],
+    "correcta": 2,
+    "explicacion": "Las partes duras se hierven unos minutos. Hojas y flores, en cambio, van con agua caliente sin hervir."
+  },
+  {
+    "id": "02-4",
+    "tipo": "opcion",
+    "pregunta": "Una clienta embarazada te pide una hierba para tomar. ¿Qué hacés?",
+    "opciones": ["Le ofrecés manzanilla porque es suave", "Le mostrás lo que hay y sugerís consultar al médico", "Le recomendás tilo para la noche"],
+    "correcta": 1,
+    "explicacion": "Con embarazo, lactancia, chicos o medicación no recomendás ninguna hierba. Eso lo decide su médico."
+  },
+  {
+    "id": "02-5",
+    "tipo": "vf",
+    "pregunta": "El sen es un yuyo suave que sirve para bajar de peso.",
+    "correcta": false,
+    "explicacion": "El sen es un laxante fuerte. No es para bajar de peso, y usarlo seguido puede hacer daño."
+  }
+]

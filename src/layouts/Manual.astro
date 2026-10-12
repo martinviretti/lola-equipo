@@ -6,6 +6,7 @@ import logo from '../assets/logo-lola-circulo.png';
 import Icon from '../components/Icon.astro';
 import BarraApp from '../components/BarraApp.astro';
 import MenuLateral from '../components/MenuLateral.astro';
+import { configurado } from '../lib/supabase';
 
 interface Props {
   title?: string;
@@ -13,9 +14,13 @@ interface Props {
   progreso?: boolean;
   /** Página de impresión: sin barra superior. */
   impresion?: boolean;
+  /** Página que se ve sin login (la de entrar): sin menú, barra ni control de sesión. */
+  publica?: boolean;
 }
 
-const { title, progreso = false, impresion = false } = Astro.props;
+const { title, progreso = false, impresion: soloContenido = false, publica = false } = Astro.props;
+const impresion = soloContenido || publica;
+const pideLogin = configurado && !publica;
 const titulo0 = title;
 
 const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | El Almacén de Lola';
@@ -37,6 +42,17 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Lola" />
+    {
+      pideLogin && (
+        <>
+          <style is:inline>html.verificando body{visibility:hidden}</style>
+          <script is:inline>
+            // Hasta confirmar la sesión no se muestra nada (si ya entró antes en este celular, se ve enseguida).
+            try { if (!localStorage.getItem('lola-acceso:v1')) document.documentElement.classList.add('verificando'); } catch (e) {}
+          </script>
+        </>
+      )
+    }
     {
       import.meta.env.PROD && (
         <script is:inline define:vars={{ sw: url('/sw.js') }}>
@@ -83,6 +99,28 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
               >
                 <Icon name="magnifying-glass" class="size-6" />
               </a>
+              {
+                pideLogin && (
+                  <details class="usuario relative hidden" data-usuario>
+                    <summary
+                      class="flex size-11 cursor-pointer list-none items-center justify-center rounded-full [&::-webkit-details-marker]:hidden"
+                      aria-label="Tu cuenta"
+                    >
+                      <span class="flex size-9 items-center justify-center rounded-full bg-profundo text-sm font-bold text-white" data-usuario-avatar></span>
+                    </summary>
+                    <div class="absolute top-12 right-0 z-50 w-64 rounded-2xl bg-white p-2 shadow-[0_20px_50px_-20px_rgb(33_76_59/0.45)] ring-1 ring-profundo/10">
+                      <p class="px-3 pt-2 pb-1 font-semibold text-profundo" data-usuario-nombre></p>
+                      <p class="truncate px-3 pb-2 text-sm text-texto-2" data-usuario-email></p>
+                      <a href={url('/admin')} class="hidden items-center gap-2 rounded-xl px-3 py-2.5 font-semibold text-profundo hover:bg-menta-suave [&:not(.hidden)]:flex" data-usuario-admin>
+                        <Icon name="users-three" class="size-5 text-marca" /> Panel de admin
+                      </a>
+                      <button type="button" class="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left font-semibold text-profundo hover:bg-menta-suave" data-salir>
+                        <Icon name="arrow-left" class="size-5 text-marca" /> Salir
+                      </button>
+                    </div>
+                  </details>
+                )
+              }
             </div>
             {progreso && <div class="h-0.5 origin-left scale-x-0 bg-marca" data-barra-lectura />}
           </header>
@@ -102,6 +140,14 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
       )
     }
     {!impresion && <BarraApp />}
+    {
+      pideLogin && (
+        <script>
+          import { controlarAcceso } from '../scripts/sesion';
+          void controlarAcceso();
+        </script>
+      )
+    }
     {
       progreso && (
         <script>

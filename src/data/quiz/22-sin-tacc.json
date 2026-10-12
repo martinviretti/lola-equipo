@@ -1,0 +1,40 @@
+[
+  {
+    "id": "22-1",
+    "tipo": "vf",
+    "pregunta": "La harina de arroz del granel es apta para celíacos, porque el arroz no tiene gluten.",
+    "correcta": false,
+    "explicacion": "Del granel nunca: se toca con palas y está cerca de harinas con gluten. Ofrecé la envasada con logo."
+  },
+  {
+    "id": "22-2",
+    "tipo": "opcion",
+    "pregunta": "¿Qué cereales resume la sigla TACC?",
+    "opciones": ["Trigo, avena, cebada y centeno", "Trigo, arroz, cebada y centeno", "Trigo, avena, maíz y centeno"],
+    "correcta": 0,
+    "explicacion": "Son los cereales con gluten. Por eso la avena tampoco se considera apta para celíacos."
+  },
+  {
+    "id": "22-3",
+    "tipo": "opcion",
+    "pregunta": "Un cliente te pide abrir un paquete sin TACC para verlo. ¿Qué hacés?",
+    "opciones": ["Lo abrís y lo volvés a cerrar", "No lo abrís y le mostrás el envase", "Lo abrís solo si lo va a comprar"],
+    "correcta": 1,
+    "explicacion": "Abierto deja de estar garantizado. Mostrale el frente, la foto y la lista de ingredientes."
+  },
+  {
+    "id": "22-4",
+    "tipo": "opcion",
+    "pregunta": "Un producto dice “sin gluten”, pero no tiene el logo oficial. ¿Qué le decís?",
+    "opciones": ["Que sirve igual, lo dice el envase", "Que tiene poquito, no pasa nada", "Que no se lo podés asegurar"],
+    "correcta": 2,
+    "explicacion": "Solo se asegura lo envasado con el logo oficial en el envase cerrado. La frase sola no alcanza."
+  },
+  {
+    "id": "22-5",
+    "tipo": "vf",
+    "pregunta": "Para un celíaco, un poquito de gluten también hace daño.",
+    "correcta": true,
+    "explicacion": "Una miga alcanza para dañar el intestino, aunque la persona no sienta nada en el momento."
+  }
+]

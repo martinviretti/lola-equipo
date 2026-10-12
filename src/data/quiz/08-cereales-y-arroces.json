@@ -1,0 +1,40 @@
+[
+  {
+    "id": "08-1",
+    "tipo": "vf",
+    "pregunta": "En Argentina la avena no es apta para celíacos.",
+    "correcta": true,
+    "explicacion": "La avena está dentro de la sigla TACC: trigo, avena, cebada y centeno."
+  },
+  {
+    "id": "08-2",
+    "tipo": "opcion",
+    "pregunta": "Un cliente dice que la quinoa le quedó amarga. ¿Qué le faltó?",
+    "opciones": ["Cocinarla más tiempo", "Lavarla bien antes de cocinarla", "Ponerle la sal al final"],
+    "correcta": 1,
+    "explicacion": "La quinoa tiene una capita amarga. Se frota en un colador fino antes de cocinarla, salvo que venga lavada."
+  },
+  {
+    "id": "08-3",
+    "tipo": "opcion",
+    "pregunta": "¿Cuál es la diferencia entre granola y muesli?",
+    "opciones": ["La granola es horneada y el muesli, crudo", "El muesli lleva más aceite que la granola", "La granola no lleva avena"],
+    "correcta": 0,
+    "explicacion": "La granola se hornea con miel o azúcar y aceite. El muesli son copos crudos con frutas y semillas."
+  },
+  {
+    "id": "08-4",
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere hacer risotto. ¿Qué arroz le ofrecés?",
+    "opciones": ["Largo fino", "Basmati", "Arborio o carnaroli"],
+    "correcta": 2,
+    "explicacion": "Son de grano corto y gordo, y sueltan almidón. Eso deja el risotto cremoso."
+  },
+  {
+    "id": "08-5",
+    "tipo": "vf",
+    "pregunta": "El cuscús es un tipo de arroz, así que no tiene TACC.",
+    "correcta": false,
+    "explicacion": "El cuscús son bolitas de sémola de trigo. Tiene TACC y no es apto para celíacos."
+  }
+]

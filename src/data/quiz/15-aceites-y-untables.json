@@ -1,0 +1,40 @@
+[
+  {
+    "id": "15-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente busca un aceite para freír. ¿Qué le ofrecés?",
+    "opciones": ["Aceite de lino", "Girasol alto oleico", "Sésamo tostado"],
+    "correcta": 1,
+    "explicacion": "Para freír van los que aguantan mucho calor. El lino es solo para crudo y el sésamo tostado se amarga."
+  },
+  {
+    "id": "15-2",
+    "tipo": "opcion",
+    "pregunta": "¿Dónde se guardan los aceites de lino y de chía?",
+    "opciones": ["En la heladera", "En la alacena, cerca de la cocina", "En un estante al lado de la ventana"],
+    "correcta": 0,
+    "explicacion": "Son muy delicados: nunca se calientan, van a la heladera y se usan pronto después de abrir."
+  },
+  {
+    "id": "15-3",
+    "tipo": "vf",
+    "pregunta": "Si el aceite de coco se pone sólido con el frío, está en mal estado.",
+    "correcta": false,
+    "explicacion": "Es normal: con el frío se solidifica y con un poco de calor vuelve a ser líquido."
+  },
+  {
+    "id": "15-4",
+    "tipo": "vf",
+    "pregunta": "La luz, el calor y el aire ponen rancios los aceites.",
+    "correcta": true,
+    "explicacion": "Por eso van bien cerrados, en la alacena, lejos de la ventana y de la cocina."
+  },
+  {
+    "id": "15-5",
+    "tipo": "opcion",
+    "pregunta": "Una mamá pregunta qué pasta puede comer su hijo alérgico al maní. ¿Qué hacés?",
+    "opciones": ["Le ofrecés la pasta de almendras", "Leen juntos la lista y que consulte al médico", "Le decís que la crocante no da alergia"],
+    "correcta": 1,
+    "explicacion": "No se lo podés asegurar. El maní es de los alérgenos más peligrosos, y los frutos secos también son alérgenos."
+  }
+]

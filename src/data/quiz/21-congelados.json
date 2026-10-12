@@ -1,0 +1,40 @@
+[
+  {
+    "id": "21-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere elegir los congelados y seguir comprando. ¿Qué le sugerís?",
+    "opciones": ["Que los deje en el mostrador", "Que los lleve al final de la compra", "Que los deje en la canasta"],
+    "correcta": 1,
+    "explicacion": "Así pasan menos tiempo fuera del frío. Si tiene bolsa térmica, mejor."
+  },
+  {
+    "id": "21-2",
+    "tipo": "vf",
+    "pregunta": "Si un producto se descongeló pero se ve bien, se puede volver a congelar y vender.",
+    "correcta": false,
+    "explicacion": "Lo que se descongeló no se vuelve a congelar ni se vende, aunque se vea y huela bien."
+  },
+  {
+    "id": "21-3",
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se cocinan la mayoría de los congelados?",
+    "opciones": ["Directo del freezer, sin descongelar", "Después de descongelarlos afuera", "Después de pasarlos por agua caliente"],
+    "correcta": 0,
+    "explicacion": "La mayoría va directo al horno, la sartén o la olla. Siempre manda el modo de cocción del envase."
+  },
+  {
+    "id": "21-4",
+    "tipo": "opcion",
+    "pregunta": "Una clienta celíaca pregunta por milanesas de berenjena. ¿Qué le decís?",
+    "opciones": ["Que sí, porque son de verdura", "Que sí, si no llevan huevo", "Que solo si tienen el logo sin TACC"],
+    "correcta": 2,
+    "explicacion": "Los rebozados casi siempre tienen trigo, aunque sean de verdura."
+  },
+  {
+    "id": "21-5",
+    "tipo": "vf",
+    "pregunta": "Si un paquete tiene mucho hielo adentro, lo apartás y avisás a la encargada.",
+    "correcta": true,
+    "explicacion": "Puede ser señal de que se descongeló en algún momento, así que no se vende."
+  }
+]

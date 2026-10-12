@@ -1,0 +1,40 @@
+[
+  {
+    "id": "13-1",
+    "tipo": "opcion",
+    "pregunta": "¿Qué cambia cuando un chocolate tiene más porcentaje de cacao?",
+    "opciones": ["Es más dulce y cremoso", "Es más amargo y tiene menos azúcar", "Lleva más leche"],
+    "correcta": 1,
+    "explicacion": "El porcentaje es cuánto viene del grano de cacao. Más porcentaje: más amargo, menos azúcar y más cafeína."
+  },
+  {
+    "id": "13-2",
+    "tipo": "vf",
+    "pregunta": "Las manchas blancas en el chocolate son hongos.",
+    "correcta": false,
+    "explicacion": "Es blanqueado: grasa o azúcar que salió a la superficie por calor o humedad. Se puede comer."
+  },
+  {
+    "id": "13-3",
+    "tipo": "opcion",
+    "pregunta": "Una mamá quiere algo con gusto a chocolate y sin cafeína para su hijo. ¿Qué le ofrecés?",
+    "opciones": ["Chocolate con leche", "Cacao alcalinizado", "Algarroba"],
+    "correcta": 2,
+    "explicacion": "Todo lo que tiene cacao tiene algo de cafeína. La algarroba tiene un sabor parecido y no tiene."
+  },
+  {
+    "id": "13-4",
+    "tipo": "opcion",
+    "pregunta": "¿Qué quiere decir que un cacao en polvo es amargo?",
+    "opciones": ["Que no tiene azúcar", "Que es más oscuro y suave", "Que tiene más cafeína que el resto"],
+    "correcta": 0,
+    "explicacion": "Amargo habla del azúcar. Alcalinizado es un proceso que lo vuelve más oscuro y suave, y puede ser las dos cosas."
+  },
+  {
+    "id": "13-5",
+    "tipo": "vf",
+    "pregunta": "Un chocolate amargo puede llevar leche o decir “puede contener leche”.",
+    "correcta": true,
+    "explicacion": "Muchos chocolates, aunque sean amargos, llevan leche o pueden contenerla. Para alérgicos, leé siempre la etiqueta."
+  }
+]

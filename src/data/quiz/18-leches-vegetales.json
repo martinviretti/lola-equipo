@@ -1,0 +1,40 @@
+[
+  {
+    "id": "18-1",
+    "tipo": "opcion",
+    "pregunta": "Una clienta quiere leche vegetal para el café. ¿Qué le ofrecés primero?",
+    "opciones": ["Una barista, como la de avena", "La de arroz", "La de coco"],
+    "correcta": 0,
+    "explicacion": "La barista espuma y no se corta. Igual preguntale si tiene alguna alergia o si es celíaca."
+  },
+  {
+    "id": "18-2",
+    "tipo": "vf",
+    "pregunta": "Las leches vegetales pueden reemplazar la leche para bebés.",
+    "correcta": false,
+    "explicacion": "No reemplazan la leche para bebés ni la fórmula infantil. Eso lo tiene que ver el pediatra."
+  },
+  {
+    "id": "18-3",
+    "tipo": "opcion",
+    "pregunta": "Una clienta celíaca pide leche de avena sin logo. ¿Qué hacés?",
+    "opciones": ["Se la vendés, la avena es liviana", "Le mostrás otras leches con logo sin TACC", "Le decís que la avena no tiene gluten"],
+    "correcta": 1,
+    "explicacion": "La avena tiene TACC. Sin el logo sin TACC, no es para celíacos."
+  },
+  {
+    "id": "18-4",
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estas leches vegetales tiene más proteína?",
+    "opciones": ["La de almendras", "La de arroz", "La de soja"],
+    "correcta": 2,
+    "explicacion": "La de soja es la que más proteína tiene. Almendras, arroz y coco tienen poca."
+  },
+  {
+    "id": "18-5",
+    "tipo": "vf",
+    "pregunta": "Una leche vegetal de larga vida, una vez abierta, va a la heladera.",
+    "correcta": true,
+    "explicacion": "Cerrada aguanta fuera, pero abierta va siempre al frío y se toma en los días que diga el envase."
+  }
+]

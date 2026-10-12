@@ -1,0 +1,40 @@
+[
+  {
+    "id": "19-1",
+    "tipo": "vf",
+    "pregunta": "La leche deslactosada sirve para alguien alérgico a la leche.",
+    "correcta": false,
+    "explicacion": "Conserva las proteínas de la leche. Alergia a la leche e intolerancia a la lactosa no son lo mismo."
+  },
+  {
+    "id": "19-2",
+    "tipo": "opcion",
+    "pregunta": "Llega un pedido de productos refrigerados. ¿Qué hacés?",
+    "opciones": ["Lo dejás en el mostrador hasta cerrar", "Lo guardás en la heladera enseguida", "Lo acomodás en la góndola seca"],
+    "correcta": 1,
+    "explicacion": "Lo refrigerado nunca queda afuera. Si se corta la cadena de frío, puede dejar de ser seguro."
+  },
+  {
+    "id": "19-3",
+    "tipo": "opcion",
+    "pregunta": "Un cliente alérgico pregunta si un queso vegano le sirve. ¿Qué le decís?",
+    "opciones": ["Que lean juntos los ingredientes", "Que sí, lo vegano no tiene alérgenos", "Que sí, porque no lleva leche"],
+    "correcta": 0,
+    "explicacion": "Vegano no es sin alérgenos. Muchos quesos veganos llevan castañas de cajú, soja o coco."
+  },
+  {
+    "id": "19-4",
+    "tipo": "opcion",
+    "pregunta": "Al acomodar la heladera, ¿qué va adelante?",
+    "opciones": ["Lo que llegó último", "Lo que más se vende", "Lo que vence primero"],
+    "correcta": 2,
+    "explicacion": "Lo que vence primero va adelante y lo nuevo, atrás. Así nada se vence en la heladera."
+  },
+  {
+    "id": "19-5",
+    "tipo": "vf",
+    "pregunta": "Si el termómetro de la heladera marca más de lo debido, avisás enseguida a la encargada.",
+    "correcta": true,
+    "explicacion": "La temperatura se mira todos los días, porque la cadena de frío no se puede cortar."
+  }
+]

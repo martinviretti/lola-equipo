@@ -1,0 +1,40 @@
+[
+  {
+    "id": "11-1",
+    "tipo": "opcion",
+    "pregunta": "¿Cómo sabés si un pan es integral de verdad?",
+    "opciones": ["Por el color oscuro de la miga", "Porque la harina integral está primera en los ingredientes", "Porque tiene puntitos de salvado"],
+    "correcta": 1,
+    "explicacion": "El color engaña: hay panes oscuros por malta o caramelo. El integral de verdad lleva la harina integral primera."
+  },
+  {
+    "id": "11-2",
+    "tipo": "vf",
+    "pregunta": "El pan de masa madre de trigo no tiene gluten porque fermenta muchas horas.",
+    "correcta": false,
+    "explicacion": "La fermentación cambia el sabor y la duración, no el gluten. No es para celíacos."
+  },
+  {
+    "id": "11-3",
+    "tipo": "opcion",
+    "pregunta": "Una clienta celíaca te pide un pan de la panera. ¿Qué hacés?",
+    "opciones": ["Le ofrecés uno envasado con el logo sin TACC", "Le das uno con una pinza limpia", "Le das un chipá, que es de mandioca"],
+    "correcta": 0,
+    "explicacion": "Una miga de pan común alcanza para contaminar. Para celíacos, solo envasado, cerrado y con logo."
+  },
+  {
+    "id": "11-4",
+    "tipo": "opcion",
+    "pregunta": "Un cliente no va a terminar el pan fresco en pocos días. ¿Qué le recomendás?",
+    "opciones": ["Guardarlo en la heladera", "Dejarlo en la panera bien tapado", "Congelarlo en rodajas"],
+    "correcta": 2,
+    "explicacion": "La heladera pone el pan duro más rápido. Congelado en rodajas, saca solo lo que necesita."
+  },
+  {
+    "id": "11-5",
+    "tipo": "vf",
+    "pregunta": "El pan de centeno tiene TACC.",
+    "correcta": true,
+    "explicacion": "El centeno es una de las letras de TACC, y además casi siempre se mezcla con trigo."
+  }
+]

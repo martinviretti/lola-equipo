@@ -1,0 +1,40 @@
+[
+  {
+    "id": "05-1",
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estas semillas conviene moler para aprovecharla?",
+    "opciones": ["La chía", "El lino", "El girasol"],
+    "correcta": 1,
+    "explicacion": "El lino entero tiene una cáscara tan dura que muchas veces pasa sin romperse. Por eso conviene molerlo."
+  },
+  {
+    "id": "05-2",
+    "tipo": "vf",
+    "pregunta": "La chía hay que molerla antes de usarla.",
+    "correcta": false,
+    "explicacion": "No hace falta. Se usa entera, y con agua o leche forma un gel."
+  },
+  {
+    "id": "05-3",
+    "tipo": "opcion",
+    "pregunta": "Un cliente se lleva lino molido. ¿Cómo le recomendás guardarlo?",
+    "opciones": ["En frasco cerrado, en la heladera", "En la alacena, como cualquier semilla", "En una bolsa abierta, para que respire"],
+    "correcta": 0,
+    "explicacion": "Molido se pone rancio rápido. Bien cerrado y en la heladera dura más, y conviene comprar poco."
+  },
+  {
+    "id": "05-4",
+    "tipo": "opcion",
+    "pregunta": "Una clienta alérgica al sésamo quiere un mix de semillas. ¿Qué hacés?",
+    "opciones": ["Le das el mix, porque casi no lleva sésamo", "Le ofrecés gomasio en su lugar", "Le avisás que suele llevar sésamo y no asegurás nada"],
+    "correcta": 2,
+    "explicacion": "Los mixes casi siempre llevan sésamo, y el gomasio es sésamo. Del granel no le asegurás nada a un alérgico."
+  },
+  {
+    "id": "05-5",
+    "tipo": "vf",
+    "pregunta": "Si una semilla huele a pintura, está rancia y no se vende.",
+    "correcta": true,
+    "explicacion": "Las semillas tienen grasa y se ponen rancias. Ese olor y el gusto amargo son la señal."
+  }
+]

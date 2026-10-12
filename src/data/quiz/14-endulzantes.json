@@ -1,0 +1,40 @@
+[
+  {
+    "id": "14-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere hacer una torta con edulcorante. ¿Cuál no le conviene?",
+    "opciones": ["Aspartamo", "Sucralosa", "Eritritol"],
+    "correcta": 0,
+    "explicacion": "El aspartamo pierde dulzor con el calor. Sucralosa, stevia, eritritol y xilitol sí aguantan el horno."
+  },
+  {
+    "id": "14-2",
+    "tipo": "vf",
+    "pregunta": "El mascabo y la miel son más sanos que el azúcar blanca.",
+    "correcta": false,
+    "explicacion": "Siguen siendo azúcares y aportan calorías. Cambian el sabor y el color, y las dudas de salud van al nutricionista."
+  },
+  {
+    "id": "14-3",
+    "tipo": "opcion",
+    "pregunta": "Una clienta con diabetes pregunta si la fructosa le sirve. ¿Qué le respondés?",
+    "opciones": ["Que es apta para diabéticos", "Le mostrás la etiqueta y que consulte al médico", "Que no le sube el azúcar"],
+    "correcta": 1,
+    "explicacion": "Nunca digas apto para diabéticos. Si le conviene o no, lo decide su médico o nutricionista."
+  },
+  {
+    "id": "14-4",
+    "tipo": "vf",
+    "pregunta": "El xilitol es muy tóxico para los perros.",
+    "correcta": true,
+    "explicacion": "Aunque coman poco. Si el cliente tiene perro, avisale que lo guarde donde no llegue."
+  },
+  {
+    "id": "14-5",
+    "tipo": "opcion",
+    "pregunta": "Una mamá quiere endulzar la papilla de su bebé con miel. ¿Qué le decís?",
+    "opciones": ["Que use miel cremosa, que es más suave", "Que elija una miel orgánica", "Que no se da miel a menores de un año"],
+    "correcta": 2,
+    "explicacion": "Ninguna miel se da a menores de un año, sea del tipo que sea. Que lo hable con el pediatra."
+  }
+]

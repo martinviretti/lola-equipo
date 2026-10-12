@@ -1,0 +1,40 @@
+[
+  {
+    "id": "07-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere hacer una torta. ¿Qué harina de trigo le ofrecés?",
+    "opciones": ["La 000", "La 0000", "La sémola"],
+    "correcta": 1,
+    "explicacion": "Más ceros, más refinada. La 0000 es la de tortas y masas finas, y la 000 la de pan y pizza."
+  },
+  {
+    "id": "07-2",
+    "tipo": "vf",
+    "pregunta": "La harina de arroz del granel sirve para un celíaco, porque el arroz no tiene gluten.",
+    "correcta": false,
+    "explicacion": "En el granel el polvillo vuela y las palas se comparten. Para celíacos, solo envasada con el logo sin TACC."
+  },
+  {
+    "id": "07-3",
+    "tipo": "opcion",
+    "pregunta": "¿Cuál de estas harinas tiene TACC?",
+    "opciones": ["Harina de arroz", "Harina de garbanzo", "Harina de centeno"],
+    "correcta": 2,
+    "explicacion": "Trigo, avena, cebada y centeno tienen TACC. El arroz y las legumbres no tienen gluten naturalmente."
+  },
+  {
+    "id": "07-4",
+    "tipo": "vf",
+    "pregunta": "No conviene cambiar una harina por otra en la misma cantidad.",
+    "correcta": true,
+    "explicacion": "Cada harina absorbe distinto el líquido. Lo mejor es seguir una receta pensada para esa harina."
+  },
+  {
+    "id": "07-5",
+    "tipo": "opcion",
+    "pregunta": "Un cliente quiere hacer chipá. ¿Qué le ofrecés?",
+    "opciones": ["Fécula de mandioca", "Harina de mandioca", "Harina de maíz"],
+    "correcta": 0,
+    "explicacion": "El chipá se hace con fécula, que es el almidón de la mandioca. La harina de mandioca es otro producto."
+  }
+]

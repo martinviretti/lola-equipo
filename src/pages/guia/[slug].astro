@@ -5,6 +5,7 @@ import Manual from '../../layouts/Manual.astro';
 import Icon from '../../components/Icon.astro';
 import Tabla from '../../components/Tabla.astro';
 import ContenidoGuia from '../../components/ContenidoGuia.astro';
+import QuizGondola from '../../components/QuizGondola.astro';
 import { getGuia, urlCategoria, type Categoria } from '../../data/guia';
 
 export async function getStaticPaths() {
@@ -83,6 +84,12 @@ const productos = headings.filter((h) => h.depth === 3);
       <div class="prosa guia mt-8" data-gondola-id={categoria.id}>
         <ContenidoGuia><Content components={{ table: Tabla }} /></ContenidoGuia>
       </div>
+
+      <QuizGondola
+        gondolaId={categoria.id}
+        titulo={d.titulo}
+        siguiente={siguiente ? { url: urlCategoria(siguiente), titulo: siguiente.data.titulo } : undefined}
+      />
 
       <nav class="no-print mt-8 grid gap-3 sm:grid-cols-2" aria-label="Otras góndolas">
         {

@@ -1,0 +1,40 @@
+[
+  {
+    "id": "25-1",
+    "tipo": "vf",
+    "pregunta": "Los aceites esenciales se pueden aplicar puros sobre la piel.",
+    "correcta": false,
+    "explicacion": "Nunca van puros ni se toman. Se diluyen en un aceite vegetal o van al difusor."
+  },
+  {
+    "id": "25-2",
+    "tipo": "opcion",
+    "pregunta": "Una clienta pregunta si un producto natural le puede dar alergia. ¿Qué le decís?",
+    "opciones": ["Que no, porque es natural", "Que sí, y que pruebe primero en una zona chica", "Que solo si tiene perfume"],
+    "correcta": 1,
+    "explicacion": "Natural no quiere decir que no dé reacción. Conviene probar en el interior del brazo y esperar un día."
+  },
+  {
+    "id": "25-3",
+    "tipo": "opcion",
+    "pregunta": "Un cliente pregunta si la rosa mosqueta le borra las cicatrices. ¿Qué respondés?",
+    "opciones": ["Que no se lo podés prometer, que vea un dermatólogo", "Que sí, con unas gotas por día", "Que mejor use un aceite esencial"],
+    "correcta": 0,
+    "explicacion": "Todo es de uso cosmético. Contás para qué lo usa la gente, sin prometer que trate ningún problema."
+  },
+  {
+    "id": "25-4",
+    "tipo": "opcion",
+    "pregunta": "Te piden aceite de almendras para un bebé. ¿Qué preguntás primero?",
+    "opciones": ["Si lo quiere con perfume", "Si lo va a usar de día o de noche", "Si hay alergia a los frutos secos"],
+    "correcta": 2,
+    "explicacion": "Sale de la almendra, así que con alergia a los frutos secos no conviene usarlo."
+  },
+  {
+    "id": "25-5",
+    "tipo": "vf",
+    "pregunta": "Los productos de esta góndola van lejos de los alimentos y fuera del alcance de los chicos.",
+    "correcta": true,
+    "explicacion": "Son de uso externo o de limpieza, así que se guardan aparte para que nadie los tome por error."
+  }
+]

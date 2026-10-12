@@ -1,0 +1,40 @@
+[
+  {
+    "id": "17-1",
+    "tipo": "opcion",
+    "pregunta": "¿Qué se hace con los hongos secos antes de cocinarlos?",
+    "opciones": ["Se hidratan en agua caliente", "Se fríen secos, sin hidratar", "Se comen crudos en ensaladas"],
+    "correcta": 0,
+    "explicacion": "Se hidratan, se escurren y se cocinan. El agua del remojo, colada, suma mucho sabor."
+  },
+  {
+    "id": "17-2",
+    "tipo": "vf",
+    "pregunta": "La leche de coco que sobra se guarda en su misma lata, en la heladera.",
+    "correcta": false,
+    "explicacion": "La lata abierta no se guarda: se pasa a un frasco tapado y va a la heladera."
+  },
+  {
+    "id": "17-3",
+    "tipo": "opcion",
+    "pregunta": "Un cliente pide gelatina para un postre vegano. ¿Qué le ofrecés?",
+    "opciones": ["Gelatina sin sabor común", "Agar agar", "Alga nori"],
+    "correcta": 1,
+    "explicacion": "La gelatina común no es vegana. El agar agar sale de algas y cuaja al enfriarse."
+  },
+  {
+    "id": "17-4",
+    "tipo": "opcion",
+    "pregunta": "Encontrás un frasco con la tapa abombada. ¿Qué hacés?",
+    "opciones": ["Lo dejás en la góndola", "Lo vendés más barato", "Lo separás y avisás a la encargada"],
+    "correcta": 2,
+    "explicacion": "Frasco con la tapa abombada, que pierde o lata hinchada no se vende. Se aparta y se avisa."
+  },
+  {
+    "id": "17-5",
+    "tipo": "vf",
+    "pregunta": "Con problemas de tiroides o embarazo, conviene consultar al médico antes de comer algas.",
+    "correcta": true,
+    "explicacion": "Las algas tienen mucho yodo, sobre todo el kombu. Para chicos también hay que consultar."
+  }
+]

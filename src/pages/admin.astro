@@ -1,0 +1,341 @@
+---
+// Panel de administración: quiénes pueden entrar y el avance de cada persona del equipo.
+// Solo lo ven las admins (rol 'admin' en la tabla autorizados); la base lo controla con RLS.
+import Manual from '../layouts/Manual.astro';
+import Icon from '../components/Icon.astro';
+import { getGuia } from '../data/guia';
+import { secciones } from '../data/bienvenida';
+import { NIVELES } from '../data/niveles';
+
+const gondolas = (await getGuia()).map((c) => ({ id: c.id, titulo: c.data.titulo }));
+const datos = {
+  gondolas,
+  secciones: secciones.map((s) => ({ id: s.id, titulo: s.titulo })),
+  niveles: NIVELES.map((n) => ({ numero: n.numero, nombre: n.nombre })),
+};
+---
+
+<Manual title="Panel de admin">
+  <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
+    <div class="mx-auto max-w-[900px]">
+      <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Panel de admin</h1>
+      <p class="mt-1 text-base text-texto-2">Quiénes pueden entrar y cómo viene cada una con la guía y los exámenes.</p>
+
+      <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
+        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
+        <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
+        <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
+      </div>
+
+      <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
+        <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando el equipo…
+      </p>
+
+      <div class="hidden" data-panel>
+        <!-- Resumen -->
+        <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" data-resumen></div>
+
+        <!-- Agregar -->
+        <section class="mt-8 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 sm:p-6">
+          <h2 class="flex items-center gap-2 text-xl font-bold text-profundo"><Icon name="plus-square" class="size-6 text-marca" /> Dar acceso a alguien</h2>
+          <p class="mt-1 text-sm text-texto-2">Con su mail de Google (Gmail). Puede entrar apenas la agregás.</p>
+          <form class="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]" data-agregar>
+            <label class="sr-only" for="nuevo-email">Mail de Google</label>
+            <input id="nuevo-email" name="email" type="email" required autocomplete="off" placeholder="nombre@gmail.com" class="campo" />
+            <label class="sr-only" for="nuevo-nombre">Nombre</label>
+            <input id="nuevo-nombre" name="nombre" type="text" autocomplete="off" placeholder="Nombre (opcional)" class="campo" />
+            <label class="sr-only" for="nuevo-rol">Rol</label>
+            <select id="nuevo-rol" name="rol" class="campo">
+              <option value="empleada">Empleada</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button type="submit" class="boton boton-principal">Agregar</button>
+          </form>
+          <p class="mt-3 hidden text-sm font-semibold" data-agregar-estado aria-live="polite"></p>
+        </section>
+
+        <!-- Equipo -->
+        <section class="mt-8">
+          <h2 class="text-xl font-bold text-profundo">El equipo</h2>
+          <ul class="mt-4 flex flex-col gap-3" data-equipo></ul>
+        </section>
+
+        <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
+      </div>
+    </div>
+  </main>
+</Manual>
+
+<script type="application/json" id="admin-datos" set:html={JSON.stringify(datos)} />
+
+<style>
+  .campo {
+    width: 100%;
+    border-radius: 14px;
+    background: var(--color-crema);
+    padding: 12px 14px;
+    font-size: 1rem;
+    color: var(--color-texto);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
+    outline: none;
+  }
+  .campo:focus {
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  :global(.persona summary::-webkit-details-marker) {
+    display: none;
+  }
+  :global(.barra-avance) {
+    height: 6px;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+  }
+  :global(.barra-avance > span) {
+    display: block;
+    height: 100%;
+    border-radius: 9999px;
+    background: var(--color-marca);
+  }
+</style>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { sesionLista } from '../scripts/sesion';
+
+  interface Autorizado {
+    email: string;
+    nombre: string | null;
+    rol: 'empleada' | 'admin';
+    user_id: string | null;
+    agregado_el: string;
+    primer_ingreso: string | null;
+    ultimo_ingreso: string | null;
+  }
+  interface Gondola {
+    user_id: string;
+    gondola: string;
+    vista_el: string | null;
+    quiz_intentos: number;
+    quiz_mejor: number;
+    quiz_total: number;
+    completada_el: string | null;
+  }
+  interface Intento {
+    user_id: string;
+    nivel: number;
+    nota: number;
+    aprobado: boolean;
+    hecho_el: string;
+  }
+
+  const datos: {
+    gondolas: { id: string; titulo: string }[];
+    secciones: { id: string; titulo: string }[];
+    niveles: { numero: number; nombre: string }[];
+  } = JSON.parse(document.getElementById('admin-datos')!.textContent!);
+
+  const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
+  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, clase = '', texto = '') => {
+    const e = document.createElement(tag);
+    if (clase) e.className = clase;
+    if (texto) e.textContent = texto;
+    return e;
+  };
+  const fecha = (iso: string | null) =>
+    iso ? new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso)) : 'Nunca';
+  const hace = (iso: string | null) => {
+    if (!iso) return 'Nunca entró';
+    const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    return dias === 0 ? 'Entró hoy' : dias === 1 ? 'Entró ayer' : `Entró hace ${dias} días`;
+  };
+  const barra = (parte: number, total: number) => {
+    const b = el('div', 'barra-avance');
+    const s = el('span');
+    s.style.width = `${total ? (parte / total) * 100 : 0}%`;
+    b.append(s);
+    return b;
+  };
+
+  let miEmail = '';
+
+  async function cargar() {
+    const db = supabase!;
+    const [a, g, i, l] = await Promise.all([
+      db.from('autorizados').select('*').order('rol').order('nombre'),
+      db.from('progreso_gondola').select('user_id,gondola,vista_el,quiz_intentos,quiz_mejor,quiz_total,completada_el'),
+      db.from('intentos_examen').select('user_id,nivel,nota,aprobado,hecho_el').order('hecho_el', { ascending: false }).limit(2000),
+      db.from('secciones_leidas').select('user_id,seccion'),
+    ]);
+    if (a.error || g.error || i.error || l.error) throw a.error ?? g.error ?? i.error ?? l.error;
+    return {
+      equipo: a.data as Autorizado[],
+      gondolas: g.data as Gondola[],
+      intentos: i.data as Intento[],
+      leidas: l.data as { user_id: string; seccion: string }[],
+    };
+  }
+
+  function pintar(d: Awaited<ReturnType<typeof cargar>>) {
+    const total = datos.gondolas.length;
+    const porUsuario = <T extends { user_id: string }>(lista: T[], uid: string | null) => (uid ? lista.filter((x) => x.user_id === uid) : []);
+    const empleadas = d.equipo.filter((p) => p.rol === 'empleada');
+
+    // Resumen
+    const activas7 = d.equipo.filter((p) => p.ultimo_ingreso && Date.now() - new Date(p.ultimo_ingreso).getTime() < 7 * 86400000).length;
+    const aprobados = d.intentos.filter((x) => x.aprobado).length;
+    const tarjeta = (valor: string, texto: string) => {
+      const c = el('div', 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10');
+      c.append(el('span', 'block text-3xl font-bold text-profundo tabular-nums', valor), el('span', 'block text-sm text-texto-2', texto));
+      return c;
+    };
+    $('[data-resumen]').replaceChildren(
+      tarjeta(String(empleadas.length), 'empleadas con acceso'),
+      tarjeta(String(activas7), 'entraron en la última semana'),
+      tarjeta(String(d.gondolas.filter((x) => x.completada_el).length), 'góndolas completadas en total'),
+      tarjeta(String(aprobados), 'exámenes aprobados'),
+    );
+
+    // Equipo
+    $('[data-equipo]').replaceChildren(
+      ...d.equipo.map((p) => {
+        const gs = porUsuario(d.gondolas, p.user_id);
+        const completas = gs.filter((x) => x.completada_el).length;
+        const vistas = gs.filter((x) => x.vista_el).length;
+        const its = porUsuario(d.intentos, p.user_id);
+        const leidas = new Set(porUsuario(d.leidas, p.user_id).map((x) => x.seccion));
+
+        const li = el('li');
+        const det = el('details', 'persona rounded-3xl bg-white ring-1 ring-profundo/10');
+        const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-3 p-4');
+        const avatar = el('span', 'flex size-11 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo', (p.nombre ?? p.email)[0].toUpperCase());
+        const quien = el('span', 'min-w-0 flex-1');
+        const nombre = el('span', 'block truncate font-semibold text-profundo', p.nombre ?? p.email.split('@')[0]);
+        if (p.rol === 'admin') nombre.append(el('span', 'ml-2 rounded-full bg-profundo px-2 py-0.5 text-[0.7rem] font-bold text-white uppercase', 'Admin'));
+        quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
+        const avance = el('span', 'w-full sm:w-56');
+        avance.append(el('span', 'flex justify-between text-xs font-semibold text-texto-2', ''), barra(completas, total));
+        avance.firstElementChild!.append(el('span', '', 'Góndolas completadas'), el('span', 'tabular-nums', `${completas}/${total}`));
+        const niveles = el('span', 'flex gap-1.5');
+        for (const n of datos.niveles) {
+          const ok = its.some((x) => x.nivel === n.numero && x.aprobado);
+          const chip = el('span', `rounded-full px-2 py-1 text-[0.7rem] font-bold ${ok ? 'bg-marca text-white' : 'bg-menta-suave text-texto-2'}`, `N${n.numero}`);
+          chip.title = `${n.nombre}: ${ok ? 'aprobado' : 'sin aprobar'}`;
+          niveles.append(chip);
+        }
+        sum.append(avatar, quien, avance, niveles);
+
+        // Detalle
+        const cuerpo = el('div', 'border-t border-profundo/8 p-4');
+        const fila = (titulo: string, valor: string) => {
+          const r = el('p', 'flex justify-between gap-3 py-1 text-sm');
+          r.append(el('span', 'text-texto-2', titulo), el('span', 'font-semibold text-profundo', valor));
+          return r;
+        };
+        cuerpo.append(
+          fila('Agregada', fecha(p.agregado_el)),
+          fila('Primer ingreso', fecha(p.primer_ingreso)),
+          fila('Último ingreso', fecha(p.ultimo_ingreso)),
+          fila('Góndolas leídas', `${vistas}/${total}`),
+          fila('Bienvenida leída', `${leidas.size}/${datos.secciones.length} temas`),
+        );
+
+        // Exámenes
+        cuerpo.append(el('p', 'mt-4 text-sm font-bold tracking-wide text-profundo uppercase', 'Exámenes'));
+        if (!its.length) cuerpo.append(el('p', 'mt-1 text-sm text-texto-2', 'Todavía no hizo ningún examen.'));
+        const listaEx = el('ul', 'mt-2 flex flex-col gap-1.5');
+        for (const x of its.slice(0, 15)) {
+          const n = datos.niveles.find((v) => v.numero === x.nivel);
+          const r = el('li', `flex justify-between gap-3 rounded-xl px-3 py-2 text-sm ${x.aprobado ? 'bg-menta-suave' : 'bg-crema'}`);
+          r.append(el('span', '', `Nivel ${x.nivel}${n ? ` · ${n.nombre}` : ''} · ${fecha(x.hecho_el)}`), el('span', 'font-bold tabular-nums', `${x.nota}% ${x.aprobado ? '✓' : ''}`));
+          listaEx.append(r);
+        }
+        cuerpo.append(listaEx);
+
+        // Góndolas
+        cuerpo.append(el('p', 'mt-4 text-sm font-bold tracking-wide text-profundo uppercase', 'Góndolas'));
+        const grid = el('ul', 'mt-2 grid gap-1.5 sm:grid-cols-2');
+        for (const gd of datos.gondolas) {
+          const x = gs.find((y) => y.gondola === gd.id);
+          const estado = x?.completada_el ? `Completada · ${x.quiz_mejor}/${x.quiz_total}` : x?.quiz_intentos ? `Quiz ${x.quiz_mejor}/${x.quiz_total}` : x?.vista_el ? 'Leída' : 'Sin abrir';
+          const r = el('li', `flex justify-between gap-2 rounded-xl px-3 py-2 text-sm ${x?.completada_el ? 'bg-menta-suave' : 'bg-crema'}`);
+          r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca' : 'text-texto-2'}`, estado));
+          grid.append(r);
+        }
+        cuerpo.append(grid);
+
+        // Acciones
+        const acciones = el('div', 'mt-5 flex flex-wrap gap-2');
+        if (p.email !== miEmail) {
+          const rol = el('button', 'boton boton-secundario !py-2 !text-sm', p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin');
+          rol.type = 'button';
+          rol.addEventListener('click', async () => {
+            const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
+            if (!confirm(`¿Cambiar a ${p.nombre ?? p.email} a ${nuevo}?`)) return;
+            const { error } = await supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email);
+            if (error) alert('No se pudo cambiar el rol.');
+            void refrescar();
+          });
+          const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Quitar acceso');
+          quitar.type = 'button';
+          quitar.addEventListener('click', async () => {
+            if (!confirm(`¿Quitarle el acceso a ${p.nombre ?? p.email}? Su avance queda guardado por si vuelve.`)) return;
+            const { error } = await supabase!.from('autorizados').delete().eq('email', p.email);
+            if (error) alert('No se pudo quitar el acceso.');
+            void refrescar();
+          });
+          acciones.append(rol, quitar);
+        } else {
+          acciones.append(el('p', 'text-sm text-texto-2', 'Sos vos.'));
+        }
+        cuerpo.append(acciones);
+
+        det.append(sum, cuerpo);
+        li.append(det);
+        return li;
+      }),
+    );
+  }
+
+  async function refrescar() {
+    try {
+      pintar(await cargar());
+    } catch {
+      alert('No se pudieron cargar los datos. Revisá la conexión.');
+    }
+  }
+
+  $('[data-agregar]').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target as HTMLFormElement;
+    const datosForm = new FormData(f);
+    const email = String(datosForm.get('email')).trim().toLowerCase();
+    const nombre = String(datosForm.get('nombre') ?? '').trim() || null;
+    const rol = String(datosForm.get('rol'));
+    const estado = $('[data-agregar-estado]');
+    estado.classList.remove('hidden');
+    const { error } = await supabase!.from('autorizados').insert({ email, nombre, rol });
+    if (error) {
+      estado.className = 'mt-3 text-sm font-semibold text-peligro';
+      estado.textContent = error.code === '23505' ? 'Ese mail ya tiene acceso.' : 'No se pudo agregar. Revisá el mail y la conexión.';
+      return;
+    }
+    estado.className = 'mt-3 text-sm font-semibold text-marca';
+    estado.textContent = `Listo: ${email} ya puede entrar con Google.`;
+    f.reset();
+    void refrescar();
+  });
+  $('[data-recargar]').addEventListener('click', () => void refrescar());
+
+  sesionLista.then(async (acceso) => {
+    if (!acceso || acceso.rol !== 'admin' || !supabase) {
+      $('[data-cargando]').classList.add('hidden');
+      $('[data-sin-permiso]').classList.remove('hidden');
+      return;
+    }
+    miEmail = acceso.email;
+    await refrescar();
+    $('[data-cargando]').classList.add('hidden');
+    $('[data-panel]').classList.remove('hidden');
+  });
+</script>

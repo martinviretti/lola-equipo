@@ -1,0 +1,40 @@
+[
+  {
+    "id": "16-1",
+    "tipo": "vf",
+    "pregunta": "La sal rosada aporta sodio igual que la sal fina.",
+    "correcta": true,
+    "explicacion": "Todas las sales son sal. Ni la rosada ni la marina tienen menos sodio que la común."
+  },
+  {
+    "id": "16-2",
+    "tipo": "opcion",
+    "pregunta": "Una clienta celíaca te pide orégano. ¿Qué le ofrecés?",
+    "opciones": ["El fraccionado del local, que es solo hoja", "Uno envasado cerrado con logo sin TACC", "Cualquiera, las hierbas no tienen gluten"],
+    "correcta": 1,
+    "explicacion": "Lo fraccionado puede tener restos de gluten. Para celíacos, solo envasado cerrado con el logo oficial."
+  },
+  {
+    "id": "16-3",
+    "tipo": "opcion",
+    "pregunta": "¿Por qué la salsa de soja común no sirve para celíacos?",
+    "opciones": ["Porque lleva trigo", "Porque es muy salada", "Porque es fermentada"],
+    "correcta": 0,
+    "explicacion": "La común lleva trigo. Para un celíaco, buscá con él un tamari con el logo sin TACC."
+  },
+  {
+    "id": "16-4",
+    "tipo": "opcion",
+    "pregunta": "¿Cómo se guardan las especias para que no pierdan aroma?",
+    "opciones": ["Arriba de la cocina, para tenerlas a mano", "En frasco abierto, para que respiren", "En frasco cerrado, lejos de la luz y el calor"],
+    "correcta": 2,
+    "explicacion": "No se pudren, pero la luz, el calor y la humedad les sacan el aroma. Nunca arriba de la cocina."
+  },
+  {
+    "id": "16-5",
+    "tipo": "vf",
+    "pregunta": "La levadura nutricional sirve para hacer leudar el pan.",
+    "correcta": false,
+    "explicacion": "Está inactiva y no leuda. Se usa para dar un sabor parecido al queso."
+  }
+]

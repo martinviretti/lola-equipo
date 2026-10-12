@@ -1,0 +1,40 @@
+[
+  {
+    "id": "01-1",
+    "tipo": "opcion",
+    "pregunta": "¿Qué diferencia a la yerba con palo de la despalada?",
+    "opciones": ["La despalada tiene azúcar agregada", "La con palo es más suave y pareja", "La con palo no tiene cafeína"],
+    "correcta": 1,
+    "explicacion": "El palo suaviza el sabor. La despalada es casi toda hoja, por eso sale más intensa."
+  },
+  {
+    "id": "01-2",
+    "tipo": "vf",
+    "pregunta": "Toda yerba tiene cafeína, también el mate cocido y el tereré.",
+    "correcta": true,
+    "explicacion": "La cafeína está en toda yerba, sin importar cómo se prepare. Si al cliente le quita el sueño, mejor no de noche."
+  },
+  {
+    "id": "01-3",
+    "tipo": "opcion",
+    "pregunta": "Un cliente dice que la yerba le sale muy amarga. ¿Qué le preguntás primero?",
+    "opciones": ["Qué marca compra", "Cuántos mates toma por día", "Con qué agua la ceba"],
+    "correcta": 2,
+    "explicacion": "El agua hervida quema la yerba y la amarga. Lo ideal es agua caliente que no llegue a hervir."
+  },
+  {
+    "id": "01-4",
+    "tipo": "opcion",
+    "pregunta": "Un cliente te pide medio kilo de yerba suelta. ¿Qué le ofrecés?",
+    "opciones": ["Un paquete cerrado del tamaño que necesita", "Medio kilo fraccionado en una bolsa", "Una yerba compuesta suelta"],
+    "correcta": 0,
+    "explicacion": "La yerba nunca se fracciona. Se vende siempre en su paquete cerrado, así que ofrecé el tamaño que le sirva."
+  },
+  {
+    "id": "01-5",
+    "tipo": "vf",
+    "pregunta": "Si el paquete dice “suave”, seguro tiene menos cafeína que otras yerbas.",
+    "correcta": false,
+    "explicacion": "Suave es un nombre comercial que habla del sabor. Cada marca lo usa a su manera, y la cafeína es la de cualquier yerba."
+  }
+]

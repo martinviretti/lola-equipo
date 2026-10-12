@@ -1,0 +1,40 @@
+[
+  {
+    "id": "23-1",
+    "tipo": "opcion",
+    "pregunta": "Un cliente pregunta cuánta creatina tiene que tomar. ¿Qué le respondés?",
+    "opciones": ["Que con una cucharada por día alcanza", "Le mostrás el envase y que consulte al profesional", "Que tome el doble los días que entrena"],
+    "correcta": 1,
+    "explicacion": "Nunca indiques cuánto tomar. La cantidad la dice el envase o la define su médico o nutricionista."
+  },
+  {
+    "id": "23-2",
+    "tipo": "vf",
+    "pregunta": "Un suplemento es un remedio, así que podés recomendarlo para un problema de salud.",
+    "correcta": false,
+    "explicacion": "No es un remedio. Contás qué es, cómo viene y qué dice el envase, nada más."
+  },
+  {
+    "id": "23-3",
+    "tipo": "opcion",
+    "pregunta": "Te piden algo para tener más energía. ¿Qué hacés?",
+    "opciones": ["Derivás al médico y contás qué es cada producto", "Recomendás un pre entreno", "Recomendás un multivitamínico"],
+    "correcta": 0,
+    "explicacion": "El cansancio puede tener muchas causas. Derivá con amabilidad y después contá qué es cada producto."
+  },
+  {
+    "id": "23-4",
+    "tipo": "vf",
+    "pregunta": "Los pre entrenos suelen tener cafeína.",
+    "correcta": true,
+    "explicacion": "Por eso no son para menores, embarazadas ni personas con presión alta o problemas del corazón."
+  },
+  {
+    "id": "23-5",
+    "tipo": "opcion",
+    "pregunta": "Una clienta embarazada quiere comprar un suplemento. ¿Qué le decís?",
+    "opciones": ["Que elija uno natural, que no hace mal", "Que tome la mitad de lo indicado", "Que lo consulte antes con su médico"],
+    "correcta": 2,
+    "explicacion": "Con embarazo, lactancia, chicos, medicación o alguna enfermedad, antes de comprar se consulta al médico o nutricionista."
+  }
+]

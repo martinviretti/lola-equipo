@@ -1,0 +1,40 @@
+[
+  {
+    "id": "04-1",
+    "tipo": "opcion",
+    "pregunta": "Una mamá te cuenta que su hijo es alérgico a las nueces. ¿Qué le ofrecés?",
+    "opciones": ["Almendras del granel, que no son nueces", "Algo envasado con rótulo, y que consulte al médico", "Maní, porque es una legumbre"],
+    "correcta": 1,
+    "explicacion": "En el granel se comparten palas y balanzas. A un alérgico nunca le asegures nada suelto."
+  },
+  {
+    "id": "04-2",
+    "tipo": "vf",
+    "pregunta": "El maní es una legumbre, aunque se venda con los frutos secos.",
+    "correcta": true,
+    "explicacion": "Es pariente del poroto y la lenteja. Igual es uno de los alérgenos más graves."
+  },
+  {
+    "id": "04-3",
+    "tipo": "opcion",
+    "pregunta": "¿Cómo te das cuenta de que un fruto seco está rancio?",
+    "opciones": ["Huele a pintura y tiene gusto amargo", "Está más oscuro y crocante", "Tiene la piel marrón y arrugada"],
+    "correcta": 0,
+    "explicacion": "Por su grasa, con aire, luz y calor se ponen rancios. Rancio no se vende: se separa y se avisa a la encargada."
+  },
+  {
+    "id": "04-4",
+    "tipo": "opcion",
+    "pregunta": "¿Qué quiere decir que un fruto seco es natural?",
+    "opciones": ["Que es orgánico y certificado", "Que está tostado sin sal", "Que es crudo y sin nada agregado"],
+    "correcta": 2,
+    "explicacion": "Natural es crudo, sin tostar, sin sal, sin azúcar y sin aceite. Es el indicado para cocinar."
+  },
+  {
+    "id": "04-5",
+    "tipo": "vf",
+    "pregunta": "A un celíaco le podés recomendar frutos secos del granel, porque no tienen gluten.",
+    "correcta": false,
+    "explicacion": "No tienen gluten, pero lo fraccionado puede tener contacto cruzado. Para celíacos, solo envasado con el logo sin TACC."
+  }
+]
