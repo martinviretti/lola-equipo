@@ -1,0 +1,130 @@
+---
+// Un tema de la Bienvenida: tarjeta que se abre y se cierra (acordeón). Al abrirla se marca
+// como leída (lo maneja el script de bienvenida.astro).
+import Icon from './Icon.astro';
+
+interface Props {
+  id: string;
+  numero: number;
+  icono: string;
+  titulo: string;
+  resumen: string;
+}
+
+const { id, numero, icono, titulo, resumen } = Astro.props;
+---
+
+<details id={id} class="tema" data-tema={id}>
+  <summary>
+    <span class="tema-icono"><Icon name={icono} class="size-6" /></span>
+    <span class="min-w-0 flex-1">
+      <span class="tema-numero">{String(numero).padStart(2, '0')}</span>
+      <span class="tema-titulo">{titulo}</span>
+      <span class="tema-resumen">{resumen}</span>
+    </span>
+    <span class="tema-leido" data-leido aria-label="Leído" hidden><Icon name="check" class="size-4" /></span>
+    <span class="tema-flecha"><Icon name="caret-down" class="size-5" /></span>
+  </summary>
+  <div class="tema-cuerpo">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .tema {
+    scroll-margin-top: 80px;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(33 76 59 / 0.08), 0 18px 36px -30px rgb(33 76 59 / 0.45);
+  }
+  summary {
+    display: flex;
+    cursor: pointer;
+    list-style: none;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 24px;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:focus-visible {
+    outline: 2px solid var(--color-marca);
+    outline-offset: 2px;
+  }
+  .tema-icono {
+    display: flex;
+    width: 48px;
+    height: 48px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: var(--color-menta);
+    color: var(--color-profundo);
+  }
+  .tema-numero {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--color-marca);
+  }
+  .tema-titulo {
+    display: block;
+    font-size: 1.125rem;
+    line-height: 1.25;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .tema-resumen {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.875rem;
+    line-height: 1.35;
+    color: var(--color-texto-2);
+  }
+  .tema-leido {
+    display: flex;
+    width: 26px;
+    height: 26px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-marca);
+    color: #fff;
+  }
+  .tema-leido[hidden] {
+    display: none;
+  }
+  .tema-flecha {
+    flex: none;
+    color: var(--color-marca);
+    transition: transform 250ms var(--ease-fluid);
+  }
+  .tema[open] .tema-flecha {
+    transform: rotate(180deg);
+  }
+  .tema[open] summary {
+    border-bottom: 1px solid rgb(33 76 59 / 0.08);
+    border-radius: 24px 24px 0 0;
+  }
+  .tema-cuerpo {
+    padding: 4px 16px 20px;
+  }
+  @media (min-width: 640px) {
+    summary {
+      padding: 18px 22px;
+    }
+    .tema-cuerpo {
+      padding: 4px 22px 24px;
+    }
+  }
+  @media print {
+    .tema {
+      box-shadow: none;
+      border: 0.75pt solid #d5ddd8;
+    }
+  }
+</style>

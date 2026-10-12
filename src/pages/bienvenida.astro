@@ -1,367 +1,337 @@
 ---
-// Bienvenida al equipo: el manual de manejo y orientación del local, ordenado por sección.
-import { Image } from 'astro:assets';
+// Bienvenida: cómo trabajamos en Lola. El manual de manejo y orientación del local, en tres
+// bloques (Atender, El día a día, Nuestros acuerdos) con temas que se abren y se marcan leídos.
+import { url } from '../lib/url';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
-import logo from '../assets/logo-lola-circulo.png';
+import Tema from '../components/Tema.astro';
 import { reglas } from '../data/guia';
-import { atencion, tareasGenerales, roles, cierre, imagen, horarios, celular, musica, cierreManual, secciones } from '../data/bienvenida';
+import { atencion, tareasGenerales, roles, cierre, imagen, horarios, celular, musica, cierreManual, grupos, secciones } from '../data/bienvenida';
 
-const titulo = (id: string) => secciones.find((s) => s.id === id)!;
+const tema = (id: string) => {
+  const k = secciones.findIndex((s) => s.id === id);
+  return { ...secciones[k], numero: k + 1 };
+};
+const grupo = (id: string) => grupos.find((g) => g.id === id)!;
 ---
 
 <Manual title="Bienvenida">
   <main id="contenido">
     <!-- Portada -->
-    <section class="fondo-hojas px-5 pt-10 pb-10 lg:px-8 lg:pt-14">
-      <div class="mx-auto max-w-[760px]">
-        <Image src={logo} alt="Logo de Lola" width={88} height={88} class="size-16 rounded-full shadow-[0_8px_32px_rgb(33_76_59/0.12)] sm:size-20" loading="eager" />
-        <p class="mt-5 text-sm font-semibold text-marca">Manual de manejo y orientación</p>
-        <h1 class="titulo-degrade mt-1 text-4xl font-bold tracking-tight sm:text-5xl">Bienvenida al equipo</h1>
-        <p class="mt-3 max-w-[560px] text-lg text-texto-2">
-          Cómo trabajamos en El Almacén de Lola: cómo atender, qué hace cada una, cómo se cierra el local y las reglas de todos los
-          días.
+    <section class="fondo-hojas px-5 pt-8 pb-8 lg:px-8 lg:pt-12">
+      <div class="mx-auto max-w-[720px]">
+        <p class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-marca uppercase ring-1 ring-profundo/10">
+          <Icon name="hand-waving" class="size-4" /> Paso 1 · Bienvenida
+        </p>
+        <h1 class="titulo-degrade mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Cómo trabajamos en Lola</h1>
+        <p class="mt-3 text-lg text-texto-2">
+          Lo que tenés que saber del local antes de atender: cómo recibimos a cada cliente, qué hace cada una y los acuerdos de
+          todos los días. Tocá cada tema para abrirlo.
         </p>
 
-        <nav class="mt-7" aria-label="Secciones de la bienvenida">
-          <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {
-              secciones.map((s, k) => (
-                <li>
-                  <a href={`#${s.id}`} class="flex h-full items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 text-sm font-semibold text-profundo ring-1 ring-profundo/10 hover:bg-menta-suave">
-                    <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-menta-suave text-profundo">
-                      <Icon name={s.icono} class="size-4.5" />
-                    </span>
-                    <span class="leading-tight">
-                      <span class="block text-[0.7rem] font-bold text-marca tabular-nums">{String(k + 1).padStart(2, '0')}</span>
-                      {s.titulo}
-                    </span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
+        <div class="mt-6 rounded-2xl bg-white p-4 ring-1 ring-profundo/10">
+          <div class="flex items-center justify-between gap-3 text-sm">
+            <span class="font-semibold text-profundo">Leíste <span data-leidas-cuenta>0</span> de {secciones.length} temas</span>
+            <span class="font-bold text-marca tabular-nums" data-leidas-porcentaje>0%</span>
+          </div>
+          <div class="mt-2 h-2 overflow-hidden rounded-full bg-menta-suave">
+            <div class="h-full w-0 rounded-full bg-marca transition-[width] duration-500 ease-fluid" data-leidas-barra></div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <div class="mx-auto flex max-w-[760px] flex-col gap-6 px-5 pt-4 pb-24 lg:px-8">
-      <!-- 1. Atención al cliente -->
-      <section id="atencion" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('atencion').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">01</span><h2>Atención al cliente</h2></span>
-        </header>
-        <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{atencion.objetivo}</p>
+    <div class="mx-auto flex max-w-[720px] flex-col gap-10 px-5 pt-4 pb-24 lg:px-8">
+      <!-- Bloque 1: Atender -->
+      <section aria-labelledby="g-atender">
+        <p class="bloque-numero">Bloque 1</p>
+        <h2 id="g-atender" class="bloque-titulo">{grupo('atender').titulo}</h2>
+        <p class="bloque-bajada">{grupo('atender').bajada}</p>
+        <div class="mt-4 flex flex-col gap-3">
+          <Tema {...tema('atencion')}>
+            <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{atencion.objetivo}</p>
+            <h3 class="subtitulo">Con cada cliente, en 5 pasos</h3>
+            <ol class="pasos">
+              {
+                atencion.pasos.map((p, k) => (
+                  <li>
+                    <span class="paso-numero">{k + 1}</span>
+                    <span class="paso-icono">
+                      <Icon name={p.icono} class="size-5" />
+                    </span>
+                    <span>
+                      <strong>{p.titulo}</strong>
+                      <span class="block text-texto-2">{p.texto}</span>
+                    </span>
+                  </li>
+                ))
+              }
+            </ol>
+          </Tema>
 
-        <h3 class="subtitulo">Cada cliente, en 5 pasos</h3>
-        <ol class="pasos">
-          {
-            atencion.pasos.map((p, k) => (
-              <li>
-                <span class="paso-numero">{k + 1}</span>
-                <span class="paso-icono"><Icon name={p.icono} class="size-5" /></span>
-                <span>
-                  <strong>{p.titulo}</strong>
-                  <span class="block text-texto-2">{p.texto}</span>
-                </span>
-              </li>
-            ))
-          }
-        </ol>
-
-        <h3 class="subtitulo">Clientes frecuentes: beneficios exclusivos</h3>
-        <div class="grid grid-cols-2 gap-3">
-          {
-            atencion.beneficios.map((b) => (
-              <div class="rounded-2xl bg-menta-suave p-4 text-center">
-                <span class="block text-3xl font-bold text-profundo">{b.valor}</span>
-                <span class="mt-1 block text-sm text-texto-2">{b.texto}</span>
-              </div>
-            ))
-          }
+          <Tema {...tema('reglas')}>
+            <p class="objetivo"><Icon name="shield-check" class="size-5 shrink-0" />Si dudás con un cliente, volvé a estas cinco.</p>
+            <ol class="mt-4 flex flex-col gap-3">
+              {
+                reglas.map((r, k) => (
+                  <li class="flex gap-3 rounded-2xl bg-profundo p-4 text-white">
+                    <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo">{k + 1}</span>
+                    <span>
+                      <span class="block font-semibold">{r.titulo}</span>
+                      <span class="mt-1 block text-sm text-white/80">{r.texto}</span>
+                    </span>
+                  </li>
+                ))
+              }
+            </ol>
+          </Tema>
         </div>
       </section>
 
-      <!-- 2. Reglas de mostrador -->
-      <section id="reglas" class="seccion bg-profundo! text-white">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono bg-white/12! text-menta!"><Icon name={titulo('reglas').icono} class="size-6" /></span>
-          <span><span class="seccion-numero text-menta!">02</span><h2 class="text-white!">Las 5 reglas de mostrador</h2></span>
-        </header>
-        <p class="mt-2 text-white/75">Lo único que no se negocia con un cliente.</p>
-        <ol class="mt-5 flex flex-col gap-3">
-          {
-            reglas.map((r, k) => (
-              <li class="flex gap-3 rounded-2xl bg-white/8 p-4 ring-1 ring-white/10">
-                <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo">{k + 1}</span>
-                <span>
-                  <span class="block font-semibold">{r.titulo}</span>
-                  <span class="mt-1 block text-sm text-white/80">{r.texto}</span>
-                </span>
-              </li>
-            ))
-          }
-        </ol>
+      <!-- Bloque 2: El día a día -->
+      <section aria-labelledby="g-dia">
+        <p class="bloque-numero">Bloque 2</p>
+        <h2 id="g-dia" class="bloque-titulo">{grupo('dia-a-dia').titulo}</h2>
+        <p class="bloque-bajada">{grupo('dia-a-dia').bajada}</p>
+        <div class="mt-4 flex flex-col gap-3">
+          <Tema {...tema('tareas')}>
+            <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{tareasGenerales.objetivo}</p>
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+              {
+                tareasGenerales.grupos.map((g) => (
+                  <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
+                    <p class="flex items-center gap-2 font-bold text-profundo">
+                      <Icon name={g.icono} class="size-5 text-marca" />
+                      {g.titulo}
+                    </p>
+                    <ul class="mt-3 flex flex-col gap-2">
+                      {g.items.map((it) => (
+                        <li class="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5 text-[0.95rem]">
+                          <Icon name={it.icono} class="size-5 shrink-0 text-marca" />
+                          {it.titulo}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              }
+            </div>
+          </Tema>
+
+          <Tema {...tema('roles')}>
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+              {
+                roles.map((r) => (
+                  <div class="overflow-hidden rounded-2xl ring-1 ring-profundo/10">
+                    <p class="flex items-center gap-2.5 bg-arena-suave px-4 py-3 font-bold text-profundo">
+                      <span class="flex size-8 items-center justify-center rounded-full bg-white text-marca">
+                        <Icon name={r.icono} class="size-5" />
+                      </span>
+                      {r.titulo}
+                    </p>
+                    <ul class="flex flex-col bg-white px-4 py-2">
+                      {r.tareas.map((t) => (
+                        <li class="flex items-start gap-2.5 border-b border-profundo/6 py-2 text-[0.95rem] last:border-0">
+                          <span class="mt-2 size-1.5 shrink-0 rounded-full bg-marca" />
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              }
+            </div>
+          </Tema>
+
+          <Tema {...tema('cierre')}>
+            <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{cierre.objetivo}</p>
+            <p class="mt-4 text-sm font-semibold text-texto-2">Usala como lista: tocá cada paso cuando lo terminás.</p>
+            <ul class="mt-3 flex flex-col gap-2" data-cierre>
+              {
+                cierre.pasos.map((p, k) => (
+                  <li>
+                    <label class="tarea-cierre">
+                      <input type="checkbox" class="sr-only" />
+                      <span class="caja" aria-hidden="true">
+                        <Icon name="check" class="size-4" />
+                      </span>
+                      <span class="paso-icono">
+                        <Icon name={p.icono} class="size-5" />
+                      </span>
+                      <span>
+                        <strong>
+                          {k + 1}. {p.titulo}
+                        </strong>
+                        <span class="block text-sm text-texto-2">{p.texto}</span>
+                      </span>
+                    </label>
+                  </li>
+                ))
+              }
+            </ul>
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-arena-suave px-4 py-3">
+              <p class="text-sm text-profundo"><strong>Responsable:</strong> {cierre.responsable}</p>
+              <button type="button" class="text-sm font-semibold text-marca underline underline-offset-4" data-cierre-reiniciar>Empezar de nuevo</button>
+            </div>
+          </Tema>
+        </div>
       </section>
 
-      <!-- 3. Tareas generales -->
-      <section id="tareas" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('tareas').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">03</span><h2>Tareas generales</h2></span>
-        </header>
-        <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{tareasGenerales.objetivo}</p>
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          {
-            tareasGenerales.grupos.map((g) => (
+      <!-- Bloque 3: Nuestros acuerdos -->
+      <section aria-labelledby="g-acuerdos">
+        <p class="bloque-numero">Bloque 3</p>
+        <h2 id="g-acuerdos" class="bloque-titulo">{grupo('acuerdos').titulo}</h2>
+        <p class="bloque-bajada">{grupo('acuerdos').bajada}</p>
+        <div class="mt-4 flex flex-col gap-3">
+          <Tema {...tema('imagen')}>
+            <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{imagen.objetivo}</p>
+            <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {
+                imagen.items.map((it) => (
+                  <li class="rounded-2xl bg-crema p-4 text-center ring-1 ring-profundo/8">
+                    <span class="mx-auto flex size-11 items-center justify-center rounded-full bg-menta text-profundo">
+                      <Icon name={it.icono} class="size-6" />
+                    </span>
+                    <span class="mt-2 block font-bold text-profundo">{it.titulo}</span>
+                    <span class="mt-1 block text-sm text-texto-2">{it.texto}</span>
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="nota">{imagen.nota}</p>
+          </Tema>
+
+          <Tema {...tema('horarios')}>
+            <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{horarios.objetivo}</p>
+            <ol class="linea-tiempo mt-5">
+              {
+                horarios.momentos.map((m) => (
+                  <li>
+                    <span class="punto">
+                      <Icon name={m.icono} class="size-5" />
+                    </span>
+                    <span class="min-w-0">
+                      <span class="block text-sm font-bold text-marca uppercase">{m.titulo}</span>
+                      <span class="block text-xl font-bold text-profundo">{m.valor}</span>
+                      <span class="block text-sm text-texto-2">{m.texto}</span>
+                    </span>
+                  </li>
+                ))
+              }
+            </ol>
+            <p class="nota">{horarios.nota}</p>
+          </Tema>
+
+          <Tema {...tema('celular')}>
+            <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{celular.objetivo}</p>
+            <div class="mt-4 flex items-center gap-4 rounded-2xl bg-profundo p-4 text-white">
+              <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-menta text-profundo">
+                <Icon name="package" class="size-6" />
+              </span>
+              <p><strong class="block text-menta">Celulares en la caja</strong>{celular.principal}</p>
+            </div>
+            <ul class="mt-3 grid gap-3 sm:grid-cols-3">
+              {
+                celular.reglas.map((r) => (
+                  <li class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
+                    <span class="flex items-center justify-between">
+                      <Icon name={r.icono} class={`size-7 ${r.permitido ? 'text-marca' : 'text-peligro'}`} />
+                      <span class={`rounded-full px-2.5 py-1 text-xs font-bold uppercase ${r.permitido ? 'bg-menta text-profundo' : 'bg-peligro-suave text-peligro'}`}>
+                        {r.permitido ? 'Permitido' : 'Prohibido'}
+                      </span>
+                    </span>
+                    <span class="mt-3 block font-bold text-profundo">{r.titulo}</span>
+                    <span class="mt-1 block text-sm text-texto-2">{r.texto}</span>
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="nota">{celular.nota}</p>
+          </Tema>
+
+          <Tema {...tema('musica')}>
+            <p class="objetivo"><Icon name="speaker-low" class="size-5 shrink-0" />{musica.objetivo}</p>
+            <h3 class="subtitulo">Estilos sugeridos</h3>
+            <ul class="grid grid-cols-2 gap-3">
+              {
+                musica.estilos.map((e) => (
+                  <li class="rounded-2xl bg-menta-suave p-4">
+                    <Icon name={e.icono} class="size-6 text-marca" />
+                    <span class="mt-2 block font-bold text-profundo">{e.titulo}</span>
+                    <span class="block text-sm text-texto-2">{e.texto}</span>
+                  </li>
+                ))
+              }
+            </ul>
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
               <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
-                <p class="flex items-center gap-2 font-bold text-profundo">
-                  <Icon name={g.icono} class="size-5 text-marca" />
-                  {g.titulo}
-                </p>
-                <ul class="mt-3 flex flex-col gap-2">
-                  {g.items.map((it) => (
-                    <li class="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5 text-[0.95rem]">
-                      <Icon name={it.icono} class="size-5 shrink-0 text-marca" />
-                      {it.titulo}
-                    </li>
-                  ))}
-                </ul>
+                <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="spotify-logo" class="size-5 text-marca" /> Playlists recomendadas</p>
+                <ul class="mt-2 flex flex-col gap-1 text-[0.95rem]">{musica.playlists.map((p) => <li>{p}</li>)}</ul>
               </div>
-            ))
-          }
-        </div>
-      </section>
-
-      <!-- 4. Tareas por rol -->
-      <section id="roles" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('roles').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">04</span><h2>Tareas específicas por rol</h2></span>
-        </header>
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          {
-            roles.map((r) => (
-              <div class="overflow-hidden rounded-2xl ring-1 ring-profundo/10">
-                <p class="flex items-center gap-2.5 bg-arena-suave px-4 py-3 font-bold text-profundo">
-                  <span class="flex size-8 items-center justify-center rounded-full bg-white text-marca">
-                    <Icon name={r.icono} class="size-5" />
-                  </span>
-                  {r.titulo}
-                </p>
-                <ul class="flex flex-col bg-white px-4 py-2">
-                  {r.tareas.map((t) => (
-                    <li class="flex items-start gap-2.5 border-b border-profundo/6 py-2 text-[0.95rem] last:border-0">
-                      <span class="mt-2 size-1.5 shrink-0 rounded-full bg-marca" />
-                      {t}
-                    </li>
-                  ))}
-                </ul>
+              <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
+                <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="headphones" class="size-5 text-marca" /> Artistas sugeridos</p>
+                <p class="mt-2 text-[0.95rem]">{musica.artistas.join(', ')}.</p>
               </div>
-            ))
-          }
+            </div>
+          </Tema>
         </div>
       </section>
 
-      <!-- 5. Cierre del local -->
-      <section id="cierre" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('cierre').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">05</span><h2>Cierre del local</h2></span>
-        </header>
-        <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{cierre.objetivo}</p>
-        <p class="mt-4 text-sm font-semibold text-texto-2">Usalo como lista: tocá cada paso cuando lo terminás.</p>
-        <ul class="mt-3 flex flex-col gap-2" data-cierre>
-          {
-            cierre.pasos.map((p, k) => (
-              <li>
-                <label class="tarea-cierre">
-                  <input type="checkbox" class="sr-only" />
-                  <span class="caja" aria-hidden="true">
-                    <Icon name="check" class="size-4" />
-                  </span>
-                  <span class="paso-icono"><Icon name={p.icono} class="size-5" /></span>
-                  <span>
-                    <strong>{k + 1}. {p.titulo}</strong>
-                    <span class="block text-sm text-texto-2">{p.texto}</span>
-                  </span>
-                </label>
-              </li>
-            ))
-          }
-        </ul>
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-arena-suave px-4 py-3">
-          <p class="text-sm text-profundo"><strong>Responsable:</strong> {cierre.responsable}</p>
-          <button type="button" class="text-sm font-semibold text-marca underline underline-offset-4" data-cierre-reiniciar>Empezar de nuevo</button>
-        </div>
-      </section>
-
-      <!-- 6. Imagen y uniforme -->
-      <section id="imagen" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('imagen').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">06</span><h2>Imagen y uniforme</h2></span>
-        </header>
-        <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{imagen.objetivo}</p>
-        <ul class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {
-            imagen.items.map((it) => (
-              <li class="rounded-2xl bg-crema p-4 text-center ring-1 ring-profundo/8">
-                <span class="mx-auto flex size-11 items-center justify-center rounded-full bg-menta text-profundo">
-                  <Icon name={it.icono} class="size-6" />
-                </span>
-                <span class="mt-2 block font-bold text-profundo">{it.titulo}</span>
-                <span class="mt-1 block text-sm text-texto-2">{it.texto}</span>
-              </li>
-            ))
-          }
-        </ul>
-        <p class="nota">{imagen.nota}</p>
-      </section>
-
-      <!-- 7. Horarios y descansos -->
-      <section id="horarios" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('horarios').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">07</span><h2>Horarios y descansos</h2></span>
-        </header>
-        <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{horarios.objetivo}</p>
-        <ol class="linea-tiempo mt-5">
-          {
-            horarios.momentos.map((m) => (
-              <li>
-                <span class="punto"><Icon name={m.icono} class="size-5" /></span>
-                <span class="min-w-0">
-                  <span class="block text-sm font-bold text-marca uppercase">{m.titulo}</span>
-                  <span class="block text-xl font-bold text-profundo">{m.valor}</span>
-                  <span class="block text-sm text-texto-2">{m.texto}</span>
-                </span>
-              </li>
-            ))
-          }
-        </ol>
-        <p class="nota">{horarios.nota}</p>
-      </section>
-
-      <!-- 8. Uso del celular -->
-      <section id="celular" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('celular').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">08</span><h2>Uso del celular</h2></span>
-        </header>
-        <p class="objetivo"><Icon name="target" class="size-5 shrink-0" />{celular.objetivo}</p>
-        <div class="mt-5 flex items-center gap-4 rounded-2xl bg-profundo p-4 text-white">
-          <span class="flex size-12 shrink-0 items-center justify-center rounded-full bg-menta text-profundo">
-            <Icon name="package" class="size-6" />
-          </span>
-          <p><strong class="block text-menta">Celulares en la caja</strong>{celular.principal}</p>
-        </div>
-        <ul class="mt-3 grid gap-3 sm:grid-cols-3">
-          {
-            celular.reglas.map((r) => (
-              <li class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
-                <span class="flex items-center justify-between">
-                  <Icon name={r.icono} class={`size-7 ${r.permitido ? 'text-marca' : 'text-peligro'}`} />
-                  <span class={`rounded-full px-2.5 py-1 text-xs font-bold uppercase ${r.permitido ? 'bg-menta text-profundo' : 'bg-peligro-suave text-peligro'}`}>
-                    {r.permitido ? 'Permitido' : 'Prohibido'}
-                  </span>
-                </span>
-                <span class="mt-3 block font-bold text-profundo">{r.titulo}</span>
-                <span class="mt-1 block text-sm text-texto-2">{r.texto}</span>
-              </li>
-            ))
-          }
-        </ul>
-        <p class="nota">{celular.nota}</p>
-      </section>
-
-      <!-- 9. Música en el local -->
-      <section id="musica" class="seccion">
-        <header class="seccion-cabeza">
-          <span class="seccion-icono"><Icon name={titulo('musica').icono} class="size-6" /></span>
-          <span><span class="seccion-numero">09</span><h2>Música en el local</h2></span>
-        </header>
-        <p class="objetivo"><Icon name="speaker-low" class="size-5 shrink-0" />{musica.objetivo}</p>
-        <h3 class="subtitulo">Estilos sugeridos</h3>
-        <ul class="grid grid-cols-2 gap-3">
-          {
-            musica.estilos.map((e) => (
-              <li class="rounded-2xl bg-menta-suave p-4">
-                <Icon name={e.icono} class="size-6 text-marca" />
-                <span class="mt-2 block font-bold text-profundo">{e.titulo}</span>
-                <span class="block text-sm text-texto-2">{e.texto}</span>
-              </li>
-            ))
-          }
-        </ul>
-        <div class="mt-3 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
-            <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="spotify-logo" class="size-5 text-marca" /> Playlists recomendadas</p>
-            <ul class="mt-2 flex flex-col gap-1 text-[0.95rem]">{musica.playlists.map((p) => <li>{p}</li>)}</ul>
-          </div>
-          <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
-            <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="headphones" class="size-5 text-marca" /> Artistas sugeridos</p>
-            <p class="mt-2 text-[0.95rem]">{musica.artistas.join(', ')}.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Cierre del manual -->
+      <!-- Cierre y siguiente paso -->
       <section class="rounded-3xl bg-arena-suave p-6 text-center">
         <Icon name="handshake" class="mx-auto size-10 text-marca" />
         <p class="mt-3 text-lg font-bold text-profundo">Reglamento general</p>
         <p class="mx-auto mt-1 max-w-[520px] text-texto-2">{cierreManual}</p>
         <p class="mt-3 font-semibold text-marca">¡Gracias por tu colaboración y compromiso!</p>
       </section>
+
+      <section aria-labelledby="titulo-siguiente">
+        <h2 id="titulo-siguiente" class="bloque-titulo">¿Y ahora?</h2>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          <a href={url('/#gondolas')} class="flex items-center gap-4 rounded-3xl bg-profundo p-5 text-white hover:bg-profundo-2">
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-menta"><Icon name="basket" class="size-6" /></span>
+            <span>
+              <span class="block text-xs font-bold tracking-wide text-menta uppercase">Paso 2</span>
+              <span class="block text-lg font-semibold">Conocé los productos</span>
+              <span class="block text-sm text-white/75">Las góndolas de la dietética, una por una.</span>
+            </span>
+          </a>
+          <a href={url('/examen')} class="flex items-center gap-4 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-menta text-profundo"><Icon name="exam" class="size-6" /></span>
+            <span>
+              <span class="block text-xs font-bold tracking-wide text-marca uppercase">Paso 3</span>
+              <span class="block text-lg font-semibold text-profundo">Examinarme</span>
+              <span class="block text-sm text-texto-2">Comprobá lo que aprendiste.</span>
+            </span>
+          </a>
+        </div>
+      </section>
     </div>
   </main>
 </Manual>
 
 <style>
-  .seccion {
-    scroll-margin-top: 80px;
-    border-radius: 28px;
-    background: #fff;
-    padding: 20px;
-    box-shadow: 0 0 0 1px rgb(33 76 59 / 0.08), 0 20px 40px -32px rgb(33 76 59 / 0.45);
+  .bloque-numero {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-marca);
   }
-  @media (min-width: 640px) {
-    .seccion {
-      padding: 28px;
-    }
-  }
-  .seccion-cabeza {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .seccion-cabeza h2 {
-    font-size: 1.5rem;
+  .bloque-titulo {
+    margin-top: 2px;
+    font-size: 1.625rem;
     line-height: 1.2;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--color-profundo);
   }
-  .seccion-icono {
-    display: flex;
-    width: 48px;
-    height: 48px;
-    flex: none;
-    align-items: center;
-    justify-content: center;
-    border-radius: 16px;
-    background: var(--color-menta);
-    color: var(--color-profundo);
-  }
-  .seccion-numero {
-    display: block;
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--color-marca);
+  .bloque-bajada {
+    margin-top: 4px;
+    color: var(--color-texto-2);
   }
   .objetivo {
-    margin-top: 16px;
+    margin-top: 14px;
     display: flex;
     gap: 10px;
     border-radius: 16px;
@@ -372,7 +342,7 @@ const titulo = (id: string) => secciones.find((s) => s.id === id)!;
     line-height: 1.5;
   }
   .subtitulo {
-    margin: 22px 0 10px;
+    margin: 20px 0 10px;
     font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -394,7 +364,6 @@ const titulo = (id: string) => secciones.find((s) => s.id === id)!;
     gap: 8px;
   }
   .pasos li {
-    position: relative;
     display: flex;
     align-items: flex-start;
     gap: 12px;
@@ -506,16 +475,43 @@ const titulo = (id: string) => secciones.find((s) => s.id === id)!;
     background: var(--color-profundo);
     color: var(--color-menta);
   }
-  @media print {
-    .seccion {
-      box-shadow: none;
-      border: 0.75pt solid #d5ddd8;
-      break-inside: avoid;
-    }
-  }
 </style>
 
 <script>
+  import { leidas, marcarLeida } from '../scripts/leidas';
+
+  const temas = [...document.querySelectorAll<HTMLDetailsElement>('[data-tema]')];
+  const total = temas.length;
+
+  function pintar(lista: string[]) {
+    const n = temas.filter((t) => lista.includes(t.dataset.tema!)).length;
+    temas.forEach((t) => {
+      const check = t.querySelector<HTMLElement>('[data-leido]');
+      if (check) check.hidden = !lista.includes(t.dataset.tema!);
+    });
+    document.querySelector('[data-leidas-cuenta]')!.textContent = String(n);
+    document.querySelector('[data-leidas-porcentaje]')!.textContent = `${Math.round((n / total) * 100)}%`;
+    document.querySelector<HTMLElement>('[data-leidas-barra]')!.style.width = `${(n / total) * 100}%`;
+  }
+
+  // Abrir un tema lo marca como leído.
+  temas.forEach((t) =>
+    t.addEventListener('toggle', () => {
+      if (t.open) pintar(marcarLeida(t.dataset.tema!));
+    }),
+  );
+
+  // Si se llega con #tema (desde el índice o un enlace), se abre ese tema.
+  const abrirDesdeHash = () => {
+    const t = temas.find((x) => `#${x.id}` === location.hash);
+    if (!t) return;
+    t.open = true;
+    t.scrollIntoView({ block: 'start' });
+  };
+  addEventListener('hashchange', abrirDesdeHash);
+  abrirDesdeHash();
+  pintar(leidas());
+
   // La lista de cierre se recuerda en el celular hasta tocar "Empezar de nuevo".
   const CLAVE = 'lola-cierre:v1';
   const cajas = [...document.querySelectorAll<HTMLInputElement>('[data-cierre] input')];

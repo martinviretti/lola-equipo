@@ -1,7 +1,7 @@
 {
   "name": "Lola · Equipo",
   "short_name": "Lola",
-  "description": "Guía de productos del equipo de El Almacén de Lola.",
+  "description": "Intranet del equipo de El Almacén de Lola: cómo trabajamos, los productos de la dietética y el examen.",
   "lang": "es-AR",
   "start_url": "./",
   "scope": "./",

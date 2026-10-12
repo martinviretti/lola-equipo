@@ -17,10 +17,6 @@ export const atencion = {
     { icono: 'cash-register', titulo: 'Acompañá', texto: 'Acompañá al cliente a la caja y consultá si necesita algo más.' },
     { icono: 'heart', titulo: 'Despedí', texto: '“¡Muchas gracias por tu compra, que tengas un lindo día!”' },
   ] satisfies Item[],
-  beneficios: [
-    { valor: '10%', texto: 'de descuento en compras habituales' },
-    { valor: '15%', texto: 'de descuento en compras de mayor volumen' },
-  ],
 };
 
 export const tareasGenerales = {
@@ -180,15 +176,39 @@ export const musica = {
 export const cierreManual =
   'Cumplir este manual es fundamental para mantener un ambiente profesional, ordenado y armónico para todo el equipo.';
 
-/** Índice de la página, en orden. */
-export const secciones = [
-  { id: 'atencion', icono: 'hand-waving', titulo: 'Atención al cliente' },
-  { id: 'reglas', icono: 'shield-check', titulo: 'Reglas de mostrador' },
-  { id: 'tareas', icono: 'clipboard-text', titulo: 'Tareas generales' },
-  { id: 'roles', icono: 'users-three', titulo: 'Tareas por rol' },
-  { id: 'cierre', icono: 'lock-key', titulo: 'Cierre del local' },
-  { id: 'imagen', icono: 't-shirt', titulo: 'Imagen y uniforme' },
-  { id: 'horarios', icono: 'clock', titulo: 'Horarios y descansos' },
-  { id: 'celular', icono: 'device-mobile-slash', titulo: 'Uso del celular' },
-  { id: 'musica', icono: 'music-notes', titulo: 'Música en el local' },
+/** Los temas de la página, agrupados en tres bloques. */
+export const grupos = [
+  {
+    id: 'atender',
+    titulo: 'Atender',
+    bajada: 'Cómo recibimos a cada cliente y lo que nunca se negocia.',
+    secciones: [
+      { id: 'atencion', icono: 'hand-waving', titulo: 'Atención al cliente', resumen: 'Los 5 pasos con cada cliente.' },
+      { id: 'reglas', icono: 'shield-check', titulo: 'Las 5 reglas de mostrador', resumen: 'Lo que nunca se negocia con un cliente.' },
+    ],
+  },
+  {
+    id: 'dia-a-dia',
+    titulo: 'El día a día',
+    bajada: 'Cómo nos organizamos para que el local funcione.',
+    secciones: [
+      { id: 'tareas', icono: 'clipboard-text', titulo: 'Tareas generales', resumen: 'Orden, limpieza y abastecimiento.' },
+      { id: 'roles', icono: 'users-three', titulo: 'Tareas por rol', resumen: 'Qué hace cada una en el local.' },
+      { id: 'cierre', icono: 'lock-key', titulo: 'Cierre del local', resumen: 'La lista para dejar todo listo.' },
+    ],
+  },
+  {
+    id: 'acuerdos',
+    titulo: 'Nuestros acuerdos',
+    bajada: 'Lo que acordamos entre todas para trabajar bien.',
+    secciones: [
+      { id: 'imagen', icono: 't-shirt', titulo: 'Imagen y uniforme', resumen: 'Uniforme y presentación.' },
+      { id: 'horarios', icono: 'clock', titulo: 'Horarios y descansos', resumen: 'Ingreso, almuerzo, merienda y descansos.' },
+      { id: 'celular', icono: 'device-mobile-slash', titulo: 'Uso del celular', resumen: 'Cuándo se puede usar y cuándo no.' },
+      { id: 'musica', icono: 'music-notes', titulo: 'Música en el local', resumen: 'Qué poner y a qué volumen.' },
+    ],
+  },
 ];
+
+/** Todos los temas, en orden. */
+export const secciones = grupos.flatMap((g) => g.secciones);

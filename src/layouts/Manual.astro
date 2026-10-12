@@ -18,7 +18,7 @@ interface Props {
 const { title, progreso = false, impresion = false } = Astro.props;
 const titulo0 = title;
 
-const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Guía de productos | El Almacén de Lola';
+const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | El Almacén de Lola';
 ---
 
 <!doctype html>
@@ -69,11 +69,11 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Guía de productos | E
               >
                 <Icon name="list" class="size-7" />
               </button>
-              <a href={url('/')} class="flex min-w-0 items-center gap-2.5 rounded-full pr-1" aria-label="Guía de productos, inicio">
+              <a href={url('/')} class="flex min-w-0 items-center gap-2.5 rounded-full pr-1" aria-label="Intranet del equipo, inicio">
                 <Image src={logo} alt="" width={40} height={40} class="size-10 shrink-0 rounded-full" loading="eager" />
                 <span class="min-w-0 leading-tight">
                   <span class="block truncate text-[0.95rem] font-bold text-profundo">El Almacén de Lola</span>
-                  <span class="block text-xs font-medium text-texto-2">Guía del equipo</span>
+                  <span class="block text-xs font-medium text-texto-2">Intranet del equipo</span>
                 </span>
               </a>
               <a
