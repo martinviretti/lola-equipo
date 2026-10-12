@@ -18,13 +18,8 @@ const productos = actual ? (await render(actual)).headings.filter((h) => h.depth
 const principales = [
   { href: url('/'), icono: 'house', label: 'Inicio', activa: ruta === '/' },
   { href: url('/buscar'), icono: 'magnifying-glass', label: 'Buscar', activa: ruta.startsWith('/buscar') },
-  { href: url('/estudiar'), icono: 'cards', label: 'Estudiar', activa: ruta.startsWith('/estudiar') },
   { href: url('/guardados'), icono: 'bookmark-simple', label: 'Guardados', activa: ruta.startsWith('/guardados') },
-];
-const mas = [
-  { href: url('/carteles'), icono: 'storefront', label: 'Carteles para las góndolas', activa: ruta.startsWith('/carteles') },
-  { href: url('/manual'), icono: 'book-open-text', label: 'Manual completo', activa: ruta.startsWith('/manual') || ruta.startsWith('/modulos') },
-  { href: url('/guia/imprimir'), icono: 'printer', label: 'Guía para imprimir', activa: ruta === '/guia/imprimir' },
+  { href: url('/examen'), icono: 'exam', label: 'Examinarme', activa: ruta.startsWith('/examen') },
 ];
 ---
 
@@ -98,19 +93,6 @@ const mas = [
       ))
     }
 
-    <p class="menu-titulo">Más</p>
-    <ul class="mt-2 flex flex-col gap-0.5">
-      {
-        mas.map((p) => (
-          <li>
-            <a href={p.href} class="menu-item" aria-current={p.activa ? 'page' : undefined}>
-              <Icon name={p.icono} class="size-5 shrink-0" />
-              {p.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
   </nav>
 </aside>
 <div class="menu-fondo no-print lg:hidden" data-menu-cerrar aria-hidden="true"></div>

@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import { getGuia, urlCategoria } from '../data/guia';
 
 // Todas las fichas de producto de la guía (cada "### Producto" de "## Los productos"),
-// para el modo Estudiar y para Guardados. Se genera en el build.
+// para el examen y para Guardados. Se genera en el build.
 
 export interface Ficha {
   /** Identificador estable: góndola#producto. */

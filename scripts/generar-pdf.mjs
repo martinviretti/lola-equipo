@@ -1,4 +1,4 @@
-// Genera los PDF (guía, carteles y manual completo) con Chrome o Edge en modo headless.
+// Genera el PDF de la guía de productos con Chrome o Edge en modo headless.
 // Uso: npm run pdf   (hace el build, sirve dist/ en local, imprime y deja los PDF en public/ y dist/)
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, copyFileSync, statSync } from 'node:fs';
@@ -6,8 +6,6 @@ import path from 'node:path';
 
 const PDFS = [
   { ruta: '/lola-equipo/guia/imprimir', nombre: 'guia-de-productos-lola.pdf' },
-  { ruta: '/lola-equipo/carteles', nombre: 'carteles-lola.pdf' },
-  { ruta: '/lola-equipo/imprimir', nombre: 'manual-el-almacen-de-lola.pdf' },
 ];
 const PUERTO = 4329;
 
@@ -42,7 +40,7 @@ const servidor = spawn(npx, ['astro', 'preview', '--port', String(PUERTO), '--fo
 const esperar = async () => {
   for (let i = 0; i < 60; i++) {
     try {
-      const r = await fetch(`http://localhost:${PUERTO}/lola-equipo/imprimir`);
+      const r = await fetch(`http://localhost:${PUERTO}/lola-equipo/guia/imprimir`);
       if (r.ok) return;
     } catch {}
     await new Promise((r) => setTimeout(r, 500));

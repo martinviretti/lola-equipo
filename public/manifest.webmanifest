@@ -1,7 +1,7 @@
 {
   "name": "Lola · Equipo",
   "short_name": "Lola",
-  "description": "Guía de productos y manual del equipo de El Almacén de Lola.",
+  "description": "Guía de productos del equipo de El Almacén de Lola.",
   "lang": "es-AR",
   "start_url": "./",
   "scope": "./",
@@ -41,8 +41,8 @@
       ]
     },
     {
-      "name": "Estudiar",
-      "url": "./estudiar",
+      "name": "Examinarme",
+      "url": "./examen",
       "icons": [
         {
           "src": "iconos/icono-192.png",

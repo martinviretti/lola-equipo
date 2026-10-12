@@ -40,11 +40,11 @@ const pdfGuia = existsSync('public/guia-de-productos-lola.pdf');
         <ol class="mt-3 flex max-w-[640px] flex-col gap-2" data-resultados></ol>
 
         <div class="mt-6 grid max-w-[640px] gap-3 sm:grid-cols-2">
-          <a href={url('/estudiar')} class="flex items-center gap-3 rounded-2xl bg-profundo px-4 py-3 text-white hover:bg-profundo-2">
-            <Icon name="cards" class="size-7 text-menta" />
+          <a href={url('/examen')} class="flex items-center gap-3 rounded-2xl bg-profundo px-4 py-3 text-white hover:bg-profundo-2">
+            <Icon name="exam" class="size-7 text-menta" />
             <span>
-              <span class="block font-semibold">Estudiar con tarjetas</span>
-              <span class="block text-sm text-white/75" data-resumen-estudio>Repasá los productos</span>
+              <span class="block font-semibold">Examinarme</span>
+              <span class="block text-sm text-white/75" data-resumen-examen>Preguntas de opción múltiple</span>
             </span>
           </a>
           <button
@@ -130,24 +130,14 @@ const pdfGuia = existsSync('public/guia-de-productos-lola.pdf');
 
     <section class="px-5 pt-6 pb-24 lg:px-8" aria-labelledby="titulo-papel">
       <div class="mx-auto max-w-[1200px]">
-        <h2 id="titulo-papel" class="text-2xl font-bold tracking-tight text-profundo sm:text-3xl">Para imprimir y para profundizar</h2>
-        <div class="mt-5 grid gap-3 sm:grid-cols-3">
-          <a href={url(pdfGuia ? '/guia-de-productos-lola.pdf' : '/guia/imprimir')} class="rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
-            <Icon name="file-pdf" class="size-7 text-marca" />
-            <p class="mt-3 text-lg font-semibold text-profundo">La guía en PDF</p>
-            <p class="mt-1 text-sm text-texto-2">Toda esta guía para tener impresa en el local o guardada en el celular.</p>
-          </a>
-          <a href={url('/carteles')} class="rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
-            <Icon name="storefront" class="size-7 text-marca" />
-            <p class="mt-3 text-lg font-semibold text-profundo">Carteles para las góndolas</p>
-            <p class="mt-1 text-sm text-texto-2">Hojas A4 con datos curiosos para el cliente. Se imprimen, se plastifican y se pegan.</p>
-          </a>
-          <a href={url('/manual')} class="rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
-            <Icon name="book-open-text" class="size-7 text-marca" />
-            <p class="mt-3 text-lg font-semibold text-profundo">Manual completo</p>
-            <p class="mt-1 text-sm text-texto-2">La versión larga, con todo en detalle, para cuando quieras saber más.</p>
-          </a>
-        </div>
+        <h2 id="titulo-papel" class="text-2xl font-bold tracking-tight text-profundo sm:text-3xl">Para imprimir</h2>
+        <a href={url(pdfGuia ? '/guia-de-productos-lola.pdf' : '/guia/imprimir')} class="mt-5 flex max-w-[640px] items-center gap-4 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
+          <Icon name="file-pdf" class="size-8 shrink-0 text-marca" />
+          <span>
+            <span class="block text-lg font-semibold text-profundo">La guía en PDF</span>
+            <span class="mt-1 block text-sm text-texto-2">Toda la guía para tener impresa en el local o guardada en el celular.</span>
+          </span>
+        </a>
       </div>
     </section>
   </main>
@@ -155,11 +145,11 @@ const pdfGuia = existsSync('public/guia-de-productos-lola.pdf');
 
 <script>
   import { initBuscador } from '../scripts/buscador';
-  import { app, cargarFichas } from '../scripts/app';
+  import { app } from '../scripts/app';
   initBuscador();
 
   // Góndolas ya vistas
-  const { vistas, sabidas } = app.estado();
+  const { vistas, ultimoExamen } = app.estado();
   document.querySelectorAll<HTMLElement>('[data-gondola]').forEach((a) => {
     if (!vistas.includes(a.dataset.gondola!)) return;
     const tilde = a.querySelector<HTMLElement>('[data-vista]');
@@ -167,12 +157,10 @@ const pdfGuia = existsSync('public/guia-de-productos-lola.pdf');
     tilde?.classList.add('flex');
   });
 
-  // Resumen del modo estudio
-  if (sabidas.length) {
-    cargarFichas().then((f) => {
-      const el = document.querySelector('[data-resumen-estudio]');
-      if (el) el.textContent = `Sabés ${sabidas.length} de ${f.length} fichas`;
-    });
+  // Último examen
+  if (ultimoExamen) {
+    const el = document.querySelector('[data-resumen-examen]');
+    if (el) el.textContent = `Último examen: ${ultimoExamen.bien} de ${ultimoExamen.total}`;
   }
 
   // Instalar la app: Android y escritorio con el aviso del navegador; iPhone con instrucciones.

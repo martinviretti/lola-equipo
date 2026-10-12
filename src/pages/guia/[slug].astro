@@ -6,7 +6,6 @@ import Icon from '../../components/Icon.astro';
 import Tabla from '../../components/Tabla.astro';
 import ContenidoGuia from '../../components/ContenidoGuia.astro';
 import { getGuia, urlCategoria, type Categoria } from '../../data/guia';
-import { getModulos, urlModulo } from '../../data/modulos';
 
 export async function getStaticPaths() {
   const lista = await getGuia();
@@ -26,7 +25,6 @@ const { categoria, anterior, siguiente } = Astro.props;
 const { Content, headings } = await render(categoria);
 const d = categoria.data;
 const productos = headings.filter((h) => h.depth === 3);
-const modulo = d.modulo ? (await getModulos()).find((m) => m.data.numero === d.modulo) : undefined;
 ---
 
 <Manual title={d.titulo}>
@@ -61,13 +59,13 @@ const modulo = d.modulo ? (await getModulos()).find((m) => m.data.numero === d.m
       </section>
 
       <a
-        href={url(`/estudiar?gondola=${categoria.id}`)}
+        href={url(`/examen?gondola=${categoria.id}`)}
         class="no-print mt-4 flex items-center gap-3 rounded-2xl bg-profundo px-4 py-3 text-white hover:bg-profundo-2"
       >
-        <Icon name="cards" class="size-6 text-menta" />
+        <Icon name="exam" class="size-6 text-menta" />
         <span class="flex-1">
-          <span class="block font-semibold">Estudiar esta góndola</span>
-          <span class="block text-sm text-white/75">Tarjetas para repasar cada producto</span>
+          <span class="block font-semibold">Examinarme de esta góndola</span>
+          <span class="block text-sm text-white/75">Preguntas de opción múltiple sobre estos productos</span>
         </span>
         <Icon name="arrow-right" class="size-5" />
       </a>
@@ -96,19 +94,6 @@ const modulo = d.modulo ? (await getModulos()).find((m) => m.data.numero === d.m
       <div class="prosa guia mt-8" data-gondola-id={categoria.id}>
         <ContenidoGuia><Content components={{ table: Tabla }} /></ContenidoGuia>
       </div>
-
-      {
-        modulo && (
-          <a href={urlModulo(modulo)} class="no-print mt-10 flex items-center gap-4 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
-            <Icon name="book-open-text" class="size-7 shrink-0 text-marca" />
-            <span>
-              <span class="block text-sm text-texto-2">¿Querés saber más?</span>
-              <span class="block font-semibold text-profundo">Manual completo · {modulo.data.titulo}</span>
-            </span>
-            <Icon name="arrow-right" class="ml-auto size-5 text-marca" />
-          </a>
-        )
-      }
 
       <nav class="no-print mt-8 grid gap-3 sm:grid-cols-2" aria-label="Otras góndolas">
         {

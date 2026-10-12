@@ -1,20 +1,28 @@
 import { url } from '../lib/url';
 // Estado de la app guardado en el celular (localStorage): fichas guardadas,
-// góndolas vistas y fichas que la persona ya sabe en el modo Estudiar.
+// góndolas vistas y el resultado del último examen.
 const CLAVE = 'lola-app:v1';
+
+export interface ResultadoExamen {
+  bien: number;
+  total: number;
+  /** Góndola del examen ('' = todas). */
+  gondola: string;
+  fecha: string;
+}
 
 interface Estado {
   guardadas: string[];
   vistas: string[];
-  sabidas: string[];
+  ultimoExamen?: ResultadoExamen;
 }
 
 function leer(): Estado {
   try {
     const e = JSON.parse(localStorage.getItem(CLAVE) ?? '');
-    return { guardadas: e.guardadas ?? [], vistas: e.vistas ?? [], sabidas: e.sabidas ?? [] };
+    return { guardadas: e.guardadas ?? [], vistas: e.vistas ?? [], ultimoExamen: e.ultimoExamen };
   } catch {
-    return { guardadas: [], vistas: [], sabidas: [] };
+    return { guardadas: [], vistas: [] };
   }
 }
 
@@ -42,14 +50,9 @@ export const app = {
     e.vistas = alternar(e.vistas, gondolaId, true);
     guardar(e);
   },
-  marcarSabida(id: string, sabida: boolean) {
+  guardarExamen(r: ResultadoExamen) {
     const e = leer();
-    e.sabidas = alternar(e.sabidas, id, sabida);
-    guardar(e);
-  },
-  reiniciarEstudio() {
-    const e = leer();
-    e.sabidas = [];
+    e.ultimoExamen = r;
     guardar(e);
   },
 };

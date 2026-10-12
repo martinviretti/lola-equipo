@@ -1,11 +1,9 @@
 import type { APIRoute } from 'astro';
 import { render } from 'astro:content';
-import { getModulos, urlModulo, numeroModulo } from '../data/modulos';
 import { getGuia, urlCategoria } from '../data/guia';
 
-// Índice del buscador: primero la guía de productos (una entrada por producto) y después
-// el manual completo (una por sección). Se genera en el build y el navegador lo descarga
-// recién cuando se usa el buscador.
+// Índice del buscador: una entrada por producto y por sección de la guía. Se genera en el
+// build y el navegador lo descarga recién cuando se usa el buscador.
 
 interface Entrada {
   modulo: string;
@@ -63,19 +61,6 @@ export const GET: APIRoute = async () => {
         url: `${urlCategoria(c)}${b.slug ? `#${b.slug}` : ''}`,
         texto,
         guia: true,
-      });
-    }
-  }
-
-  for (const m of await getModulos()) {
-    const { headings } = await render(m);
-    const lista = bloques(m.body ?? '', headings, { titulo: m.data.titulo, texto: [m.data.resumen] });
-    for (const b of lista) {
-      entradas.push({
-        modulo: `Manual ${numeroModulo(m)} · ${m.data.titulo}`,
-        titulo: b.titulo,
-        url: `${urlModulo(m)}${b.slug ? `#${b.slug}` : ''}`,
-        texto: limpiar(b.texto.join(' ')),
       });
     }
   }

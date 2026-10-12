@@ -1,12 +1,13 @@
-# Lola · Equipo — guía de productos, carteles y manual
+# Lola · Equipo — guía de productos
 
 App web instalable (PWA) para el equipo de El Almacén de Lola.
 
 ## La app en el celular
 
 - **Instalar:** en Android, abrir el link en Chrome y tocar "Instalar la app" en el inicio (o menú ⋮ → Instalar). En iPhone, abrirlo en Safari → Compartir → Agregar a inicio. Queda el ícono de Lola y se abre a pantalla completa.
-- **Sin internet:** después de la primera visita, toda la guía, el manual, los carteles y el modo Estudiar funcionan sin conexión. Los PDF se bajan aparte.
-- **Pestañas:** Góndolas, Buscar, Estudiar (tarjetas para repasar) y Guardados (fichas marcadas con la estrella).
+- **Sin internet:** después de la primera visita, toda la guía, el buscador y el examen funcionan sin conexión. El PDF se baja aparte.
+- **Pestañas:** Inicio, Buscar, Guardados (fichas marcadas con la estrella) y Examinarme (opción múltiple armada sola con la guía: qué producto es, sus propiedades y qué responderle a un cliente). Menú lateral con todas las góndolas.
+- **Archivado, sin publicar:** el manual largo (`src/content/modulos`) y los carteles (`src/data/carteles.json`) quedaron en el repo pero ya no tienen páginas. Para volver a publicarlos, recuperar las páginas del historial de git.
 - **Lo personal** (fichas guardadas, avance de estudio, góndolas vistas) queda en el celular de cada persona.
 - **Actualizaciones:** cada `npm run build` genera un `sw.js` nuevo; la próxima vez que la persona abra la app con internet, se baja todo lo nuevo sola.
 
@@ -27,7 +28,7 @@ npm run dev      # http://localhost:4321
 ```
 
 ```powershell
-npm run pdf      # build + genera public/manual-el-almacen-de-lola.pdf (usa Chrome o Edge instalados)
+npm run pdf      # build + genera public/guia-de-productos-lola.pdf (usa Chrome o Edge instalados)
 ```
 
 El PDF se arma desde la página `/imprimir`: portada, índice, todos los módulos, las autoevaluaciones con las

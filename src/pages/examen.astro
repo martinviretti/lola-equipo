@@ -1,0 +1,463 @@
+---
+import { url } from '../lib/url';
+import Manual from '../layouts/Manual.astro';
+import Icon from '../components/Icon.astro';
+import { getGuia } from '../data/guia';
+
+const gondolas = await getGuia();
+---
+
+<Manual title="Examinarme">
+  <main id="contenido" class="px-5 pt-6 pb-16 lg:px-8 lg:pt-10">
+    <div class="mx-auto max-w-[640px]">
+      <!-- 1. Elegir el examen -->
+      <section data-pantalla="inicio">
+        <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Examinarme</h1>
+        <p class="mt-1 text-base text-texto-2">
+          Preguntas de opción múltiple armadas con la guía: qué producto es, sus propiedades y qué le respondés a un
+          cliente.
+        </p>
+
+        <div class="mt-5 hidden rounded-2xl bg-menta-suave px-4 py-3 text-sm text-profundo" data-ultimo></div>
+
+        <h2 class="mt-7 text-sm font-bold tracking-wide text-profundo uppercase">¿De qué?</h2>
+        <div class="mt-3 flex flex-wrap gap-2" data-gondolas role="radiogroup" aria-label="Góndola del examen">
+          <button type="button" class="opcion-chip" role="radio" data-gondola="">Todas las góndolas</button>
+          {
+            gondolas.map((g) => (
+              <button type="button" class="opcion-chip" role="radio" data-gondola={g.id}>
+                {g.data.titulo}
+              </button>
+            ))
+          }
+        </div>
+
+        <h2 class="mt-7 text-sm font-bold tracking-wide text-profundo uppercase">¿Cuántas preguntas?</h2>
+        <div class="mt-3 flex gap-2" data-cantidades role="radiogroup" aria-label="Cantidad de preguntas">
+          {
+            [10, 20, 30].map((n) => (
+              <button type="button" class="opcion-chip" role="radio" data-cantidad={n}>
+                {n}
+              </button>
+            ))
+          }
+        </div>
+
+        <button type="button" class="boton boton-principal mt-8 w-full" data-empezar disabled>
+          <Icon name="exam" class="size-5" /> <span data-empezar-texto>Cargando preguntas…</span>
+        </button>
+      </section>
+
+      <!-- 2. Pregunta -->
+      <section class="hidden" data-pantalla="pregunta">
+        <div class="flex items-center justify-between gap-3 text-sm">
+          <span class="font-semibold text-profundo" data-contador></span>
+          <span class="font-semibold text-marca" data-puntaje></span>
+        </div>
+        <div class="mt-2 h-2 overflow-hidden rounded-full bg-menta-suave">
+          <div class="h-full w-0 rounded-full bg-marca transition-[width] duration-500 ease-fluid" data-barra></div>
+        </div>
+
+        <div class="mt-6 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 sm:p-6">
+          <p class="text-xs font-bold tracking-wide text-marca uppercase" data-tipo></p>
+          <p class="mt-2 text-xl leading-snug font-bold text-profundo" data-enunciado></p>
+          <p class="mt-3 hidden rounded-2xl bg-crema p-4 text-[0.975rem] leading-relaxed text-texto" data-texto></p>
+        </div>
+
+        <ol class="mt-4 flex flex-col gap-3" data-opciones></ol>
+
+        <div class="mt-4 hidden rounded-2xl p-4" data-devolucion aria-live="polite">
+          <p class="font-bold" data-devolucion-titulo></p>
+          <p class="mt-1 text-sm" data-devolucion-texto></p>
+          <a class="mt-2 inline-block text-sm font-semibold text-profundo underline underline-offset-4" data-devolucion-link>Ver en la guía</a>
+        </div>
+
+        <button type="button" class="boton boton-principal mt-5 hidden w-full" data-siguiente>
+          <span data-siguiente-texto>Siguiente</span> <Icon name="arrow-right" class="size-5" />
+        </button>
+      </section>
+
+      <!-- 3. Resultado -->
+      <section class="hidden" data-pantalla="resultado">
+        <div class="rounded-3xl bg-profundo p-6 text-center text-white">
+          <Icon name="trophy" class="mx-auto size-12 text-menta" />
+          <p class="mt-3 text-5xl font-bold tabular-nums" data-resultado-numero></p>
+          <p class="mt-2 text-lg font-semibold" data-resultado-mensaje></p>
+          <p class="mt-1 text-sm text-white/75" data-resultado-detalle></p>
+        </div>
+
+        <div class="mt-6 hidden" data-errores-bloque>
+          <h2 class="text-xl font-bold text-profundo">Para repasar</h2>
+          <ul class="mt-3 flex flex-col gap-3" data-errores></ul>
+        </div>
+
+        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+          <button type="button" class="boton boton-principal" data-otra>
+            <Icon name="arrows-clockwise" class="size-5" /> Otro examen igual
+          </button>
+          <button type="button" class="boton boton-secundario" data-volver>Elegir otra góndola</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</Manual>
+
+<style>
+  .opcion-chip {
+    border-radius: 9999px;
+    background: #fff;
+    padding: 8px 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-profundo);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.14);
+  }
+  .opcion-chip[aria-checked='true'] {
+    background: var(--color-profundo);
+    color: #fff;
+  }
+  [data-empezar]:disabled {
+    opacity: 0.6;
+  }
+  :global(.respuesta) {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 12px;
+    border-radius: 18px;
+    background: #fff;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--color-texto);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.14);
+    transition:
+      background-color 200ms,
+      box-shadow 200ms;
+  }
+  :global(.respuesta:not(:disabled):hover) {
+    background: var(--color-menta-suave);
+  }
+  :global(.respuesta .letra) {
+    display: flex;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--color-profundo);
+  }
+  :global(.respuesta.correcta) {
+    background: var(--color-menta);
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  :global(.respuesta.correcta .letra) {
+    background: var(--color-profundo);
+    color: #fff;
+  }
+  :global(.respuesta.incorrecta) {
+    background: var(--color-peligro-suave);
+    box-shadow: inset 0 0 0 2px var(--color-peligro);
+  }
+  :global(.respuesta.incorrecta .letra) {
+    background: var(--color-peligro);
+    color: #fff;
+  }
+  :global(.respuesta:disabled) {
+    cursor: default;
+  }
+  :global(.respuesta:disabled:not(.correcta):not(.incorrecta)) {
+    opacity: 0.6;
+  }
+</style>
+
+<script>
+  import { url } from '../lib/url';
+  import { app, cargarFichas, type Ficha } from '../scripts/app';
+
+  interface PreguntaCliente {
+    gondolaId: string;
+    gondola: string;
+    url: string;
+    pregunta: string;
+    respuesta: string;
+  }
+  interface Pregunta {
+    tipo: string;
+    enunciado: string;
+    texto?: string;
+    opciones: string[];
+    correcta: number;
+    explicacion: string;
+    link: string;
+  }
+
+  const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
+  const pantallas = [...document.querySelectorAll<HTMLElement>('[data-pantalla]')];
+  const mostrar = (nombre: string) => {
+    pantallas.forEach((p) => p.classList.toggle('hidden', p.dataset.pantalla !== nombre));
+    scrollTo({ top: 0 });
+  };
+
+  // ---------- Utilidades ----------
+  const mezclar = <T,>(a: T[]) => a.map((v) => [Math.random(), v] as const).sort((x, y) => x[0] - y[0]).map(([, v]) => v);
+  const azar = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
+  const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  /** Tapa el nombre del producto en el texto para que la pregunta no se responda sola. */
+  function taparNombre(texto: string, titulo: string) {
+    const raices = norm(titulo)
+      .split(/[^a-zñ0-9]+/)
+      .filter((p) => p.length >= 4)
+      .map((p) => p.slice(0, Math.max(4, p.length - 2)));
+    if (!raices.length) return texto;
+    return texto.replace(/[\p{L}\p{N}]+/gu, (pal) => (raices.some((r) => norm(pal).startsWith(r)) ? '______' : pal));
+  }
+
+  /** Elige 3 distractores distintos de la respuesta correcta y arma las opciones mezcladas. */
+  function armarOpciones(correcta: string, candidatos: string[]) {
+    const otros = mezclar([...new Set(candidatos.filter((c) => norm(c) !== norm(correcta)))]).slice(0, 3);
+    if (otros.length < 3) return null;
+    const opciones = mezclar([correcta, ...otros]);
+    return { opciones, correcta: opciones.indexOf(correcta) };
+  }
+
+  // ---------- Generadores de preguntas ----------
+  const parrafo = (f: Ficha) => f.lineas.find((l) => !l.etiqueta)?.texto ?? '';
+  const propiedades = (f: Ficha) => f.lineas.find((l) => l.etiqueta === 'Propiedades')?.texto ?? '';
+
+  function quéProducto(f: Ficha, pool: Ficha[]): Pregunta | null {
+    const texto = parrafo(f);
+    if (texto.length < 60) return null;
+    const o = armarOpciones(f.titulo, pool.filter((x) => x.gondolaId === f.gondolaId).map((x) => x.titulo));
+    if (!o) return null;
+    return {
+      tipo: `¿Qué producto es? · ${f.gondola}`,
+      enunciado: 'Leé la descripción y elegí de qué producto se trata.',
+      texto: taparNombre(texto, f.titulo),
+      ...o,
+      explicacion: `Es ${f.titulo}.`,
+      link: f.url,
+    };
+  }
+
+  function quéPropiedades(f: Ficha, pool: Ficha[]): Pregunta | null {
+    const texto = propiedades(f);
+    if (texto.length < 40) return null;
+    const o = armarOpciones(f.titulo, pool.filter((x) => x.gondolaId === f.gondolaId).map((x) => x.titulo));
+    if (!o) return null;
+    return {
+      tipo: `Propiedades · ${f.gondola}`,
+      enunciado: '¿De qué producto son estas propiedades?',
+      texto: taparNombre(texto, f.titulo),
+      ...o,
+      explicacion: `Son las de ${f.titulo}: ${texto}`,
+      link: f.url,
+    };
+  }
+
+  function quéRespondés(p: PreguntaCliente, pool: PreguntaCliente[]): Pregunta | null {
+    const o = armarOpciones(p.respuesta, pool.filter((x) => x.gondolaId === p.gondolaId).map((x) => x.respuesta));
+    if (!o) return null;
+    return {
+      tipo: `En el mostrador · ${p.gondola}`,
+      enunciado: `Un cliente te pregunta: “${p.pregunta}” ¿Qué le respondés?`,
+      ...o,
+      explicacion: p.respuesta,
+      link: p.url,
+    };
+  }
+
+  function armarExamen(cantidad: number, gondola: string, fichas: Ficha[], clientes: PreguntaCliente[]) {
+    const misFichas = mezclar(fichas.filter((f) => !gondola || f.gondolaId === gondola));
+    const misClientes = mezclar(clientes.filter((p) => !gondola || p.gondolaId === gondola));
+    const tipos = ['producto', 'producto', 'propiedades', 'propiedades', 'cliente'];
+    const usadas = new Set<string>();
+    const examen: Pregunta[] = [];
+
+    for (let intentos = 0; examen.length < cantidad && intentos < cantidad * 20; intentos++) {
+      const tipo = azar(tipos);
+      let p: Pregunta | null = null;
+      if (tipo === 'cliente') {
+        const c = misClientes.find((x) => !usadas.has(`c:${x.pregunta}`));
+        if (c) {
+          usadas.add(`c:${c.pregunta}`);
+          p = quéRespondés(c, clientes);
+        }
+      } else {
+        const f = misFichas.find((x) => !usadas.has(`${tipo}:${x.id}`) && !usadas.has(`f:${x.id}`));
+        if (f) {
+          usadas.add(`${tipo}:${f.id}`);
+          usadas.add(`f:${f.id}`);
+          p = tipo === 'producto' ? quéProducto(f, fichas) : quéPropiedades(f, fichas);
+        }
+      }
+      if (p) examen.push(p);
+    }
+    return examen;
+  }
+
+  // ---------- Pantalla de inicio ----------
+  const params = new URLSearchParams(location.search);
+  let gondola = params.get('gondola') ?? '';
+  let cantidad = 10;
+  const chipsGondola = [...document.querySelectorAll<HTMLButtonElement>('[data-gondolas] button')];
+  const chipsCantidad = [...document.querySelectorAll<HTMLButtonElement>('[data-cantidades] button')];
+  if (!chipsGondola.some((b) => b.dataset.gondola === gondola)) gondola = '';
+
+  const pintarChips = () => {
+    chipsGondola.forEach((b) => b.setAttribute('aria-checked', String(b.dataset.gondola === gondola)));
+    chipsCantidad.forEach((b) => b.setAttribute('aria-checked', String(Number(b.dataset.cantidad) === cantidad)));
+  };
+  chipsGondola.forEach((b) => b.addEventListener('click', () => ((gondola = b.dataset.gondola ?? ''), pintarChips())));
+  chipsCantidad.forEach((b) => b.addEventListener('click', () => ((cantidad = Number(b.dataset.cantidad)), pintarChips())));
+  pintarChips();
+
+  const pintarUltimo = () => {
+    const u = app.estado().ultimoExamen;
+    const el = $('[data-ultimo]');
+    if (!u) return;
+    const nombre = u.gondola ? chipsGondola.find((b) => b.dataset.gondola === u.gondola)?.textContent?.trim() : 'todas las góndolas';
+    el.textContent = `Tu último examen (${nombre}): ${u.bien} de ${u.total} bien.`;
+    el.classList.remove('hidden');
+  };
+  pintarUltimo();
+
+  // ---------- Examen ----------
+  let fichas: Ficha[] = [];
+  let clientes: PreguntaCliente[] = [];
+  let examen: Pregunta[] = [];
+  let i = 0;
+  let bien = 0;
+  let errores: Pregunta[] = [];
+
+  function pintarPregunta() {
+    const p = examen[i];
+    $('[data-contador]').textContent = `Pregunta ${i + 1} de ${examen.length}`;
+    $('[data-puntaje]').textContent = `${bien} bien`;
+    $('[data-barra]').style.width = `${(i / examen.length) * 100}%`;
+    $('[data-tipo]').textContent = p.tipo;
+    $('[data-enunciado]').textContent = p.enunciado;
+    const texto = $('[data-texto]');
+    texto.textContent = p.texto ?? '';
+    texto.classList.toggle('hidden', !p.texto);
+    $('[data-devolucion]').classList.add('hidden');
+    $('[data-siguiente]').classList.add('hidden');
+
+    const lista = $('[data-opciones]');
+    lista.replaceChildren(
+      ...p.opciones.map((op, k) => {
+        const li = document.createElement('li');
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'respuesta';
+        const letra = document.createElement('span');
+        letra.className = 'letra';
+        letra.textContent = 'ABCD'[k];
+        const t = document.createElement('span');
+        t.textContent = op;
+        b.append(letra, t);
+        b.addEventListener('click', () => responder(k));
+        li.append(b);
+        return li;
+      }),
+    );
+  }
+
+  function responder(k: number) {
+    const p = examen[i];
+    const botones = [...document.querySelectorAll<HTMLButtonElement>('[data-opciones] .respuesta')];
+    botones.forEach((b) => (b.disabled = true));
+    botones[p.correcta].classList.add('correcta');
+    const acerto = k === p.correcta;
+    if (acerto) bien++;
+    else {
+      botones[k].classList.add('incorrecta');
+      errores.push(p);
+    }
+    $('[data-puntaje]').textContent = `${bien} bien`;
+
+    const dev = $('[data-devolucion]');
+    dev.classList.remove('hidden');
+    dev.className = `mt-4 rounded-2xl p-4 ${acerto ? 'bg-menta-suave text-profundo' : 'bg-peligro-suave text-texto'}`;
+    $('[data-devolucion-titulo]').textContent = acerto ? '¡Bien!' : 'No era esa.';
+    $('[data-devolucion-texto]').textContent = acerto ? p.explicacion : `La correcta es la ${'ABCD'[p.correcta]}. ${p.explicacion}`;
+    $<HTMLAnchorElement>('[data-devolucion-link]').href = p.link;
+    const sig = $('[data-siguiente]');
+    sig.classList.remove('hidden');
+    $('[data-siguiente-texto]').textContent = i + 1 < examen.length ? 'Siguiente' : 'Ver el resultado';
+    sig.focus({ preventScroll: true });
+  }
+
+  function terminar() {
+    const total = examen.length;
+    const pct = bien / total;
+    app.guardarExamen({ bien, total, gondola, fecha: new Date().toISOString() });
+    $('[data-resultado-numero]').textContent = `${bien}/${total}`;
+    $('[data-resultado-mensaje]').textContent =
+      pct === 1 ? '¡Perfecto! Sabés todo.' : pct >= 0.8 ? '¡Muy bien! Ya estás para el mostrador.' : pct >= 0.5 ? 'Bien, vas por buen camino.' : 'Hay que repasar un poco más.';
+    $('[data-resultado-detalle]').textContent = errores.length ? `Te equivocaste en ${errores.length}. Abajo tenés qué repasar.` : 'No te equivocaste en ninguna.';
+    $('[data-errores-bloque]').classList.toggle('hidden', !errores.length);
+    $('[data-errores]').replaceChildren(
+      ...errores.map((p) => {
+        const li = document.createElement('li');
+        li.className = 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10';
+        const tipo = document.createElement('span');
+        tipo.className = 'block text-xs font-bold tracking-wide text-marca uppercase';
+        tipo.textContent = p.tipo;
+        const enun = document.createElement('span');
+        enun.className = 'mt-1 block font-semibold text-profundo';
+        enun.textContent = p.enunciado;
+        const resp = document.createElement('span');
+        resp.className = 'mt-1 block text-sm text-texto';
+        resp.textContent = `Respuesta: ${p.opciones[p.correcta]}`;
+        const a = document.createElement('a');
+        a.href = p.link;
+        a.className = 'mt-2 inline-block text-sm font-semibold text-profundo underline underline-offset-4';
+        a.textContent = 'Ver en la guía';
+        li.append(tipo, enun, resp, a);
+        return li;
+      }),
+    );
+    pintarUltimo();
+    mostrar('resultado');
+  }
+
+  function empezar() {
+    examen = armarExamen(cantidad, gondola, fichas, clientes);
+    if (!examen.length) return;
+    i = 0;
+    bien = 0;
+    errores = [];
+    pintarPregunta();
+    mostrar('pregunta');
+  }
+
+  $('[data-siguiente]').addEventListener('click', () => {
+    i++;
+    if (i < examen.length) {
+      pintarPregunta();
+      scrollTo({ top: 0, behavior: 'smooth' });
+    } else terminar();
+  });
+  $('[data-empezar]').addEventListener('click', empezar);
+  $('[data-otra]').addEventListener('click', empezar);
+  $('[data-volver]').addEventListener('click', () => mostrar('inicio'));
+
+  Promise.all([cargarFichas(), fetch(url('/preguntas.json')).then((r) => r.json())])
+    .then(([f, c]) => {
+      fichas = f;
+      clientes = c;
+      const b = $<HTMLButtonElement>('[data-empezar]');
+      b.disabled = false;
+      $('[data-empezar-texto]').textContent = 'Empezar el examen';
+    })
+    .catch(() => {
+      $('[data-empezar-texto]').textContent = 'No se pudieron cargar las preguntas. Probá de nuevo.';
+    });
+</script>

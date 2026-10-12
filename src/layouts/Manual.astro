@@ -1,5 +1,5 @@
 ---
-import { url, sinBase } from '../lib/url';
+import { url } from '../lib/url';
 import '../styles/global.css';
 import { Image } from 'astro:assets';
 import logo from '../assets/logo-lola-circulo.png';
@@ -18,13 +18,6 @@ interface Props {
 const { title, progreso = false, impresion = false } = Astro.props;
 const titulo0 = title;
 
-const ruta = sinBase(Astro.url.pathname);
-const actual = ruta.startsWith('/carteles') ? 'carteles' : ruta.startsWith('/manual') || ruta.startsWith('/modulos') || ruta === '/imprimir' ? 'manual' : 'guia';
-const secciones = [
-  { id: 'guia', href: url('/'), label: 'Guía' },
-  { id: 'carteles', href: url('/carteles'), label: 'Carteles' },
-  { id: 'manual', href: url('/manual'), label: 'Manual' },
-];
 const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Guía de productos | El Almacén de Lola';
 ---
 
@@ -83,20 +76,9 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Guía de productos | E
                   <span class="block text-xs font-medium text-texto-2">Guía del equipo</span>
                 </span>
               </a>
-              <nav class="ml-auto hidden items-center gap-1 lg:flex" aria-label="Secciones">
-                {secciones.map((s) => (
-                  <a
-                    href={s.href}
-                    aria-current={actual === s.id ? 'page' : undefined}
-                    class="rounded-full px-3 py-2 text-sm font-semibold text-texto-2 hover:bg-menta-suave hover:text-profundo aria-[current=page]:bg-menta-suave aria-[current=page]:text-profundo"
-                  >
-                    {s.label}
-                  </a>
-                ))}
-              </nav>
               <a
                 href={url('/buscar')}
-                class="ml-auto flex size-11 shrink-0 items-center justify-center rounded-full text-profundo hover:bg-menta-suave lg:ml-0"
+                class="ml-auto flex size-11 shrink-0 items-center justify-center rounded-full text-profundo hover:bg-menta-suave"
                 aria-label="Buscar"
               >
                 <Icon name="magnifying-glass" class="size-6" />
