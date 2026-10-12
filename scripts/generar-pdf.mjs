@@ -8,6 +8,9 @@ const PDFS = [
   { ruta: '/lola-equipo/guia/imprimir', nombre: 'guia-de-productos-lola.pdf' },
 ];
 const PUERTO = 4329;
+// El navegador que imprime no tiene sesión: el build para imprimir se arma sin login.
+// (No afecta al sitio publicado: GitHub arma el suyo.)
+process.env.PUBLIC_SIN_LOGIN = '1';
 
 const navegadores = [
   'C:/Program Files/Google/Chrome/Application/chrome.exe',
@@ -38,7 +41,7 @@ const servidor = spawn(npx, ['astro', 'preview', '--port', String(PUERTO), '--fo
 });
 
 const esperar = async () => {
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 240; i++) {
     try {
       const r = await fetch(`http://localhost:${PUERTO}/lola-equipo/guia/imprimir`);
       if (r.ok) return;
