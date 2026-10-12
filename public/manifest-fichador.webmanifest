@@ -2,7 +2,7 @@
   "id": "./fichador",
   "name": "Lola · Fichador",
   "short_name": "Fichador",
-  "description": "Fichador del equipo de El Almacén de Lola: entrada y salida con la cara o el código del celular.",
+  "description": "Fichador del equipo de La Almacén de Lola: entrada y salida con la cara o el código del celular.",
   "lang": "es-AR",
   "start_url": "./fichador",
   "scope": "./",
