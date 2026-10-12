@@ -3,8 +3,6 @@
 
 /** Porcentaje mínimo para aprobar cualquier nivel. */
 export const APRUEBA = 80;
-/** Preguntas clave (seguridad) que trae cada examen: errar una es no aprobar. */
-export const CRITICAS_POR_EXAMEN = 3;
 
 export const NIVELES = [
   {

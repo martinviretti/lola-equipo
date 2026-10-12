@@ -1,7 +1,7 @@
 ---
 // Examen del equipo en 3 niveles (diseño en DISENO-EXAMEN.md). Las preguntas están escritas a
-// mano en src/data/examen/<tema>.json, cada una con su "nivel" (1, 2 o 3) y "critica" si es de
-// seguridad (reglas en EXAMEN-BANCO.md).
+// mano en src/data/examen/<tema>.json, cada una con su "nivel" (1, 2 o 3); reglas en
+// EXAMEN-BANCO.md. Se aprueba solo por porcentaje (APRUEBA).
 import { Image } from 'astro:assets';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
@@ -68,10 +68,6 @@ const banco = Object.values(archivos)
           }
         </ol>
 
-        <p class="mt-6 rounded-2xl bg-arena-suave p-4 text-sm text-texto">
-          <strong class="text-profundo">Preguntas clave:</strong> cada examen trae 3 preguntas de seguridad (sin TACC, alergias, no
-          prometer curas). Si te equivocás en una, no aprobás aunque tengas buena nota: ese error le hace daño a un cliente.
-        </p>
       </section>
 
       <!-- 2. Pregunta -->
@@ -87,7 +83,6 @@ const banco = Object.values(archivos)
         <div class="mt-6 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 sm:p-6">
           <p class="flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide uppercase">
             <span class="rounded-full bg-profundo px-2.5 py-1 text-white" data-formato></span>
-            <span class="hidden rounded-full bg-ambar-suave px-2.5 py-1 text-ambar" data-clave>Pregunta clave</span>
             <span class="text-marca" data-tema></span>
           </p>
           <p class="mt-3 text-xl leading-snug font-bold text-profundo" data-enunciado></p>
@@ -114,7 +109,6 @@ const banco = Object.values(archivos)
           <p class="mt-3 text-base" data-resultado-detalle></p>
         </div>
 
-        <p class="mt-4 hidden rounded-2xl bg-peligro-suave p-4 text-[0.95rem] text-texto" data-aviso-critica></p>
 
         <h2 class="mt-7 text-xl font-bold text-profundo">Cómo te fue en cada tema</h2>
         <ul class="mt-3 flex flex-col gap-2" data-por-tema></ul>
@@ -339,7 +333,7 @@ const banco = Object.values(archivos)
 <script>
   import { url } from '../lib/url';
   import { app, type Nivel } from '../scripts/app';
-  import { NIVELES, APRUEBA, CRITICAS_POR_EXAMEN, TEMAS } from '../data/niveles';
+  import { NIVELES, APRUEBA, TEMAS } from '../data/niveles';
 
   type Tipo = 'opcion' | 'situacion' | 'vf' | 'unir';
   interface Pregunta {
@@ -347,7 +341,6 @@ const banco = Object.values(archivos)
     tema: string;
     nivel: Nivel;
     tipo: Tipo;
-    critica?: boolean;
     pregunta: string;
     opciones?: string[];
     correcta?: number | boolean;
@@ -366,11 +359,6 @@ const banco = Object.values(archivos)
   const banco: Pregunta[] = JSON.parse(document.getElementById('banco-examen')!.textContent!);
   const temas = TEMAS.filter((t) => banco.some((p) => p.tema === t));
   const datosNivel = (n: Nivel) => NIVELES.find((x) => x.numero === n)!;
-  /**
-   * Las preguntas clave del examen en curso: las CRITICAS_POR_EXAMEN que se sortean primero.
-   * Solo esas deciden el aprobado; el resto de las preguntas de seguridad cuentan como cualquier otra.
-   */
-  let claves = new Set<string>();
 
   const $ = <T extends HTMLElement>(s: string, raiz: ParentNode = document) => raiz.querySelector<T>(s)!;
   const $$ = <T extends HTMLElement>(s: string) => [...document.querySelectorAll<T>(s)];
@@ -391,8 +379,8 @@ const banco = Object.values(archivos)
 
   // ---------- Armado del examen ----------
   /**
-   * Sortea el examen de un nivel: primero las preguntas clave, después al menos una de cada tema
-   * y el resto respetando la mezcla de formatos. Prioriza las que no salieron en el intento anterior.
+   * Sortea el examen de un nivel: al menos una pregunta de cada tema y el resto respetando la
+   * mezcla de formatos. Prioriza las que no salieron en el intento anterior.
    */
   function armarExamen(n: Nivel): Pregunta[] {
     const conf = datosNivel(n);
@@ -422,29 +410,14 @@ const banco = Object.values(archivos)
       return base.find((p) => cupos[p.tipo] > 0) ?? base[0];
     };
 
-    // 1. Preguntas clave, de temas distintos (si no alcanzan, de los niveles anteriores).
-    const criticas = orden(pool.filter((p) => p.critica && p.tipo !== 'unir'));
-    for (const p of criticas) {
-      if (elegidas.length >= CRITICAS_POR_EXAMEN) break;
-      if (!elegidas.some((x) => x.tema === p.tema)) tomar(p);
-    }
-    for (const p of [...criticas, ...orden(banco.filter((x) => x.critica && x.nivel < n && x.tipo !== 'unir'))]) {
-      if (elegidas.length >= CRITICAS_POR_EXAMEN) break;
-      if (!elegidas.includes(p)) {
-        elegidas.push(p);
-        cupos[p.tipo]--;
-        pool = pool.filter((x) => x.id !== p.id);
-      }
-    }
-    claves = new Set(elegidas.map((p) => p.id));
-    // 2. Al menos una de cada tema.
+    // 1. Al menos una de cada tema.
     for (const t of mezclar(temas)) {
       if (elegidas.length >= conf.preguntas) break;
       if (elegidas.some((p) => p.tema === t)) continue;
       const cand = orden(pool.filter((p) => p.tema === t));
       if (cand.length) tomar(conCupo(cand));
     }
-    // 3. El resto, respetando la mezcla de formatos mientras se pueda.
+    // 2. El resto, respetando la mezcla de formatos mientras se pueda.
     while (elegidas.length < conf.preguntas && pool.length) tomar(conCupo(orden(pool)));
     return mezclar(elegidas);
   }
@@ -480,7 +453,7 @@ const banco = Object.values(archivos)
       } else if (v.intentos) {
         estado.classList.add('pendiente');
         estado.textContent = 'No aprobado todavía';
-        detalle.textContent = `Tu mejor nota: ${v.mejor}%. Necesitás ${APRUEBA}% y no errar las preguntas clave.`;
+        detalle.textContent = `Tu mejor nota: ${v.mejor}%. Necesitás ${APRUEBA}% para aprobar.`;
         detalle.classList.remove('hidden');
         texto.textContent = 'Volver a intentar';
       } else {
@@ -591,7 +564,6 @@ const banco = Object.values(archivos)
     $('[data-contador]').textContent = `${practica ? 'Repaso' : `Nivel ${nivel} · ${datosNivel(nivel).nombre}`} · Pregunta ${i + 1} de ${examen.length}`;
     $('[data-barra]').style.width = `${(i / examen.length) * 100}%`;
     $('[data-formato]').textContent = FORMATOS[p.tipo];
-    $('[data-clave]').classList.toggle('hidden', !claves.has(p.id));
     $('[data-tema]').textContent = p.tema;
     $('[data-enunciado]').textContent = p.pregunta;
     $('[data-devolucion]').classList.add('hidden');
@@ -609,7 +581,6 @@ const banco = Object.values(archivos)
     if (soloErrores) {
       const ids = new Set(app.nivel(n).errores);
       examen = mezclar(banco.filter((p) => ids.has(p.id)));
-      claves = new Set();
     } else {
       examen = armarExamen(n);
     }
@@ -624,8 +595,7 @@ const banco = Object.values(archivos)
     const total = examen.length;
     const bien = resultados.filter(Boolean).length;
     const nota = Math.round((bien / total) * 100);
-    const criticasMal = examen.filter((p, k) => claves.has(p.id) && !resultados[k]);
-    const aprobado = !practica && nota >= APRUEBA && !criticasMal.length;
+    const aprobado = !practica && nota >= APRUEBA;
     const conf = datosNivel(nivel);
     const v = practica
       ? app.nivel(nivel)
@@ -653,17 +623,8 @@ const banco = Object.values(archivos)
       sello.className = 'mt-2 inline-block rounded-full bg-peligro-suave px-4 py-1.5 text-sm font-extrabold tracking-wide text-peligro';
       sello.textContent = 'NO APROBADO';
     }
-    $('[data-resultado-detalle]').textContent = practica
-      ? `${bien} de ${total} bien.`
-      : criticasMal.length
-        ? `${bien} de ${total} bien, pero te equivocaste en una pregunta clave. Mirá abajo cuál fue.`
-        : `${bien} de ${total} bien. Necesitabas ${APRUEBA}%.`;
+    $('[data-resultado-detalle]').textContent = `${bien} de ${total} bien.${practica ? '' : ` Se aprueba con ${APRUEBA}%.`}`;
 
-    const aviso = $('[data-aviso-critica]');
-    aviso.classList.toggle('hidden', practica || !criticasMal.length);
-    aviso.textContent = `Te equivocaste en ${criticasMal.length === 1 ? 'una pregunta clave' : `${criticasMal.length} preguntas clave`} (${[
-      ...new Set(criticasMal.map((p) => p.tema)),
-    ].join(', ')}). Esas hay que saberlas sí o sí: por eso no aprobaste${nota >= APRUEBA ? ', aunque la nota alcanzaba' : ''}.`;
 
     // Por tema
     $('[data-por-tema]').replaceChildren(
@@ -693,7 +654,7 @@ const banco = Object.values(archivos)
     $('[data-errores]').replaceChildren(
       ...errores.map((p) => {
         const li = el('li', 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10');
-        li.append(el('span', 'block text-xs font-bold tracking-wide text-marca uppercase', `${p.tema}${claves.has(p.id) ? ' · pregunta clave' : ''}`), el('span', 'mt-1 block font-semibold text-profundo', p.pregunta));
+        li.append(el('span', 'block text-xs font-bold tracking-wide text-marca uppercase', p.tema), el('span', 'mt-1 block font-semibold text-profundo', p.pregunta));
         let respuesta = '';
         if (p.tipo === 'vf') respuesta = p.correcta ? 'Verdadero.' : 'Falso.';
         else if (p.tipo === 'unir') respuesta = p.pares!.map((x) => `${x.a}: ${x.b}`).join(' · ');
