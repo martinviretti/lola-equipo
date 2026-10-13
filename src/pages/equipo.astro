@@ -6,6 +6,7 @@ import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
 import DatosGuia from '../components/DatosGuia.astro';
+import ErrorCarga from '../components/ErrorCarga.astro';
 ---
 
 <Manual title="Panel de admin · Gestión de equipo">
@@ -14,7 +15,7 @@ import DatosGuia from '../components/DatosGuia.astro';
       <PestanasAdmin activa="equipo" />
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
-        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
+        <Icon name="lock-key" class="mx-auto size-10 text-marca-texto" />
         <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
         <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
       </div>
@@ -22,11 +23,12 @@ import DatosGuia from '../components/DatosGuia.astro';
       <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
         <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando el equipo…
       </p>
+      <ErrorCarga />
 
       <div class="hidden" data-panel>
         <!-- Sumar a alguien -->
         <section class="tarjeta mt-6" id="sumar">
-          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca" /> Sumar a alguien</h2>
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca-texto" /> Sumar a alguien</h2>
           <p class="tarjeta-sub">Con su mail de Google (Gmail). Puede entrar apenas la agregás. Después, registrá su cara en el fichador del local.</p>
           <form class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_auto_auto_auto]" data-agregar>
             <label class="sr-only" for="nuevo-email">Mail de Google</label>
@@ -201,7 +203,7 @@ import DatosGuia from '../components/DatosGuia.astro';
 
 <script>
   import { supabase } from '../lib/supabase';
-  import { sesionLista } from '../scripts/sesion';
+  import { arrancarPanel } from '../scripts/admin/arranque';
   import { diaClave, duracion } from '../lib/fichador';
   import { cargarAprendizaje, leerInfoGuia, porUsuario, type DatosAprendizaje } from '../scripts/admin/aprendizaje-datos';
   import {
@@ -223,6 +225,7 @@ import DatosGuia from '../components/DatosGuia.astro';
   } from '../scripts/admin/comun';
   import { url } from '../lib/url';
   import { confirmar } from '../scripts/admin/confirmar';
+  import { avisar } from '../scripts/aviso';
 
   interface Cara {
     email: string;
@@ -268,7 +271,7 @@ import DatosGuia from '../components/DatosGuia.astro';
   /** Avisa si algo falló (nada falla en silencio). */
   async function accion(p: PromiseLike<{ error: unknown }>, texto = 'No se pudo guardar. Revisá la conexión y probá de nuevo.') {
     const { error } = await p;
-    if (error) alert(texto);
+    if (error) avisar(texto, { ms: 6000 });
     return !error;
   }
 
@@ -368,14 +371,14 @@ import DatosGuia from '../components/DatosGuia.astro';
       fila.append(img);
     }
     const txt = el('div', 'min-w-0 flex-1 text-sm');
-    txt.append(el('p', `font-semibold ${registrada ? 'text-marca' : 'text-ambar'}`, registrada ? `Registrada el ${fmt.format(new Date(registrada.creada_el))}` : 'Todavía no tiene la cara registrada'));
+    txt.append(el('p', `font-semibold ${registrada ? 'text-marca-texto' : 'text-ambar'}`, registrada ? `Registrada el ${fmt.format(new Date(registrada.creada_el))}` : 'Todavía no tiene la cara registrada'));
     if (registrada?.parecida_a) txt.append(el('p', 'text-xs text-ambar', `Se registró aunque se parece a ${registrada.parecida_a} (se confirmó que es otra persona)`));
     const codigo = el('p', 'mt-2 hidden rounded-xl bg-crema px-4 py-3 text-center');
     const acciones = el('div', 'mt-2 flex flex-wrap gap-2');
     acciones.append(
       boton(registrada ? 'Volver a registrar' : 'Generar código', registrada ? 'boton-secundario' : 'boton-principal', async () => {
         const { data, error } = await supabase!.rpc('crear_codigo_cara', { p_email: p.email });
-        if (error) return alert('No se pudo generar el código.');
+        if (error) return avisar('No se pudo generar el código. Revisá la conexión y probá de nuevo.', { ms: 6000 });
         codigo.classList.remove('hidden');
         codigo.replaceChildren(
           el('span', 'block text-xs font-semibold text-texto-2', 'Código para el fichador del local (vale 15 minutos):'),
@@ -418,7 +421,7 @@ import DatosGuia from '../components/DatosGuia.astro';
       linea.append(el('span', 'font-semibold text-profundo', `Esta semana: ${duracion(ms)} de ${horasTexto(horas)}`), el('span', `font-semibold ${a.clase}`, a.texto));
       semana.append(linea, barra);
     } else semana.append(el('p', 'font-semibold text-profundo', `Esta semana: ${duracion(ms)}`));
-    const ver = el('a', 'mt-1 inline-block text-sm font-semibold text-marca underline underline-offset-4', 'Ver sus días en Horarios y fichajes');
+    const ver = el('a', 'mt-1 inline-block tap-area text-sm font-semibold text-marca-texto underline underline-offset-4', 'Ver sus días en Horarios y fichajes');
     ver.href = `${url('/fichadas')}#resumen`;
     semana.append(ver);
     b.append(semana);
@@ -463,7 +466,7 @@ import DatosGuia from '../components/DatosGuia.astro';
     verFijo();
 
     const pie = el('div', 'mt-4 flex items-center gap-3');
-    const guardar = el('button', 'boton boton-principal !py-2 !text-sm', 'Guardar');
+    const guardar = el('button', 'boton boton-principal tap !py-2 !text-sm', 'Guardar');
     guardar.type = 'submit';
     const aviso = el('span', 'text-sm font-semibold');
     pie.append(guardar, aviso);
@@ -506,7 +509,7 @@ import DatosGuia from '../components/DatosGuia.astro';
       const ok = its.some((x) => x.nivel === n.numero && x.aprobado);
       fila.append(el('span', `marca ${ok ? 'marca-verde' : 'marca-gris'}`, `Nivel ${n.numero}${ok ? ' ✓' : ''}`));
     }
-    const ver = el('a', 'text-sm font-semibold text-marca underline underline-offset-4', 'Ver su avance');
+    const ver = el('a', 'tap-area text-sm font-semibold text-marca-texto underline underline-offset-4', 'Ver su avance');
     ver.href = `${url('/aprendizaje')}#persona/${encodeURIComponent(p.email)}`;
     fila.append(ver);
     b.append(fila);
@@ -543,15 +546,14 @@ import DatosGuia from '../components/DatosGuia.astro';
     );
   }
 
-  async function refrescar() {
-    try {
+  const refrescar = arrancarPanel({
+    cargar: async () => {
       await cargar();
       pintar();
-    } catch {
-      alert('No se pudieron cargar los datos. Revisá la conexión.');
-    }
-  }
-  $('[data-recargar]').addEventListener('click', () => void refrescar());
+    },
+    alEntrar: (acceso) => (miEmail = acceso.email),
+    alMostrar: () => irAlEnlace(),
+  });
 
   // ---------- Sumar a alguien ----------
   $<HTMLFormElement>('[data-agregar]').addEventListener('submit', async (e) => {
@@ -576,7 +578,7 @@ import DatosGuia from '../components/DatosGuia.astro';
       estado.textContent = (error as { code?: string }).code === '23505' ? 'Ese mail ya está en el equipo (si está dado de baja, reactivalo abajo, en Dadas de baja).' : 'No se pudo agregar. Revisá el mail y la conexión.';
       return;
     }
-    estado.className = 'mt-3 text-sm font-semibold text-marca';
+    estado.className = 'mt-3 text-sm font-semibold text-marca-texto';
     estado.textContent = `Listo: ${email} ya puede entrar con Google. Falta registrar su cara en el fichador del local.`;
     f.reset();
     await refrescar();
@@ -596,17 +598,4 @@ import DatosGuia from '../components/DatosGuia.astro';
     li.querySelector('details')!.open = true;
     requestAnimationFrame(() => li.scrollIntoView({ block: 'start' }));
   }
-
-  sesionLista.then(async (acceso) => {
-    if (!acceso || acceso.rol !== 'admin' || !supabase) {
-      $('[data-cargando]').classList.add('hidden');
-      $('[data-sin-permiso]').classList.remove('hidden');
-      return;
-    }
-    miEmail = acceso.email;
-    await refrescar();
-    $('[data-cargando]').classList.add('hidden');
-    $('[data-panel]').classList.remove('hidden');
-    irAlEnlace();
-  });
 </script>

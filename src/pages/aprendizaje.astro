@@ -7,6 +7,7 @@ import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
 import DatosGuia from '../components/DatosGuia.astro';
+import ErrorCarga from '../components/ErrorCarga.astro';
 ---
 
 <Manual title="Panel de admin · Aprendizaje">
@@ -15,7 +16,7 @@ import DatosGuia from '../components/DatosGuia.astro';
       <PestanasAdmin activa="aprendizaje" />
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
-        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
+        <Icon name="lock-key" class="mx-auto size-10 text-marca-texto" />
         <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
         <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
       </div>
@@ -23,6 +24,7 @@ import DatosGuia from '../components/DatosGuia.astro';
       <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
         <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando el avance…
       </p>
+      <ErrorCarga />
 
       <div class="hidden" data-panel>
         <!-- Números principales -->
@@ -289,7 +291,7 @@ import DatosGuia from '../components/DatosGuia.astro';
 <script>
   import { cargarAprendizaje, eventos as todosLosEventos, leerInfoGuia, porUsuario, type DatosAprendizaje, type Evento } from '../scripts/admin/aprendizaje-datos';
   import { hace, nombreDe, type Persona } from '../scripts/admin/comun';
-  import { sesionLista } from '../scripts/sesion';
+  import { arrancarPanel } from '../scripts/admin/arranque';
 
   type Autorizado = Persona;
   type Datos = DatosAprendizaje;
@@ -423,7 +425,7 @@ import DatosGuia from '../components/DatosGuia.astro';
     });
     if (filas.length <= VISIBLES) return grilla;
     const caja = el('div');
-    const ver = el('button', 'boton boton-secundario mt-4 !py-2 !text-sm', `Ver las ${filas.length}`);
+    const ver = el('button', 'boton boton-secundario mt-4 tap !py-2 !text-sm', `Ver las ${filas.length}`);
     ver.type = 'button';
     ver.setAttribute('aria-expanded', 'false');
     ver.addEventListener('click', () => {
@@ -580,7 +582,7 @@ import DatosGuia from '../components/DatosGuia.astro';
         const x = gs.find((y) => y.gondola === gd.id);
         const estado = x?.completada_el ? `Completada · ${x.quiz_mejor}/${x.quiz_total}` : x?.quiz_intentos ? `Repaso ${x.quiz_mejor}/${x.quiz_total}` : x?.vista_el ? 'Leída' : 'Sin abrir';
         const r = el('li', `flex justify-between gap-2 rounded-xl bg-white px-3 py-2 text-sm`);
-        r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca' : 'text-texto-2'}`, estado));
+        r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca-texto' : 'text-texto-2'}`, estado));
         listaG.append(r);
       }
       cuerpo.append(plegable('Cada góndola', listaG));
@@ -601,15 +603,6 @@ import DatosGuia from '../components/DatosGuia.astro';
   }
 
   // ---------- Arranque ----------
-  async function refrescar() {
-    try {
-      pintar(await cargarAprendizaje());
-    } catch {
-      alert('No se pudieron cargar los datos. Revisá la conexión.');
-    }
-  }
-  $('[data-recargar]').addEventListener('click', () => void refrescar());
-
   /** Desde la ficha de una persona (Gestión de equipo): #persona/mail abre su avance. */
   function abrirPersona() {
     const [que, email] = location.hash.slice(1).split('/').map(decodeURIComponent);
@@ -620,15 +613,5 @@ import DatosGuia from '../components/DatosGuia.astro';
     requestAnimationFrame(() => det.scrollIntoView({ block: 'start' }));
   }
 
-  sesionLista.then(async (acceso) => {
-    if (!acceso || acceso.rol !== 'admin') {
-      $('[data-cargando]').classList.add('hidden');
-      $('[data-sin-permiso]').classList.remove('hidden');
-      return;
-    }
-    await refrescar();
-    $('[data-cargando]').classList.add('hidden');
-    $('[data-panel]').classList.remove('hidden');
-    abrirPersona();
-  });
+  arrancarPanel({ cargar: async () => pintar(await cargarAprendizaje()), alMostrar: abrirPersona });
 </script>

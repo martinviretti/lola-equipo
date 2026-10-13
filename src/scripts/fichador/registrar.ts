@@ -190,7 +190,7 @@ async function pintarPersonas() {
       b.append(nombre);
       if (conCara.has(p.email)) {
         const ya = document.createElement('span');
-        ya.className = 'text-xs font-semibold text-marca';
+        ya.className = 'text-xs font-semibold text-marca-texto';
         ya.textContent = 'Ya tiene cara';
         b.append(ya);
       }

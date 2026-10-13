@@ -2,6 +2,7 @@
 // cuentas de horas (tramos de entrada y salida, carga horaria).
 import { supabase } from '../../lib/supabase';
 import { diaClave, duracion, hora, tramos, type Fichada } from '../../lib/fichador';
+import { traerTodo } from '../../lib/paginar';
 
 // ---------- Tipos ----------
 export interface Persona {
@@ -47,7 +48,7 @@ export const el = <K extends keyof HTMLElementTagNameMap>(tag: K, clase = '', te
   return e;
 };
 export const boton = (texto: string, clase: string, accion: () => void) => {
-  const b = el('button', `boton !py-1.5 !px-3 !text-sm ${clase}`, texto);
+  const b = el('button', `boton tap !py-1.5 !px-3 !text-sm ${clase}`, texto);
   b.type = 'button';
   b.addEventListener('click', accion);
   return b;
@@ -62,14 +63,7 @@ export async function q<T>(p: PromiseLike<{ data: T | null; error: unknown }>): 
 }
 
 /** Supabase devuelve como mucho 1000 filas por pedido: se piden de a 1000 hasta traer todo. */
-export async function todas<T>(armar: (desde: number, hasta: number) => PromiseLike<{ data: T[] | null; error: unknown }>): Promise<T[]> {
-  const filas: T[] = [];
-  for (let desde = 0; ; desde += 1000) {
-    const parte = await q<T[]>(armar(desde, desde + 999));
-    filas.push(...parte);
-    if (parte.length < 1000) return filas;
-  }
-}
+export const todas = traerTodo;
 
 export const cargarPersonas = () => q<Persona[]>(supabase!.from('autorizados').select('*').order('nombre'));
 
@@ -103,9 +97,9 @@ export const horasTexto = (h: number) => (Number.isInteger(h) ? `${h} h` : durac
 /** Cuánto lleva contra su carga horaria de la semana. */
 export function avanceCarga(ms: number, horas: number, semanaActual: boolean) {
   const falta = horas * 3600000 - ms;
-  if (Math.abs(falta) < 5 * 60000) return { texto: 'Cumplió', clase: 'text-marca' };
+  if (Math.abs(falta) < 5 * 60000) return { texto: 'Cumplió', clase: 'text-marca-texto' };
   if (falta > 0) return { texto: `${semanaActual ? 'Faltan' : 'Faltaron'} ${duracion(falta)}`, clase: semanaActual ? 'text-texto-2' : 'text-ambar' };
-  return { texto: `${duracion(-falta)} de más`, clase: 'text-marca' };
+  return { texto: `${duracion(-falta)} de más`, clase: 'text-marca-texto' };
 }
 
 /** Las que fichan: activas, empleadas o con cara registrada o carga horaria (la encargada también puede fichar). */

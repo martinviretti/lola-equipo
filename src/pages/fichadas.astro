@@ -10,6 +10,7 @@ import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
 import VistasPanel from '../components/VistasPanel.astro';
+import ErrorCarga from '../components/ErrorCarga.astro';
 import { url } from '../lib/url';
 
 const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
@@ -28,7 +29,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       />
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
-        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
+        <Icon name="lock-key" class="mx-auto size-10 text-marca-texto" />
         <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
         <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
       </div>
@@ -36,6 +37,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
         <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando las fichadas…
       </p>
+      <ErrorCarga />
 
       <div class="hidden" data-panel>
         <!-- ==================== RESUMEN: para mirar rápido ==================== -->
@@ -47,8 +49,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
               <strong>Para empezar:</strong> activá la compu y el celular del local (en <strong>Aparatos y ajustes</strong>) y registrá las caras y la carga horaria de cada una (en
               <strong>Gestión de equipo</strong>).
             </p>
-            <button type="button" class="boton boton-secundario !py-2 !text-sm" data-ir-config>Aparatos y ajustes</button>
-            <a href={url('/equipo')} class="boton boton-secundario !py-2 !text-sm">Gestión de equipo</a>
+            <button type="button" class="boton boton-secundario tap !py-2 !text-sm" data-ir-config>Aparatos y ajustes</button>
+            <a href={url('/equipo')} class="boton boton-secundario tap !py-2 !text-sm">Gestión de equipo</a>
           </div>
           </div>
 
@@ -56,7 +58,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
           <section class="tarjeta mt-5">
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h2 class="seccion-titulo"><Icon name="clock" class="size-6 text-marca" /> Hoy</h2>
+              <h2 class="seccion-titulo"><Icon name="clock" class="size-6 text-marca-texto" /> Hoy</h2>
               <span class="text-sm font-semibold text-texto-2 first-letter:uppercase" data-hoy-fecha></span>
               <span class="ml-auto flex items-center gap-3 text-xs text-texto-2">
                 <span class="flex items-center gap-1.5"><i class="leyenda-tramo"></i> Trabajó</span>
@@ -68,11 +70,11 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
           <section class="tarjeta mt-5">
             <div class="flex flex-wrap items-center gap-2">
-              <h2 class="seccion-titulo mr-auto"><Icon name="calendar-blank" class="size-6 text-marca" /> Semana</h2>
+              <h2 class="seccion-titulo mr-auto"><Icon name="calendar-blank" class="size-6 text-marca-texto" /> Semana</h2>
               <button type="button" class="boton-icono" aria-label="Semana anterior" data-semana="-1"><Icon name="caret-left" class="size-5" /></button>
               <span class="min-w-[10rem] text-center text-sm font-semibold text-profundo" data-semana-texto></span>
               <button type="button" class="boton-icono" aria-label="Semana siguiente" data-semana="1"><Icon name="caret-right" class="size-5" /></button>
-              <button type="button" class="boton boton-secundario !px-3 !py-1.5 !text-sm" data-semana="0">Esta semana</button>
+              <button type="button" class="boton boton-secundario !px-3 tap !py-1.5 !text-sm" data-semana="0">Esta semana</button>
             </div>
             <p class="mt-1 text-sm text-texto-2">Horas de cada día y el total contra la carga horaria. Tocá un día para verlo y corregirlo en <strong>Día a día</strong>.</p>
             <div class="planilla-caja mt-4" data-planilla></div>
@@ -98,7 +100,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
             <button type="button" class="boton-icono" aria-label="Día anterior" data-dia-mover="-1"><Icon name="caret-left" class="size-5" /></button>
             <h2 class="min-w-[13rem] text-center text-xl font-bold text-profundo first-letter:uppercase" data-dia-texto></h2>
             <button type="button" class="boton-icono" aria-label="Día siguiente" data-dia-mover="1"><Icon name="caret-right" class="size-5" /></button>
-            <button type="button" class="boton boton-secundario !px-3 !py-1.5 !text-sm" data-dia-hoy>Hoy</button>
+            <button type="button" class="boton boton-secundario !px-3 tap !py-1.5 !text-sm" data-dia-hoy>Hoy</button>
             <label class="ml-auto flex items-center gap-2 text-sm font-semibold text-texto-2"
               >Ir a
               <input type="date" class="campo !w-auto !py-1.5 !text-sm" data-dia-fecha />
@@ -116,7 +118,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         <section data-vista="config" hidden>
           <details class="tarjeta mt-6" data-como open>
             <summary class="flex cursor-pointer list-none items-center gap-2">
-              <Icon name="lightbulb" class="size-6 text-marca" />
+              <Icon name="lightbulb" class="size-6 text-marca-texto" />
               <span class="tarjeta-titulo flex-1">Cómo funciona el fichaje</span>
               <Icon name="caret-down" class="size-5 text-texto-2" />
             </summary>
@@ -139,7 +141,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
 
           <section class="tarjeta mt-5">
-            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="desktop" class="size-6 text-marca" /> Aparatos que fichan</h2>
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="desktop" class="size-6 text-marca-texto" /> Aparatos que fichan</h2>
             <p class="tarjeta-sub">
               La compu y el celular del local. Para sumar uno: en ese aparato abrí <a class="enlace" href={linkFichador} target="_blank" rel="noopener">{linkFichador.replace('https://', '')}</a>, instalalo como app y
               tocá <strong>Activar con mi cuenta de admin</strong>.
@@ -149,7 +151,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
 
           <section class="tarjeta mt-5">
-            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="gear-six" class="size-6 text-marca" /> Ajustes del reconocimiento</h2>
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="gear-six" class="size-6 text-marca-texto" /> Ajustes del reconocimiento</h2>
             <form class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]" data-ajustes>
               <label class="text-sm font-semibold text-profundo"
                 >Exigencia del reconocimiento
@@ -192,6 +194,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         </div>
         <button type="button" class="boton-icono" aria-label="Cerrar" data-detalle-cerrar><Icon name="x" class="size-6" /></button>
       </div>
+      <p class="mt-4 hidden rounded-2xl bg-peligro/10 px-4 py-3 text-sm font-semibold text-peligro" role="alert" data-detalle-error></p>
       <ul class="mt-4 flex flex-col gap-3" data-detalle-lista></ul>
       <form class="mt-5 rounded-2xl bg-crema p-4" data-agregar-fichada>
         <p class="font-semibold text-profundo">Agregar una fichada que faltó</p>
@@ -202,7 +205,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           </select>
           <input class="campo" type="time" name="hora" required aria-label="Hora" />
           <input class="campo col-span-2 sm:col-span-1" name="nota" required placeholder="Por qué (ej.: se olvidó de fichar)" aria-label="Motivo" />
-          <button type="submit" class="boton boton-principal col-span-2 !py-2 sm:col-span-1">Agregar</button>
+          <button type="submit" class="boton boton-principal col-span-2 tap !py-2 sm:col-span-1">Agregar</button>
         </div>
       </form>
     </div>
@@ -276,8 +279,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
   .boton-icono {
     display: inline-flex;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     flex: none;
     align-items: center;
     justify-content: center;
@@ -361,7 +364,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
   .pasos li::marker {
     font-weight: 700;
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   :global(.barra-carga) {
     height: 8px;
@@ -421,6 +424,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     gap: 2px 10px;
   }
   :global(.linea-fila) {
+    min-height: 44px;
     grid-template-areas: 'nombre pista' '. texto';
     align-items: center;
     border-radius: 12px;
@@ -501,7 +505,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
   :global(.linea-texto.adentro) {
     font-weight: 700;
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   :global(.linea-apagado) {
     font-weight: 500;
@@ -546,7 +550,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     color: var(--color-texto-2);
   }
   :global(.planilla th.es-hoy) {
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   :global(.planilla thead .col-nombre) {
     width: 120px;
@@ -662,7 +666,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     background: var(--color-menta-suave);
   }
   :global(.dia-tira.es-hoy) {
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   :global(.dia-tira.elegido) {
     background: var(--color-profundo);
@@ -714,9 +718,12 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
 <script>
   import { supabase } from '../lib/supabase';
-  import { sesionLista } from '../scripts/sesion';
+  import { arrancarPanel } from '../scripts/admin/arranque';
   import { irAVista, parametrosVista } from '../scripts/vistas';
   import { confirmar } from '../scripts/admin/confirmar';
+  import { avisar } from '../scripts/aviso';
+  // Supabase devuelve como mucho 1000 filas por pedido: traerTodo las pide de a 1000 hasta traer todo.
+  import { traerTodo as todas } from '../lib/paginar';
   import { hora, diaClave, diaLargo, duracion, tramos, type Fichada, type Tramo } from '../lib/fichador';
 
   // ---------- Tipos ----------
@@ -784,7 +791,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     return e;
   };
   const boton = (texto: string, clase: string, accion: () => void) => {
-    const b = el('button', `boton !py-1.5 !px-3 !text-sm ${clase}`, texto);
+    const b = el('button', `boton tap !py-1.5 !px-3 !text-sm ${clase}`, texto);
     b.type = 'button';
     b.addEventListener('click', accion);
     return b;
@@ -818,23 +825,23 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     return data as T;
   }
 
-  /** Supabase devuelve como mucho 1000 filas por pedido: se piden de a 1000 hasta traer todo. */
-  async function todas<T>(armar: (desde: number, hasta: number) => PromiseLike<{ data: T[] | null; error: unknown }>): Promise<T[]> {
-    const filas: T[] = [];
-    for (let desde = 0; ; desde += 1000) {
-      const parte = await q<T[]>(armar(desde, desde + 999));
-      filas.push(...parte);
-      if (parte.length < 1000) return filas;
-    }
-  }
 
   const LIMITE_DIA = 'Ese día ya tiene 2 entradas y 2 salidas, que es el máximo (horario cortado). Si una está mal, anulala primero.';
   const esLimite = (error: unknown) => /limite_dia/.test((error as { message?: string } | null)?.message ?? '');
 
+  /** Avisa algo que salió mal. Con el detalle abierto va adentro del detalle (el diálogo tapa los avisos de abajo). */
+  function avisarError(texto: string) {
+    if (dialogo.open) {
+      const e = $('[data-detalle-error]');
+      e.textContent = texto;
+      e.classList.remove('hidden');
+    } else avisar(texto, { ms: 6000 });
+  }
+
   /** Ejecuta un cambio y avisa si falló (nada falla en silencio). */
   async function accion(p: PromiseLike<{ error: unknown }>, texto = 'No se pudo guardar. Revisá la conexión y probá de nuevo.') {
     const { error } = await p;
-    if (error) alert(esLimite(error) ? LIMITE_DIA : texto);
+    if (error) avisarError(esLimite(error) ? LIMITE_DIA : texto);
     return !error;
   }
 
@@ -1044,7 +1051,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     const tipo = el('select', 'campo !w-auto !py-1.5 !text-sm');
     tipo.setAttribute('aria-label', 'Entrada o salida');
     tipo.append(Object.assign(el('option', '', 'Entrada'), { value: 'entrada' }), Object.assign(el('option', '', 'Salida'), { value: 'salida' }));
-    const asignar = el('button', 'boton boton-principal !py-1.5 !px-3 !text-sm', 'Asignar');
+    const asignar = el('button', 'boton boton-principal tap !py-1.5 !px-3 !text-sm', 'Asignar');
     asignar.type = 'submit';
     form.append(
       quien,
@@ -1109,9 +1116,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   /** Cuánto lleva contra su carga horaria de la semana. */
   function avanceCarga(ms: number, horas: number, semanaActual: boolean) {
     const falta = horas * 3600000 - ms;
-    if (Math.abs(falta) < 5 * 60000) return { texto: 'Cumplió', clase: 'text-marca' };
+    if (Math.abs(falta) < 5 * 60000) return { texto: 'Cumplió', clase: 'text-marca-texto' };
     if (falta > 0) return { texto: `${semanaActual ? 'Faltan' : 'Faltaron'} ${duracion(falta)}`, clase: semanaActual ? 'text-texto-2' : 'text-ambar' };
-    return { texto: `${duracion(-falta)} de más`, clase: 'text-marca' };
+    return { texto: `${duracion(-falta)} de más`, clase: 'text-marca-texto' };
   }
 
   /** Cómo está un día de una persona: para la celda de la planilla y la fila del Día a día. */
@@ -1347,6 +1354,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   const dialogo = $<HTMLDialogElement>('[data-detalle]');
   let detalle: { email: string; dia: string } | null = null;
   $('[data-detalle-cerrar]').addEventListener('click', () => dialogo.close());
+  dialogo.addEventListener('close', () => $('[data-detalle-error]').classList.add('hidden'));
   dialogo.addEventListener('click', (e) => e.target === dialogo && dialogo.close());
 
   const METODO: Record<string, string> = { cara: 'Con la cara', codigo: 'Con el código del celular', manual: 'Cargada a mano' };
@@ -1359,8 +1367,13 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         supabase!.from('fichadas').select(COLUMNAS).eq('email', email).gte('hora', inicioDia(dia)).lt('hora', inicioDia(sumarDias(dia, 1))).order('hora').order('id'),
       );
     } catch {
-      return alert('No se pudieron cargar las fichadas. Revisá la conexión.');
+      if (dialogo.open) return avisarError('No se pudieron traer las fichadas de este día. Revisá la conexión.');
+      return avisar('No se pudieron traer las fichadas de ese día. Revisá la conexión.', {
+        accion: { texto: 'Reintentar', alTocar: () => void abrirDetalle(email, dia, tipo) },
+        ms: 8000,
+      });
     }
+    $('[data-detalle-error]').classList.add('hidden');
     $('[data-detalle-titulo]').textContent = nombreDe(email);
     $('[data-detalle-sub]').textContent = diaLargo(`${dia}T12:00:00-03:00`);
     const lista = $('[data-detalle-lista]');
@@ -1388,7 +1401,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           input.type = 'time';
           input.value = hora(f.hora);
           input.setAttribute('aria-label', 'Hora corregida');
-          const guardar = el('button', 'boton boton-secundario !py-1.5 !px-3 !text-sm', 'Corregir hora');
+          const guardar = el('button', 'boton boton-secundario tap !py-1.5 !px-3 !text-sm', 'Corregir hora');
           guardar.type = 'submit';
           corregir.append(input, guardar);
           corregir.addEventListener('submit', async (e) => {
@@ -1453,7 +1466,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       p_hora: new Date(`${detalle.dia}T${d.get('hora')}:00-03:00`).toISOString(),
       p_nota: String(d.get('nota') ?? ''),
     });
-    if (error) return alert(esLimite(error) ? LIMITE_DIA : 'No se pudo agregar. Revisá la conexión.');
+    if (error) return avisarError(esLimite(error) ? LIMITE_DIA : 'No se pudo agregar. Revisá la conexión y probá de nuevo.');
     f.reset();
     await refrescar();
     abrirDetalle(detalle.email, detalle.dia);
@@ -1503,11 +1516,11 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     const d = new FormData(e.target as HTMLFormElement);
     const nuevos = { similitud_min: Number(d.get('similitud_min')), parpadeo: d.get('parpadeo') === 'on', tolerancia_min: Math.max(0, Math.min(60, Number(d.get('tolerancia_min')) || 0)) };
     const { error } = await supabase!.from('ajustes_fichador').update(nuevos).eq('id', 1);
-    if (error) return alert('No se pudieron guardar los ajustes.');
+    if (error) return avisar('No se pudieron guardar los ajustes. Revisá la conexión y probá de nuevo.', { ms: 6000 });
     ajustes = { ...ajustes, ...nuevos };
     pintarPlanilla();
     pintarDia();
-    alert('Ajustes guardados.');
+    avisar('Ajustes guardados.');
   });
 
   // ---------- Cómo funciona: abierto hasta que la admin lo cierra ----------
@@ -1517,31 +1530,18 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   como.addEventListener('toggle', () => localStorage.setItem(CLAVE_COMO, como.open ? 'abierto' : 'cerrado'));
 
   // ---------- Arranque ----------
-  async function refrescar() {
-    try {
-      await cargarTodo();
-    } catch {
-      alert('No se pudieron cargar los datos. Revisá la conexión.');
-    }
-  }
-  $('[data-recargar]').addEventListener('click', () => void refrescar());
-
-  sesionLista.then(async (acceso) => {
-    if (!acceso || acceso.rol !== 'admin' || !supabase) {
-      $('[data-cargando]').classList.add('hidden');
-      $('[data-sin-permiso]').classList.remove('hidden');
-      return;
-    }
-    await refrescar();
-    $('[data-cargando]').classList.add('hidden');
-    $('[data-panel]').classList.remove('hidden');
-    // Desde un pendiente de Inicio: #dia/AAAA-MM-DD/mail abre ese día con la persona marcada.
-    const [dia, email] = parametrosVista();
-    if (location.hash.startsWith('#dia/') && /^\d{4}-\d{2}-\d{2}$/.test(dia ?? '')) void irADia(dia, email);
-    setInterval(() => {
-      if (document.visibilityState !== 'visible' || dialogo.open) return;
-      void pintarHoy();
-      if (diaVista === diaClave(new Date())) void cargarDia();
-    }, 60000);
+  const refrescar = arrancarPanel({
+    cargar: cargarTodo,
+    alMostrar: () => {
+      // Desde un pendiente de Inicio: #dia/AAAA-MM-DD/mail abre ese día con la persona marcada.
+      const [dia, email] = parametrosVista();
+      if (location.hash.startsWith('#dia/') && /^\d{4}-\d{2}-\d{2}$/.test(dia ?? '')) void irADia(dia, email);
+      // Cada minuto, lo de hoy; si justo se cortó internet, no molesta con un aviso (prueba en el siguiente).
+      setInterval(() => {
+        if (document.visibilityState !== 'visible' || dialogo.open) return;
+        pintarHoy().catch(() => {});
+        if (diaVista === diaClave(new Date())) cargarDia().catch(() => {});
+      }, 60000);
+    },
   });
 </script>

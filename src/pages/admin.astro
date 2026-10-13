@@ -8,6 +8,7 @@ import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
 import DatosGuia from '../components/DatosGuia.astro';
+import ErrorCarga from '../components/ErrorCarga.astro';
 import { url } from '../lib/url';
 ---
 
@@ -17,7 +18,7 @@ import { url } from '../lib/url';
       <PestanasAdmin activa="inicio" />
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
-        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
+        <Icon name="lock-key" class="mx-auto size-10 text-marca-texto" />
         <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
         <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
       </div>
@@ -25,6 +26,7 @@ import { url } from '../lib/url';
       <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
         <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando…
       </p>
+      <ErrorCarga />
 
       <div class="hidden" data-panel>
         <p class="mt-6 text-sm font-semibold text-texto-2 first-letter:uppercase" data-hoy-fecha></p>
@@ -32,7 +34,7 @@ import { url } from '../lib/url';
 
         <!-- Pendientes -->
         <section class="tarjeta mt-5">
-          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="list-checks" class="size-6 text-marca" /> Pendientes</h2>
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="list-checks" class="size-6 text-marca-texto" /> Pendientes</h2>
           <p class="tarjeta-sub">Lo que conviene resolver. Cada uno tiene un botón que te lleva directo.</p>
           <ul class="mt-3 flex flex-col" data-pendientes></ul>
         </section>
@@ -40,32 +42,32 @@ import { url } from '../lib/url';
         <div class="mt-5 grid gap-5 lg:grid-cols-2">
           <!-- Hoy en el local -->
           <section class="tarjeta">
-            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="storefront" class="size-6 text-marca" /> Hoy en el local</h2>
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="storefront" class="size-6 text-marca-texto" /> Hoy en el local</h2>
             <p class="tarjeta-sub">Quién está ahora y quién ya se fue.</p>
             <ul class="mt-3 flex flex-col gap-2" data-hoy></ul>
-            <a href={`${url('/fichadas')}#resumen`} class="mt-3 inline-block text-sm font-semibold text-marca underline underline-offset-4">Ver el día y la semana</a>
+            <a href={`${url('/fichadas')}#resumen`} class="mt-3 inline-block tap-area text-sm font-semibold text-marca-texto underline underline-offset-4">Ver el día y la semana</a>
           </section>
 
           <!-- Aprendizaje -->
           <section class="tarjeta">
-            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="book-open-text" class="size-6 text-marca" /> Aprendizaje</h2>
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="book-open-text" class="size-6 text-marca-texto" /> Aprendizaje</h2>
             <p class="tarjeta-sub">Cómo viene el equipo con la guía.</p>
             <div class="mt-3 grid grid-cols-3 gap-2" data-aprendizaje></div>
-            <a href={url('/aprendizaje')} class="mt-3 inline-block text-sm font-semibold text-marca underline underline-offset-4">Ver el avance de cada una</a>
+            <a href={url('/aprendizaje')} class="mt-3 inline-block tap-area text-sm font-semibold text-marca-texto underline underline-offset-4">Ver el avance de cada una</a>
           </section>
         </div>
 
         <!-- Atajos -->
         <section class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <a href={`${url('/equipo')}#sumar`} class="atajo"><Icon name="plus-square" class="size-6 text-marca" /> Sumar a alguien</a>
-          <a href={`${url('/fichadas')}#resumen`} class="atajo"><Icon name="calendar-blank" class="size-6 text-marca" /> Ver la semana</a>
-          <a href={`${url('/fichadas')}#dia`} class="atajo"><Icon name="clock" class="size-6 text-marca" /> Corregir un día</a>
-          <a href={url('/equipo')} class="atajo"><Icon name="users-three" class="size-6 text-marca" /> Ver el equipo</a>
+          <a href={`${url('/equipo')}#sumar`} class="atajo"><Icon name="plus-square" class="size-6 text-marca-texto" /> Sumar a alguien</a>
+          <a href={`${url('/fichadas')}#resumen`} class="atajo"><Icon name="calendar-blank" class="size-6 text-marca-texto" /> Ver la semana</a>
+          <a href={`${url('/fichadas')}#dia`} class="atajo"><Icon name="clock" class="size-6 text-marca-texto" /> Corregir un día</a>
+          <a href={url('/equipo')} class="atajo"><Icon name="users-three" class="size-6 text-marca-texto" /> Ver el equipo</a>
         </section>
 
         <!-- Descargar todo (al final: es para trabajar la información aparte) -->
         <section class="mt-10 rounded-3xl bg-crema p-5 ring-1 ring-profundo/10">
-          <h2 class="flex items-center gap-2 font-bold text-profundo"><Icon name="download-simple" class="size-5 text-marca" /> Descargar todo en Excel</h2>
+          <h2 class="flex items-center gap-2 font-bold text-profundo"><Icon name="download-simple" class="size-5 text-marca-texto" /> Descargar todo en Excel</h2>
           <p class="mt-1 text-sm text-texto-2">
             Un solo archivo con toda la información, en hojas: las horas y cada fichada del mes que elijas, el equipo, y el avance y la actividad en la guía.
           </p>
@@ -184,7 +186,8 @@ import { url } from '../lib/url';
 
 <script>
   import { supabase } from '../lib/supabase';
-  import { sesionLista } from '../scripts/sesion';
+  import { arrancarPanel } from '../scripts/admin/arranque';
+  import { avisar } from '../scripts/aviso';
   import { diaClave, diaLargo, duracion, hora } from '../lib/fichador';
   import { url } from '../lib/url';
   import { cargarAprendizaje, leerInfoGuia, type DatosAprendizaje } from '../scripts/admin/aprendizaje-datos';
@@ -285,13 +288,13 @@ import { url } from '../lib/url';
     lista.replaceChildren(
       ...pendientes.map((x) => {
         const li = el('li', 'pendiente');
-        const a = el('a', 'boton boton-secundario !py-1.5 !px-3 !text-sm', x.boton);
+        const a = el('a', 'boton boton-secundario tap !py-1.5 !px-3 !text-sm', x.boton);
         a.href = x.href;
         li.append(el('span', `pendiente-punto${x.suave ? ' suave' : ''}`), el('span', 'min-w-0 flex-1 text-sm font-semibold text-profundo first-letter:uppercase', x.texto), a);
         return li;
       }),
     );
-    if (!pendientes.length) lista.append(el('li', 'py-2 text-sm font-semibold text-marca', 'Todo en orden: no hay nada pendiente.'));
+    if (!pendientes.length) lista.append(el('li', 'py-2 text-sm font-semibold text-marca-texto', 'Todo en orden: no hay nada pendiente.'));
 
     // ---------- Hoy en el local ----------
     const porPersona = [...vinieron].map((email) => {
@@ -336,14 +339,6 @@ import { url } from '../lib/url';
     );
   }
 
-  async function refrescar() {
-    try {
-      pintar(await cargar());
-    } catch {
-      alert('No se pudieron cargar los datos. Revisá la conexión.');
-    }
-  }
-  $('[data-recargar]').addEventListener('click', () => void refrescar());
 
   // ---------- Descargar todo ----------
   const mes = $<HTMLInputElement>('[data-mes]');
@@ -356,23 +351,17 @@ import { url } from '../lib/url';
     }
     estado.textContent = 'Armando el Excel…';
     try {
-      await descargarTodo(mes.value, info);
+      const archivo = await descargarTodo(mes.value, info);
       estado.textContent = 'Listo ✓';
+      avisar(`Descargado: ${archivo}. Está en la carpeta Descargas.`, { ms: 6000 });
     } catch {
       estado.textContent = 'No se pudo armar. Revisá la conexión y probá de nuevo.';
     }
   });
 
-  sesionLista.then(async (acceso) => {
-    if (!acceso || acceso.rol !== 'admin' || !supabase) {
-      $('[data-cargando]').classList.add('hidden');
-      $('[data-sin-permiso]').classList.remove('hidden');
-      return;
-    }
-    await refrescar();
-    $('[data-cargando]').classList.add('hidden');
-    $('[data-panel]').classList.remove('hidden');
-    // Se actualiza sola cada minuto; si justo se cortó internet, no molesta con un cartel (prueba en el siguiente).
-    setInterval(() => document.visibilityState === 'visible' && cargar().then(pintar).catch(() => {}), 60000);
+  arrancarPanel({
+    cargar: async () => pintar(await cargar()),
+    // Se actualiza sola cada minuto; si justo se cortó internet, no molesta con un aviso (prueba en el siguiente).
+    alMostrar: () => setInterval(() => document.visibilityState === 'visible' && cargar().then(pintar).catch(() => {}), 60000),
   });
 </script>

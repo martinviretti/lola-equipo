@@ -6,7 +6,7 @@ import { descargarXlsx, type Celda, type Hoja } from '../../lib/xlsx';
 import { cargarAprendizaje, eventos, porUsuario, promedioRepasos, type InfoGuia } from './aprendizaje-datos';
 import { DIAS, METODO, fichadasEntre, nombreDe, q, tramosPorPersona, type Horario, type Persona } from './comun';
 
-/** mes: "AAAA-MM". */
+/** mes: "AAAA-MM". Devuelve el nombre del archivo que se bajó. */
 export async function descargarTodo(mes: string, info: InfoGuia) {
   const [a, m] = mes.split('-').map(Number);
   const primero = `${mes}-01`;
@@ -149,5 +149,7 @@ export async function descargarTodo(mes: string, info: InfoGuia) {
     { nombre: 'Avance en la guía', filas: avance, anchos: [22, 30, 12, 12, 12, 12, ...info.niveles.map(() => 20), 10, 12] },
     { nombre: 'Actividad en la guía', filas: actividad, anchos: [22, 30, 18, 40, 30, 17] },
   ];
-  descargarXlsx(`lola-todo-${mes}.xlsx`, hojas);
+  const archivo = `lola-todo-${mes}.xlsx`;
+  descargarXlsx(archivo, hojas);
+  return archivo;
 }

@@ -141,7 +141,7 @@ function mostrarResultado(o: { titulo: string; detalle?: string; sub?: string; t
   caja.classList.toggle('aviso', o.tipo === 'aviso');
   $('[data-resultado-titulo]').textContent = o.titulo;
   $('[data-resultado-detalle]').textContent = o.detalle ?? '';
-  $('[data-resultado-detalle]').className = `mt-3 text-2xl font-semibold ${o.tipo === 'aviso' ? 'text-ambar' : 'text-marca'}`;
+  $('[data-resultado-detalle]').className = `mt-3 text-2xl font-semibold ${o.tipo === 'aviso' ? 'text-ambar' : 'text-marca-texto'}`;
   $('[data-resultado-sub]').textContent = o.sub ?? '';
   const boton = $('[data-no-soy-yo]');
   boton.classList.toggle('hidden', !o.id);
