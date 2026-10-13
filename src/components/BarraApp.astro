@@ -8,7 +8,7 @@ const pestanas = [
   { href: url('/'), icono: 'house', label: 'Inicio', activa: ruta === '/' || ruta.startsWith('/guia') },
   { href: url('/bienvenida'), icono: 'hand-waving', label: 'Bienvenida', activa: ruta.startsWith('/bienvenida') },
   { href: url('/buscar'), icono: 'magnifying-glass', label: 'Buscar', activa: ruta.startsWith('/buscar') },
-  { href: url('/guardados'), icono: 'bookmark-simple', label: 'Guardados', activa: ruta.startsWith('/guardados') },
+  { href: url('/guardados'), icono: 'star', label: 'Guardados', activa: ruta.startsWith('/guardados') },
   { href: url('/examen'), icono: 'exam', label: 'Examinarme', activa: ruta.startsWith('/examen') },
 ];
 ---
@@ -24,7 +24,7 @@ const pestanas = [
           <a
             href={p.href}
             aria-current={p.activa ? 'page' : undefined}
-            class="flex flex-col items-center gap-1 pt-2 pb-1.5 text-[0.7rem] font-semibold text-texto-2 transition-colors aria-[current=page]:text-profundo"
+            class="flex flex-col items-center gap-1 pt-2 pb-1.5 text-xs font-semibold text-texto-2 transition-colors aria-[current=page]:text-profundo"
           >
             <span class="flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-300 aria-[current=page]:bg-menta" aria-current={p.activa ? 'page' : undefined}>
               <Icon name={p.icono} class="size-6" />
