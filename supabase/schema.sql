@@ -2,6 +2,8 @@
 -- Lola · Equipo — base de datos (Supabase / Postgres)
 -- Se corre UNA vez en Supabase: SQL Editor → New query → pegar todo → Run.
 -- Se puede volver a correr sin romper nada (todo es "if not exists" / "or replace").
+-- IMPORTANTE: después de este archivo, correr supabase/actualizar-intranet-1.sql (ya aplicado en la
+-- base el 2026-10-13). Si se corre solo este, algunas funciones vuelven a como estaban antes.
 -- =====================================================================
 
 -- ---------- Quiénes pueden entrar ----------
