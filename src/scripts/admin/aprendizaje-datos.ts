@@ -1,7 +1,7 @@
 // Datos del aprendizaje para el panel de admin: avance en las góndolas, repasos, exámenes y temas
 // de Bienvenida. Los títulos de la guía vienen de la página (componente DatosGuia).
 import { supabase } from '../../lib/supabase';
-import type { Persona } from './comun';
+import { todas, type Persona } from './comun';
 
 export interface Gondola {
   user_id: string;
@@ -53,22 +53,25 @@ export const porUsuario = <T extends { user_id: string }>(lista: T[], uid: strin
 
 export async function cargarAprendizaje(): Promise<DatosAprendizaje> {
   const db = supabase!;
-  const [a, g, i, l] = await Promise.all([
+  // Supabase devuelve como mucho 1000 filas por pedido: el avance se pide de a 1000, con un orden fijo.
+  const [a, gondolas, intentos, leidas] = await Promise.all([
     db.from('autorizados').select('*').order('rol').order('nombre'),
-    db.from('progreso_gondola').select('user_id,gondola,vista_el,quiz_intentos,quiz_mejor,quiz_total,completada_el,actualizado_el'),
-    db.from('intentos_examen').select('user_id,nivel,nota,aprobado,hecho_el').order('hecho_el', { ascending: false }).limit(5000),
-    db.from('secciones_leidas').select('user_id,seccion,leida_el'),
+    todas<Gondola>((d, h) =>
+      db.from('progreso_gondola').select('user_id,gondola,vista_el,quiz_intentos,quiz_mejor,quiz_total,completada_el,actualizado_el').order('user_id').order('gondola').range(d, h),
+    ),
+    todas<Intento>((d, h) => db.from('intentos_examen').select('user_id,nivel,nota,aprobado,hecho_el').order('hecho_el', { ascending: false }).order('id').range(d, h)),
+    todas<Lectura>((d, h) => db.from('secciones_leidas').select('user_id,seccion,leida_el').order('user_id').order('seccion').range(d, h)),
   ]);
-  if (a.error || g.error || i.error || l.error) throw a.error ?? g.error ?? i.error ?? l.error;
+  if (a.error) throw a.error;
   // Caras del fichador: si la base todavía no tiene el fichador, el panel anda igual.
   const c = await db.from('caras').select('email');
   const todos = a.data as Persona[];
   return {
     equipo: todos.filter((p) => p.activo !== false),
     bajas: todos.filter((p) => p.activo === false),
-    gondolas: g.data as Gondola[],
-    intentos: i.data as Intento[],
-    leidas: l.data as Lectura[],
+    gondolas,
+    intentos,
+    leidas,
     conCara: new Set(c.error ? [] : (c.data as { email: string }[]).map((x) => x.email)),
   };
 }

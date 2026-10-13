@@ -349,8 +349,11 @@ import { url } from '../lib/url';
   const mes = $<HTMLInputElement>('[data-mes]');
   mes.value = diaClave(new Date()).slice(0, 7);
   $('[data-descargar-todo]').addEventListener('click', async () => {
-    if (!/^\d{4}-\d{2}$/.test(mes.value)) return;
     const estado = $('[data-descargar-estado]');
+    if (!/^\d{4}-\d{2}$/.test(mes.value)) {
+      estado.textContent = 'Elegí un mes.';
+      return;
+    }
     estado.textContent = 'Armando el Excel…';
     try {
       await descargarTodo(mes.value, info);
@@ -369,6 +372,7 @@ import { url } from '../lib/url';
     await refrescar();
     $('[data-cargando]').classList.add('hidden');
     $('[data-panel]').classList.remove('hidden');
-    setInterval(() => document.visibilityState === 'visible' && void refrescar(), 60000);
+    // Se actualiza sola cada minuto; si justo se cortó internet, no molesta con un cartel (prueba en el siguiente).
+    setInterval(() => document.visibilityState === 'visible' && cargar().then(pintar).catch(() => {}), 60000);
   });
 </script>
