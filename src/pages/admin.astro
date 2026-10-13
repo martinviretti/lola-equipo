@@ -105,6 +105,7 @@ import { url } from '../lib/url';
     color: var(--color-texto-2);
   }
   .campo {
+    min-height: 44px;
     border-radius: 14px;
     background: #fff;
     padding: 9px 12px;
@@ -140,7 +141,7 @@ import { url } from '../lib/url';
   :global(a.metrica:hover) {
     box-shadow: inset 0 0 0 2px var(--color-marca);
   }
-  :global(.metrica.aviso) {
+  :global(.metrica.es-aviso) {
     background: var(--color-ambar-suave);
   }
   :global(.metrica-titulo) {
@@ -155,7 +156,7 @@ import { url } from '../lib/url';
     color: var(--color-profundo);
     font-variant-numeric: tabular-nums;
   }
-  :global(.metrica.aviso .metrica-valor) {
+  :global(.metrica.es-aviso .metrica-valor) {
     color: var(--color-ambar);
   }
   :global(.metrica-sub) {
@@ -247,7 +248,7 @@ import { url } from '../lib/url';
     // ---------- Números del día ----------
     $('[data-hoy-fecha]').textContent = `Hoy, ${diaLargo(new Date())}`;
     const metrica = (titulo: string, valor: string, sub: string, href: string, aviso = false) => {
-      const a = el('a', `metrica${aviso ? ' aviso' : ''}`);
+      const a = el('a', `metrica${aviso ? ' es-aviso' : ''}`);
       a.href = href;
       a.append(el('span', 'metrica-titulo', titulo), el('span', 'metrica-valor', valor), el('span', 'metrica-sub', sub));
       return a;

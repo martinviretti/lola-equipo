@@ -152,7 +152,7 @@ export async function iniciarRegistro(d: Dispositivo, listo: () => void) {
   disp = d;
   alTerminar = listo;
   activo = false;
-  $('[data-registro-fin-icono]').closest('.tarjeta-grande')!.classList.remove('aviso');
+  $('[data-registro-fin-icono]').closest('.tarjeta-grande')!.classList.remove('es-aviso');
   $('[data-registro-forzar]').classList.add('hidden');
   mostrarCapa('registro');
   verPaso('esperar');
@@ -232,7 +232,7 @@ async function empezar(c: string): Promise<boolean> {
 function fin(ok: boolean, titulo: string, texto: string, forzar = false) {
   activo = false;
   verPaso('fin');
-  $('[data-registro-fin-icono]').closest('.tarjeta-grande')!.classList.toggle('aviso', !ok);
+  $('[data-registro-fin-icono]').closest('.tarjeta-grande')!.classList.toggle('es-aviso', !ok);
   $('[data-registro-fin-titulo]').textContent = titulo;
   $('[data-registro-fin-texto]').textContent = texto;
   $('[data-registro-forzar]').classList.toggle('hidden', !forzar);

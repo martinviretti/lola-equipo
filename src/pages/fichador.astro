@@ -176,7 +176,7 @@ import logo from '../assets/logo-lola-circulo.png';
 
     <!-- Algo no anda (cámara, internet, aparato desactivado) -->
     <div class="capa hidden" data-capa="problema">
-      <div class="tarjeta-grande aviso">
+      <div class="tarjeta-grande es-aviso">
         <span class="icono-grande mx-auto"><Icon name="warning-circle" class="size-12" /></span>
         <p class="mt-4 text-2xl font-bold text-profundo" data-problema-titulo></p>
         <p class="mt-2 text-texto-2" data-problema-texto></p>
@@ -453,15 +453,15 @@ import logo from '../assets/logo-lola-circulo.png';
   .tarjeta-grande.salida .icono-grande {
     background: var(--color-profundo);
   }
-  .tarjeta-grande.aviso .icono-grande {
+  .tarjeta-grande.es-aviso .icono-grande {
     background: var(--color-ambar-suave);
     color: var(--color-ambar);
   }
   .icono-mal,
-  .tarjeta-grande.aviso .icono-ok {
+  .tarjeta-grande.es-aviso .icono-ok {
     display: none;
   }
-  .tarjeta-grande.aviso .icono-mal {
+  .tarjeta-grande.es-aviso .icono-mal {
     display: inline;
   }
   .icono-grande {

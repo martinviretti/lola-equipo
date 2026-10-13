@@ -138,7 +138,7 @@ function mostrarResultado(o: { titulo: string; detalle?: string; sub?: string; t
   if (visible && visible !== 'resultado') return;
   const caja = $('[data-resultado-caja]');
   caja.classList.toggle('salida', o.tipo === 'salida');
-  caja.classList.toggle('aviso', o.tipo === 'aviso');
+  caja.classList.toggle('es-aviso', o.tipo === 'aviso');
   $('[data-resultado-titulo]').textContent = o.titulo;
   $('[data-resultado-detalle]').textContent = o.detalle ?? '';
   $('[data-resultado-detalle]').className = `mt-3 text-2xl font-semibold ${o.tipo === 'aviso' ? 'text-ambar' : 'text-marca-texto'}`;

@@ -8,9 +8,10 @@ import { fileURLToPath } from 'node:url';
 // Nunca se guardan de entrada: PDF y videos (pesan varios MB y se bajan aparte), mapas de código y archivos internos.
 const EXCLUIR = /\.(pdf|map|mp4|webm)$|^(_headers|_redirects|robots\.txt|sw\.js|404\.html)$/;
 // Páginas que casi nadie usa: no se bajan en la primera visita. Se guardan solas la primera vez que se abren y,
-// desde ahí, se vuelven a guardar en cada versión nueva. imprimir es solo para armar el PDF; admin y fichadas
-// son de las encargadas; fichar y fichador, del celular y la compu del local.
-const A_DEMANDA = ['guia/imprimir.html', 'admin.html', 'fichadas.html', 'fichar.html', 'fichador.html'];
+// desde ahí, se vuelven a guardar en cada versión nueva. imprimir es solo para armar el PDF; las cuatro partes
+// del panel de admin (admin, fichadas, equipo y aprendizaje) son de las encargadas; fichar y fichador, del
+// celular y la compu del local.
+const A_DEMANDA = ['guia/imprimir.html', 'admin.html', 'fichadas.html', 'equipo.html', 'aprendizaje.html', 'fichar.html', 'fichador.html'];
 // De la fuente solo se guarda el alfabeto latino: los otros subsets no se usan en la app.
 const OTRO_ALFABETO = /-(cyrillic|cyrillic-ext|greek|greek-ext|latin-ext|vietnamese)-[^/]*\.woff2$/;
 

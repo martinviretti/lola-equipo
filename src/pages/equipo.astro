@@ -91,6 +91,7 @@ import ErrorCarga from '../components/ErrorCarga.astro';
   }
   :global(.campo) {
     width: 100%;
+    min-height: 44px;
     border-radius: 14px;
     background: var(--color-crema);
     padding: 10px 12px;
@@ -271,7 +272,9 @@ import ErrorCarga from '../components/ErrorCarga.astro';
   /** Avisa si algo falló (nada falla en silencio). */
   async function accion(p: PromiseLike<{ error: unknown }>, texto = 'No se pudo guardar. Revisá la conexión y probá de nuevo.') {
     const { error } = await p;
-    if (error) avisar(texto, { ms: 6000 });
+    // La base no deja dar de baja ni pasar a empleada a la última admin activa (actualizar-intranet-1.sql).
+    const ultima = /ultima_admin/.test((error as { message?: string } | null)?.message ?? '');
+    if (error) avisar(ultima ? 'Tiene que quedar al menos una admin activa. Primero hacé admin a otra persona.' : texto, { ms: 6000 });
     return !error;
   }
 

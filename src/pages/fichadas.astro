@@ -266,6 +266,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
   :global(.campo) {
     width: 100%;
+    min-height: 44px;
     border-radius: 14px;
     background: var(--color-crema);
     padding: 10px 12px;
@@ -392,7 +393,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   :global(button.metrica:hover) {
     box-shadow: inset 0 0 0 2px var(--color-ambar);
   }
-  :global(.metrica.aviso) {
+  :global(.metrica.es-aviso) {
     background: var(--color-ambar-suave);
   }
   :global(.metrica-titulo) {
@@ -407,7 +408,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     color: var(--color-profundo);
     font-variant-numeric: tabular-nums;
   }
-  :global(.metrica.aviso .metrica-valor) {
+  :global(.metrica.es-aviso .metrica-valor) {
     color: var(--color-ambar);
   }
   :global(.metrica-sub) {
@@ -880,7 +881,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     const carga = fichan.reduce((s, p) => s + Number(p.horas_semana ?? 0), 0);
     const horas = Math.floor(semanaActualMs / 3600000);
     const tarjeta = (titulo: string, valor: string, sub: string, aviso = false, alTocar?: () => void) => {
-      const c = el(alTocar ? 'button' : 'div', `metrica${aviso ? ' aviso' : ''}`);
+      const c = el(alTocar ? 'button' : 'div', `metrica${aviso ? ' es-aviso' : ''}`);
       if (alTocar) {
         (c as HTMLButtonElement).type = 'button';
         c.addEventListener('click', alTocar);
