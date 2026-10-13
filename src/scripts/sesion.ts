@@ -18,7 +18,7 @@ export interface Acceso {
 
 const ACCESO = 'lola-acceso:v1';
 /** Datos del avance que son de la persona: se borran al salir o si entra otra cuenta en el mismo celular. */
-const DATOS_PERSONALES = ['lola-app:v1', 'lola-bienvenida:v1', 'lola-pendientes:v1', 'lola-cierre:v1'];
+const DATOS_PERSONALES = ['lola-app:v1', 'lola-bienvenida:v1', 'lola-pendientes:v1', 'lola-pendientes-fallidos:v1', 'lola-cierre:v1'];
 const REVERIFICAR_MS = 10 * 60 * 1000;
 /** Cuánto esperamos a Supabase antes de seguir con lo que ya sabemos de la persona. */
 const TOPE_SESION_MS = 4000;
