@@ -5,7 +5,8 @@
   --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
 
   /* Misma paleta que la landing */
-  --color-marca: #5a9684;
+  --color-marca: #5a9684; /* bordes, rellenos, barras e íconos grandes */
+  --color-marca-texto: #37705e; /* textos y fondos con letra blanca: 5,4:1 sobre crema, 5,8:1 sobre blanco */
   --color-menta: #c7e7d9;
   --color-menta-suave: #e6f3ee;
   --color-profundo: #214c3b;
@@ -44,7 +45,7 @@
     color: var(--color-profundo);
   }
   :focus-visible {
-    outline: 2px solid var(--color-marca);
+    outline: 2px solid var(--color-profundo);
     outline-offset: 3px;
     border-radius: 8px;
   }
@@ -156,7 +157,7 @@
     margin-top: 0.35em;
   }
   .prosa li::marker {
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   /* Listas de tareas: casillas grandes, también en papel */
   .prosa ul.contains-task-list {
@@ -258,7 +259,7 @@
     background: var(--color-arena-suave);
   }
   .prosa.guia .destacados li.propiedades strong {
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   .prosa.guia .destacados li.tip {
     background: var(--color-menta-suave);
@@ -486,7 +487,7 @@
     .prosa .tabla.tarjetas td:not(:first-child)::before {
       content: attr(data-label) ': ';
       font-weight: 700;
-      color: var(--color-marca);
+      color: var(--color-marca-texto);
     }
     /* La columna Propiedades, destacada como en las fichas */
     .prosa .tabla.tarjetas td[data-label='Propiedades'] {
@@ -495,6 +496,72 @@
       background: var(--color-arena-suave);
       padding: 6px 10px;
     }
+  }
+}
+
+/* ---------- Toques cómodos en el celular (mínimo 44 px) ---------- */
+
+@layer components {
+  /* El control mide al menos 44x44 px */
+  .tap {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* El control se ve igual, pero el área que responde al toque se agranda hasta 44 px */
+  .tap-area {
+    position: relative;
+  }
+  .tap-area::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* ---------- Avisos en pantalla (src/scripts/aviso.ts) ---------- */
+
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  max-width: min(92vw, 420px);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 18px;
+  border-radius: 16px;
+  background: var(--color-profundo);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 18px 40px -18px rgb(33 76 59 / 0.6);
+  transform: translate(-50%, 12px);
+  opacity: 0;
+  transition:
+    opacity 180ms var(--ease-fluid),
+    transform 180ms var(--ease-fluid);
+}
+.aviso.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+.aviso-accion {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.14);
+  color: var(--color-menta);
+  font-weight: 800;
+  white-space: nowrap;
+}
+@media (min-width: 1024px) {
+  .aviso {
+    bottom: 32px;
   }
 }
 

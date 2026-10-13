@@ -42,7 +42,7 @@ const APRUEBA = Math.ceil(preguntas.length * 0.8);
       <!-- Pregunta -->
       <div class="hidden" data-paso="pregunta">
         <div class="mt-4 flex items-center gap-1.5" data-quiz-puntos aria-hidden="true"></div>
-        <p class="mt-3 text-xs font-bold tracking-wide text-marca uppercase" data-quiz-contador></p>
+        <p class="mt-3 text-xs font-bold tracking-wide text-marca-texto uppercase" data-quiz-contador></p>
         <p class="mt-1 text-lg leading-snug font-bold text-profundo" data-quiz-pregunta></p>
         <div class="mt-3 flex flex-col gap-2" data-quiz-opciones></div>
         <p class="mt-3 hidden rounded-2xl p-3 text-[0.95rem] leading-relaxed" data-quiz-devolucion aria-live="polite"></p>
@@ -241,7 +241,7 @@ const APRUEBA = Math.ceil(preguntas.length * 0.8);
       app.registrarQuiz(id, bien, orden.length, aprobado);
       $('[data-quiz-nota]').textContent = `${bien} de ${orden.length}`;
       const msj = $('[data-quiz-mensaje]');
-      msj.className = `mt-1 font-semibold ${aprobado ? 'text-marca' : 'text-texto-2'}`;
+      msj.className = `mt-1 font-semibold ${aprobado ? 'text-marca-texto' : 'text-texto-2'}`;
       msj.textContent = aprobado
         ? antes
           ? '¡Muy bien! Seguís sabiéndolo.'

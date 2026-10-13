@@ -20,7 +20,7 @@ const hayPdf = existsSync('public/guia-de-productos-lola.pdf');
 <Manual title="Guía de productos para imprimir" impresion>
   <div class="no-print sticky top-0 z-40 border-b border-profundo/10 bg-crema/90 backdrop-blur-xl">
     <div class="mx-auto flex max-w-[860px] flex-wrap items-center gap-3 px-5 py-3">
-      <a href={url('/')} class="inline-flex items-center gap-2 text-sm font-semibold text-marca hover:underline">
+      <a href={url('/')} class="inline-flex items-center gap-2 text-sm font-semibold text-marca-texto hover:underline">
         <Icon name="arrow-left" class="size-4" /> Volver a la guía
       </a>
       <div class="ml-auto flex flex-wrap gap-2">
@@ -42,7 +42,7 @@ const hayPdf = existsSync('public/guia-de-productos-lola.pdf');
     <section class="portada fondo-hojas mt-8 flex flex-col justify-between rounded-3xl p-10 print:mt-0 print:rounded-none">
       <div>
         <Image src={logo} alt="Logo de Lola" width={150} height={150} class="size-28 rounded-full shadow-[0_8px_32px_rgb(33_76_59/0.15)]" loading="eager" />
-        <p class="mt-10 text-lg font-semibold text-marca">La Almacén de Lola</p>
+        <p class="mt-10 text-lg font-semibold text-marca-texto">La Almacén de Lola</p>
         <h1 class="titulo-degrade mt-2 text-6xl font-bold tracking-tight">Guía <br />de productos</h1>
         <p class="mt-6 max-w-[460px] text-lg text-texto-2">
           Qué es cada cosa, para qué la busca la gente y cómo explicarla en el mostrador.
@@ -73,11 +73,11 @@ const hayPdf = existsSync('public/guia-de-productos-lola.pdf');
         {
           zonas.map((z) => (
             <div class="break-inside-avoid">
-              <p class="text-xs font-bold tracking-wide text-marca uppercase">{z.nombre}</p>
+              <p class="text-xs font-bold tracking-wide text-marca-texto uppercase">{z.nombre}</p>
               <ol class="mt-1">
                 {z.categorias.map((c) => (
                   <li class="flex items-center gap-3 border-b border-profundo/10 py-1.5">
-                    <Icon name={c.data.icono} class="size-5 shrink-0 text-marca" />
+                    <Icon name={c.data.icono} class="size-5 shrink-0 text-marca-texto" />
                     <a href={`#g-${c.id}`} class="font-semibold text-profundo">{c.data.titulo}</a>
                   </li>
                 ))}
@@ -105,7 +105,7 @@ const hayPdf = existsSync('public/guia-de-productos-lola.pdf');
             <ul class="mt-2 flex flex-col gap-2">
               {c.data.claves.map((k) => (
                 <li class="flex gap-2">
-                  <Icon name="check-circle" class="mt-0.5 size-5 shrink-0 text-marca" />
+                  <Icon name="check-circle" class="mt-0.5 size-5 shrink-0 text-marca-texto" />
                   {k}
                 </li>
               ))}

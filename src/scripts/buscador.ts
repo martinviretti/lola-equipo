@@ -63,7 +63,7 @@ export function initBuscador() {
     lista.innerHTML = res
       .map(
         ({ e }) => `<li><a href="${e.url}" class="block rounded-2xl bg-white p-4 ring-1 ring-profundo/10 hover:bg-menta-suave">
-          <span class="text-xs font-semibold ${e.guia ? 'text-marca' : 'text-texto-2'}">${escapar(e.modulo)}</span>
+          <span class="text-xs font-semibold ${e.guia ? 'text-marca-texto' : 'text-texto-2'}">${escapar(e.modulo)}</span>
           <span class="mt-1 block font-semibold text-profundo">${escapar(e.titulo)}</span>
           <span class="mt-1 block text-sm text-texto-2">${fragmento(e.texto, terminos[0])}</span>
         </a></li>`,
