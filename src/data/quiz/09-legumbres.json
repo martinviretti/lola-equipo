@@ -27,14 +27,14 @@
     "tipo": "vf",
     "pregunta": "Los porotos se pueden comer a medio cocer si se remojaron bien.",
     "correcta": false,
-    "explicacion": "Las legumbres nunca se comen crudas ni a medio cocer. Los porotos tienen que hervir bien y quedar tiernos."
+    "explicacion": "Las legumbres secas nunca se comen crudas ni a medio cocer. Los porotos tienen que hervir bien y quedar tiernos."
   },
   {
     "id": "09-5",
     "tipo": "opcion",
     "pregunta": "Un cliente celíaco quiere llevar porotos sueltos del granel. ¿Qué le decís?",
-    "opciones": ["Que sí, porque las legumbres no tienen TACC", "Que los lave bien antes de cocinarlos", "Que para él, solo envasados con logo sin TACC"],
+    "opciones": ["Que sí, porque las legumbres no tienen TACC de por sí", "Que los lave bien antes de cocinarlos", "Que para él, solo envasados con logo sin TACC"],
     "correcta": 2,
-    "explicacion": "No tienen TACC naturalmente, pero el granel tiene contacto con otros productos. Para celíacos, solo envasado con logo."
+    "explicacion": "No tienen TACC de por sí, pero el granel tiene contacto con otros productos. Para celíacos, solo envasado con logo."
   }
 ]

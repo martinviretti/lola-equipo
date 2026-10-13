@@ -2,8 +2,8 @@
   {
     "id": "24-1",
     "tipo": "opcion",
-    "pregunta": "¿Qué diferencia hay entre un jugo y un néctar?",
-    "opciones": ["El néctar lleva agua y azúcar agregados", "El néctar es un jugo más puro", "Ninguna, es otro nombre"],
+    "pregunta": "Un cliente pregunta si el néctar es lo mismo que el jugo. ¿Qué le decís?",
+    "opciones": ["Que el néctar lleva agua y azúcar agregados", "Que el néctar es más puro y concentrado, sin agua", "Que sí: néctar es solo otro nombre para el jugo"],
     "correcta": 0,
     "explicacion": "El néctar tiene menos fruta y lleva agua y azúcar o edulcorante. La lista de ingredientes lo dice."
   },
@@ -12,7 +12,7 @@
     "tipo": "vf",
     "pregunta": "Un jugo sin azúcar agregada no tiene nada de azúcar.",
     "correcta": false,
-    "explicacion": "No le sumaron azúcar, pero tiene la propia de la fruta. Cuánta, lo dice la tabla nutricional."
+    "explicacion": "No le sumaron azúcar, pero tiene el propio de la fruta. Cuánto, lo dice la tabla nutricional."
   },
   {
     "id": "24-3",
@@ -26,7 +26,7 @@
     "id": "24-4",
     "tipo": "opcion",
     "pregunta": "Un cliente celíaco pide cerveza. ¿Cuál le podés ofrecer?",
-    "opciones": ["Cualquier cerveza sin alcohol", "Una artesanal de cebada", "Solo la que tiene logo sin TACC"],
+    "opciones": ["Cualquier cerveza sin alcohol, que es más liviana", "Una artesanal, que no lleva conservantes", "Solo la que tiene logo sin TACC"],
     "correcta": 2,
     "explicacion": "La cerveza común se hace con cebada y tiene gluten. Sin alcohol no quiere decir sin TACC."
   },

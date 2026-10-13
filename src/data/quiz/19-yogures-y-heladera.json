@@ -4,7 +4,7 @@
     "tipo": "vf",
     "pregunta": "La leche deslactosada sirve para alguien alérgico a la leche.",
     "correcta": false,
-    "explicacion": "Conserva las proteínas de la leche. Alergia a la leche e intolerancia a la lactosa no son lo mismo."
+    "explicacion": "Conserva las proteínas de la leche. La alergia es a esas proteínas; la intolerancia es a la lactosa. No son lo mismo."
   },
   {
     "id": "19-2",
@@ -17,8 +17,8 @@
   {
     "id": "19-3",
     "tipo": "opcion",
-    "pregunta": "Un cliente alérgico pregunta si un queso vegano le sirve. ¿Qué le decís?",
-    "opciones": ["Que lean juntos los ingredientes", "Que sí, lo vegano no tiene alérgenos", "Que sí, porque no lleva leche"],
+    "pregunta": "Un cliente alérgico pregunta si un queso vegano le sirve. ¿Qué hacés?",
+    "opciones": ["Leés con él la lista de ingredientes", "Le decís que sí: lo vegano no tiene alérgenos", "Le decís que sí, porque no lleva nada de leche"],
     "correcta": 0,
     "explicacion": "Vegano no es sin alérgenos. Muchos quesos veganos llevan castañas de cajú, soja o coco."
   },
@@ -26,15 +26,15 @@
     "id": "19-4",
     "tipo": "opcion",
     "pregunta": "Al acomodar la heladera, ¿qué va adelante?",
-    "opciones": ["Lo que llegó último", "Lo que más se vende", "Lo que vence primero"],
+    "opciones": ["Lo que llegó último, que está más lindo", "Lo que más se vende, para tenerlo a mano", "Lo que vence primero"],
     "correcta": 2,
     "explicacion": "Lo que vence primero va adelante y lo nuevo, atrás. Así nada se vence en la heladera."
   },
   {
     "id": "19-5",
     "tipo": "vf",
-    "pregunta": "Si el termómetro de la heladera marca más de lo debido, avisás enseguida a la encargada.",
+    "pregunta": "Si el termómetro de la heladera marca más de 5 grados, avisás enseguida a la encargada.",
     "correcta": true,
-    "explicacion": "La temperatura se mira todos los días, porque la cadena de frío no se puede cortar."
+    "explicacion": "Si la heladera no enfría bien, se corta la cadena de frío y lo de adentro puede dejar de ser seguro."
   }
 ]

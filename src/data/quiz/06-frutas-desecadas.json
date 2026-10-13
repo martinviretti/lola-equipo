@@ -3,9 +3,9 @@
     "id": "06-1",
     "tipo": "opcion",
     "pregunta": "Un cliente cree que los arándanos desecados no tienen azúcar. ¿Qué le decís?",
-    "opciones": ["Que tiene razón, son pura fruta", "Que solo llevan sulfitos, no azúcar", "Que casi siempre llevan azúcar, y leen la etiqueta"],
+    "opciones": ["Que tiene razón, son pura fruta seca", "Que solo llevan sulfitos, sin azúcar", "Que casi siempre llevan azúcar"],
     "correcta": 2,
-    "explicacion": "El arándano es muy ácido, por eso casi siempre se deseca con azúcar agregada. La etiqueta lo confirma."
+    "explicacion": "El arándano es muy ácido, por eso casi siempre se deseca con azúcar agregada. Mirá la etiqueta con él: ahí se confirma."
   },
   {
     "id": "06-2",
@@ -17,24 +17,24 @@
   {
     "id": "06-3",
     "tipo": "opcion",
-    "pregunta": "Una clienta sensible a los sulfitos pregunta por orejones del granel sin rótulo. ¿Qué hacés?",
+    "pregunta": "Una clienta sensible a los sulfitos pregunta por orejones del granel sin etiqueta. ¿Qué hacés?",
     "opciones": ["Le decís que no se lo podés asegurar", "Le asegurás que no tienen, porque son naturales", "Le ofrecés los más claritos"],
     "correcta": 0,
-    "explicacion": "Sin rótulo no se puede saber. Además, los más claritos son justamente los que suelen tener sulfitos."
+    "explicacion": "Sin etiqueta no se puede saber. Además, los más claritos son justamente los que suelen tener sulfitos."
   },
   {
     "id": "06-4",
     "tipo": "opcion",
     "pregunta": "¿Qué diferencia a una fruta abrillantada de una desecada?",
-    "opciones": ["Se seca congelada y al vacío", "Se cocina en almíbar y lleva mucha azúcar", "Se seca al sol sin nada agregado"],
+    "opciones": ["Se seca congelada y al vacío, sin calor", "Se cocina en almíbar y queda muy dulce", "Se seca al sol, sin nada agregado"],
     "correcta": 1,
     "explicacion": "La desecada es fruta a la que se le sacó el agua. La abrillantada se cocina en almíbar y es casi puro azúcar."
   },
   {
     "id": "06-5",
     "tipo": "vf",
-    "pregunta": "Las frutas liofilizadas se pueden dejar en un frasco abierto sin problema.",
-    "correcta": false,
-    "explicacion": "Absorben la humedad del aire enseguida y se ablandan. Siempre van en envase bien cerrado."
+    "pregunta": "Las frutas liofilizadas, aunque estén bien secas, se ablandan si el envase queda abierto.",
+    "correcta": true,
+    "explicacion": "Absorben la humedad del aire enseguida y pierden lo crocante. Siempre van en envase bien cerrado, y se cierra apenas se usa."
   }
 ]

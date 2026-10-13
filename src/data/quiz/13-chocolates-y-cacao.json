@@ -3,7 +3,7 @@
     "id": "13-1",
     "tipo": "opcion",
     "pregunta": "¿Qué cambia cuando un chocolate tiene más porcentaje de cacao?",
-    "opciones": ["Es más dulce y cremoso", "Es más amargo y tiene menos azúcar", "Lleva más leche"],
+    "opciones": ["Es más dulce, más cremoso y más suave", "Es más amargo y tiene menos azúcar", "Lleva más leche en polvo y menos cacao"],
     "correcta": 1,
     "explicacion": "El porcentaje es cuánto viene del grano de cacao. Más porcentaje: más amargo, menos azúcar y más cafeína."
   },
@@ -12,7 +12,7 @@
     "tipo": "vf",
     "pregunta": "Las manchas blancas en el chocolate son hongos.",
     "correcta": false,
-    "explicacion": "Es blanqueado: grasa o azúcar que salió a la superficie por calor o humedad. Se puede comer."
+    "explicacion": "Es blanqueado: grasa o azúcar que salió a la superficie por calor o humedad. Se puede comer. Si huele raro o está vencido, consultá a la encargada."
   },
   {
     "id": "13-3",
@@ -20,7 +20,7 @@
     "pregunta": "Una mamá quiere algo con gusto a chocolate y sin cafeína para su hijo. ¿Qué le ofrecés?",
     "opciones": ["Chocolate con leche", "Cacao alcalinizado", "Algarroba"],
     "correcta": 2,
-    "explicacion": "Todo lo que tiene cacao tiene algo de cafeína. La algarroba tiene un sabor parecido y no tiene."
+    "explicacion": "Todo lo que lleva cacao oscuro tiene algo de cafeína, aunque sea con leche. La algarroba tiene un sabor parecido y no tiene."
   },
   {
     "id": "13-4",
@@ -33,8 +33,8 @@
   {
     "id": "13-5",
     "tipo": "vf",
-    "pregunta": "Un chocolate amargo puede llevar leche o decir “puede contener leche”.",
+    "pregunta": "El chocolate blanco casi no tiene cafeína.",
     "correcta": true,
-    "explicacion": "Muchos chocolates, aunque sean amargos, llevan leche o pueden contenerla. Para alérgicos, leé siempre la etiqueta."
+    "explicacion": "La cafeína está en la parte oscura del cacao, y el blanco lleva solo la manteca. Si buscan nada de cafeína, la opción es la algarroba."
   }
 ]

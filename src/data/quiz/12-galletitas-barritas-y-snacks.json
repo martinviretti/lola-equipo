@@ -3,38 +3,38 @@
     "id": "12-1",
     "tipo": "opcion",
     "pregunta": "¿Qué mirás para comparar dos galletitas?",
-    "opciones": ["La foto y las palabras del frente", "La tabla nutricional y la lista de ingredientes", "El color y el tamaño del paquete"],
+    "opciones": ["La foto y lo que dice el frente", "La tabla nutricional y la lista de ingredientes", "El color y el tamaño del paquete"],
     "correcta": 1,
     "explicacion": "La foto y palabras como natural o saludable no dicen nada. La tabla y los ingredientes sí."
   },
   {
     "id": "12-2",
     "tipo": "vf",
-    "pregunta": "Sin azúcar agregada quiere decir que el producto no tiene nada de azúcar.",
-    "correcta": false,
-    "explicacion": "Puede tener azúcar de la fruta, de la leche o edulcorantes. Mirá la fila de azúcares con el cliente."
+    "pregunta": "Los crackers de semillas tienen más grasa que una galletita de harina.",
+    "correcta": true,
+    "explicacion": "Son casi todo semilla: más grasa, proteína y fibra, y menos hidratos. Crocantes sí, livianos no."
   },
   {
     "id": "12-3",
     "tipo": "opcion",
     "pregunta": "Una clienta celíaca pregunta si le sirven las galletitas de avena. ¿Qué le decís?",
-    "opciones": ["Que sí, si son integrales", "Que sí, porque la avena es natural", "Que no, y le mostrás las de logo sin TACC"],
+    "opciones": ["Que sí, si son integrales", "Que sí, la avena es natural", "Que no, y le mostrás las de logo sin TACC"],
     "correcta": 2,
     "explicacion": "La avena es una de las letras de TACC. Para celíacos vale solo el logo oficial en el envase cerrado."
   },
   {
     "id": "12-4",
     "tipo": "opcion",
-    "pregunta": "Una mamá busca algo para la merienda de su hijo chiquito. ¿Qué le ofrecés?",
-    "opciones": ["Galletas de arroz o una barrita suave", "Garbanzos tostados", "Un mix con maní"],
+    "pregunta": "Una mamá busca algo para la merienda de su hijo de 3 años. ¿Qué le ofrecés?",
+    "opciones": ["Galletas de arroz o una barrita suave", "Garbanzos tostados", "Un mix de frutos secos con maní"],
     "correcta": 0,
-    "explicacion": "Frutos secos, maní, garbanzos tostados y pochoclo no van para chicos chicos, por riesgo de atragantamiento."
+    "explicacion": "Frutos secos, maní, garbanzos tostados y pochoclo no van para menores de 5 años, por riesgo de atragantamiento."
   },
   {
     "id": "12-5",
     "tipo": "vf",
-    "pregunta": "Ante una alergia, leés toda la etiqueta, también la leyenda “puede contener”.",
-    "correcta": true,
-    "explicacion": "Casi todo el sector tiene trigo, maní, frutos secos, leche o soja, aunque sea como traza."
+    "pregunta": "Si una galletita dice vegana, no tiene leche ni huevo y le sirve a un alérgico.",
+    "correcta": false,
+    "explicacion": "Puede decir “puede contener” leche o huevo, por la fábrica. Para un alérgico vale el recuadro de alérgenos, no la palabra vegana."
   }
 ]

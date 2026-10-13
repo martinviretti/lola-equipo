@@ -10,7 +10,7 @@
     "id": "08-2",
     "tipo": "opcion",
     "pregunta": "Un cliente dice que la quinoa le quedó amarga. ¿Qué le faltó?",
-    "opciones": ["Cocinarla más tiempo", "Lavarla bien antes de cocinarla", "Ponerle la sal al final"],
+    "opciones": ["Cocinarla más tiempo, a fuego bajo", "Lavarla bien antes de cocinarla", "Ponerle la sal recién al final"],
     "correcta": 1,
     "explicacion": "La quinoa tiene una capita amarga. Se frota en un colador fino antes de cocinarla, salvo que venga lavada."
   },
@@ -26,7 +26,7 @@
     "id": "08-4",
     "tipo": "opcion",
     "pregunta": "Un cliente quiere hacer risotto. ¿Qué arroz le ofrecés?",
-    "opciones": ["Largo fino", "Basmati", "Arborio o carnaroli"],
+    "opciones": ["Largo fino o doble carolina", "Basmati o jazmín", "Arborio o carnaroli"],
     "correcta": 2,
     "explicacion": "Son de grano corto y gordo, y sueltan almidón. Eso deja el risotto cremoso."
   },
