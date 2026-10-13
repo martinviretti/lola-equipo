@@ -63,9 +63,14 @@ export const nivelVacio = (): EstadoNivel => ({ intentos: 0, mejor: 0, ultimas: 
 export const app = {
   estado: leer,
   estaGuardada: (id: string) => leer().guardadas.includes(id),
-  guardarFicha(id: string, poner: boolean) {
+  /** Guarda o quita una ficha. `posicion` (al guardar) la vuelve a poner en su lugar, para "Deshacer". */
+  guardarFicha(id: string, poner: boolean, posicion?: number) {
     const e = leer();
     e.guardadas = alternar(e.guardadas, id, poner);
+    if (poner && posicion !== undefined) {
+      e.guardadas = e.guardadas.filter((x) => x !== id);
+      e.guardadas.splice(Math.min(Math.max(posicion, 0), e.guardadas.length), 0, id);
+    }
     guardar(e);
   },
   marcarVista(gondolaId: string) {
@@ -154,4 +159,14 @@ export interface Ficha {
 }
 
 let cache: Promise<Ficha[]> | null = null;
-export const cargarFichas = () => (cache ??= fetch(url('/fichas.json')).then((r) => r.json()));
+/** Baja fichas.json una sola vez. Si falla (sin red), no se queda con el error: el próximo intento lo vuelve a pedir. */
+export const cargarFichas = () =>
+  (cache ??= fetch(url('/fichas.json'))
+    .then((r) => {
+      if (!r.ok) throw new Error(`No se pudo bajar fichas.json (HTTP ${r.status})`);
+      return r.json() as Promise<Ficha[]>;
+    })
+    .catch((e) => {
+      cache = null;
+      throw e;
+    }));
