@@ -1,10 +1,14 @@
 ---
-// Panel de admin → Fichaje (solo admins): cómo funciona, quién está ahora, lo que hay que revisar,
-// la semana de cada persona contra su carga horaria, la carga horaria y los horarios, descargas para
-// Excel y la configuración del fichador. La otra parte del panel (Aprendizaje) es admin.astro.
+// Panel de admin → Fichaje (solo admins), en tres partes que se ven de a una:
+//  · Resumen: los números del día, la línea de tiempo de hoy, la planilla de la semana contra la
+//    carga horaria y el Excel del mes.
+//  · Día a día: lo que hay que revisar y cada día persona por persona, para corregir o agregar.
+//  · Configuración: cómo funciona, carga horaria y horarios, aparatos, caras y ajustes.
+// La otra pestaña del panel (Aprendizaje) es admin.astro.
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
+import VistasPanel from '../components/VistasPanel.astro';
 import { url } from '../lib/url';
 
 const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
@@ -12,9 +16,15 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
 <Manual title="Panel de admin · Fichaje">
   <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
-    <div class="mx-auto max-w-[960px]">
+    <div class="mx-auto max-w-[1040px]">
       <PestanasAdmin activa="fichaje" />
-      <p class="mt-4 text-base text-texto-2">Quién vino, a qué hora entró y salió, y cuántas horas hizo.</p>
+      <VistasPanel
+        opciones={[
+          { id: 'resumen', texto: 'Resumen', icono: 'chart-bar' },
+          { id: 'dia', texto: 'Día a día', icono: 'calendar-blank' },
+          { id: 'config', texto: 'Configuración', icono: 'gear-six' },
+        ]}
+      />
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
         <Icon name="lock-key" class="mx-auto size-10 text-marca" />
@@ -27,136 +37,173 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       </p>
 
       <div class="hidden" data-panel>
-        <!-- Cómo funciona (queda abierto hasta que la admin lo cierra) -->
-        <details class="tarjeta mt-6" data-como open>
-          <summary class="flex cursor-pointer list-none items-center gap-2">
-            <Icon name="lightbulb" class="size-6 text-marca" />
-            <span class="tarjeta-titulo flex-1">Cómo funciona el fichaje</span>
-            <Icon name="caret-down" class="size-5 text-texto-2" />
-          </summary>
-          <ol class="pasos mt-4">
-            <li>
-              <strong>Se ficha solo en el local</strong>, en la compu o en el celular del local (la app <strong>Lola · Fichador</strong>): mirando a la cámara, o mostrándole el código de
-              <strong>Fichar</strong> desde el celular propio. Desde otro lado no se puede.
-            </li>
-            <li><strong>Cada día, como mucho 2 entradas y 2 salidas</strong> (para el horario cortado). Si es entrada o salida, lo decide solo.</li>
-            <li>
-              <strong>Una sola vez:</strong> activá los aparatos y registrá las caras (abajo, en <strong>Configurar el fichador</strong>), y cargá la <strong>carga horaria</strong> de cada
-              una.
-            </li>
-            <li><strong>Todos los días:</strong> mirá <strong>Para revisar</strong> (si aparece) y la semana. Si alguien se olvidó de fichar, tocá el día y agregá la fichada.</li>
-            <li><strong>A fin de mes:</strong> bajá el Excel de horas por persona.</li>
-          </ol>
-          <p class="mt-3 text-sm text-texto-2">
-            Para sumar a alguien o darlo de baja: pestaña <a class="enlace" href={url('/admin')}>Aprendizaje</a>, en <strong>Dar acceso a alguien</strong> o <strong>El equipo</strong>.
-          </p>
-        </details>
-
-        <!-- Ahora -->
-        <section class="mt-6">
-          <h2 class="seccion-titulo"><Icon name="storefront" class="size-6 text-marca" /> Ahora en el local</h2>
-          <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3" data-ahora></div>
-        </section>
-
-        <!-- Para revisar -->
-        <section class="mt-8 hidden" data-revisar-seccion>
-          <h2 class="seccion-titulo"><Icon name="seal-warning" class="size-6 text-ambar" /> Para revisar <span class="contador" data-revisar-cuantas></span></h2>
-          <p class="mt-1 text-sm text-texto-2">Fichadas guardadas sin internet o que llegaron desde otra conexión de internet. Mirá la foto: si está bien, marcala.</p>
-          <ul class="mt-3 grid gap-3 sm:grid-cols-2" data-revisar></ul>
-        </section>
-
-        <!-- Semana -->
-        <section class="mt-8">
-          <div class="flex flex-wrap items-center gap-2">
-            <h2 class="seccion-titulo mr-auto"><Icon name="calendar-blank" class="size-6 text-marca" /> Semana</h2>
-            <button type="button" class="boton-icono" aria-label="Semana anterior" data-semana="-1"><Icon name="caret-left" class="size-5" /></button>
-            <span class="min-w-[11rem] text-center text-sm font-semibold text-profundo" data-semana-texto></span>
-            <button type="button" class="boton-icono" aria-label="Semana siguiente" data-semana="1"><Icon name="caret-right" class="size-5" /></button>
-            <button type="button" class="boton boton-secundario !px-3 !py-1.5 !text-sm" data-semana="0">Esta semana</button>
+        <!-- ==================== RESUMEN: para mirar rápido ==================== -->
+        <section data-vista="resumen">
+          <div data-arranque hidden>
+          <div class="tarjeta mt-6 flex flex-wrap items-center gap-3 !bg-ambar-suave">
+            <Icon name="lightbulb" class="size-7 shrink-0 text-ambar" />
+            <p class="min-w-0 flex-1 text-sm text-texto">
+              <strong>Para empezar:</strong> en <strong>Configuración</strong> activá la compu y el celular del local, registrá las caras y cargá la carga horaria de cada una.
+            </p>
+            <button type="button" class="boton boton-secundario !py-2 !text-sm" data-ir-config>Ir a Configuración</button>
           </div>
-          <p class="mt-1 text-sm text-texto-2">
-            Con la carga horaria de cada una se ve cuánto lleva y cuánto le falta. Tocá un día para ver el detalle con la foto, corregir una hora o agregar una fichada que faltó.
-          </p>
-          <div class="mt-4 grid gap-4 lg:grid-cols-2" data-semana-personas></div>
-          <p class="mt-3 text-sm text-texto-2" data-semana-sin></p>
-        </section>
-
-        <!-- Carga horaria y horarios -->
-        <details class="tarjeta mt-8" data-horas-tarjeta>
-          <summary class="flex cursor-pointer list-none flex-wrap items-center gap-2">
-            <Icon name="timer" class="size-6 text-marca" />
-            <span class="tarjeta-titulo flex-1">Carga horaria y horarios</span>
-            <span class="text-sm text-texto-2" data-horas-resumen></span>
-            <Icon name="caret-down" class="size-5 text-texto-2" />
-          </summary>
-          <p class="tarjeta-sub mt-3">
-            <strong>Carga horaria:</strong> cuántas horas por semana trabaja cada una. En la semana se ve cuánto lleva y cuánto le falta. Es flexible: no importa qué días ni a qué hora.
-          </p>
-          <p class="tarjeta-sub mt-1">
-            <strong>Horario fijo (opcional):</strong> si alguien tiene días y horarios fijos, cargalos y se marca si llegó tarde o se fue antes. Nunca bloquea a nadie: los cambios de turno y
-            los reemplazos se fichan igual.
-          </p>
-          <ul class="mt-4 flex flex-col gap-2" data-horarios></ul>
-        </details>
-
-        <!-- Excel -->
-        <section class="tarjeta mt-8">
-          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
-          <p class="tarjeta-sub">Un mes completo. Sirve para la liquidación y como copia de seguridad.</p>
-          <div class="mt-4 grid gap-3 sm:grid-cols-[auto_1fr_1fr]">
-            <label class="sr-only" for="mes">Mes</label>
-            <input id="mes" type="month" class="campo" data-mes />
-            <button type="button" class="boton boton-principal" data-excel="horas"><Icon name="download-simple" class="size-5" /> Horas por persona</button>
-            <button type="button" class="boton boton-secundario" data-excel="detalle"><Icon name="download-simple" class="size-5" /> Todas las fichadas</button>
           </div>
-        </section>
 
-        <!-- Configuración -->
-        <details class="tarjeta mt-8" data-config>
-          <summary class="flex cursor-pointer list-none items-center gap-2">
-            <Icon name="desktop" class="size-6 text-marca" />
-            <span class="tarjeta-titulo flex-1">Configurar el fichador</span>
-            <Icon name="caret-down" class="size-5 text-texto-2" />
-          </summary>
+          <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4" data-metricas></div>
 
-          <h3 class="sub-titulo mt-5">Aparatos que fichan</h3>
-          <p class="tarjeta-sub">
-            La compu y el celular del local. Para sumar uno: en ese aparato abrí <a class="enlace" href={linkFichador} target="_blank" rel="noopener">{linkFichador.replace('https://', '')}</a>, instalalo como app y
-            tocá <strong>Activar con mi cuenta de admin</strong>.
-          </p>
-          <ul class="mt-3 flex flex-col gap-2" data-compus></ul>
-
-          <h3 class="sub-titulo mt-7">Caras registradas</h3>
-          <p class="tarjeta-sub">
-            Siempre en el fichador del local, con la persona adelante. En el celular del local (con la sesión de admin abierta) tocá <strong>Registrar cara</strong> y elegí a la persona.
-            En la compu, generá acá un código, tocá <strong>Registrar cara</strong> y escribilo. Vale 15 minutos.
-          </p>
-          <ul class="mt-3 flex flex-col gap-2" data-caras></ul>
-
-          <h3 class="sub-titulo mt-7">Ajustes</h3>
-          <form class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]" data-ajustes>
-            <label class="text-sm font-semibold text-profundo"
-              >Exigencia del reconocimiento
-              <select class="campo mt-1" name="similitud_min">
-                <option value="0.45">Suave</option>
-                <option value="0.5">Normal (recomendada)</option>
-                <option value="0.55">Estricta</option>
-              </select>
-            </label>
-            <label class="text-sm font-semibold text-profundo"
-              >Contra fotos
-              <span class="campo mt-1 flex items-center gap-2 !py-2.5 font-normal">
-                <input type="checkbox" name="parpadeo" class="size-5 accent-[var(--color-marca)]" /> Pedir un parpadeo
+          <section class="tarjeta mt-5">
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h2 class="seccion-titulo"><Icon name="clock" class="size-6 text-marca" /> Hoy</h2>
+              <span class="text-sm font-semibold text-texto-2 first-letter:uppercase" data-hoy-fecha></span>
+              <span class="ml-auto flex items-center gap-3 text-xs text-texto-2">
+                <span class="flex items-center gap-1.5"><i class="leyenda-tramo"></i> Trabajó</span>
+                <span class="flex items-center gap-1.5"><i class="leyenda-tramo abierto"></i> Adentro ahora</span>
               </span>
+            </div>
+            <div class="mt-3" data-linea-hoy></div>
+          </section>
+
+          <section class="tarjeta mt-5">
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="seccion-titulo mr-auto"><Icon name="calendar-blank" class="size-6 text-marca" /> Semana</h2>
+              <button type="button" class="boton-icono" aria-label="Semana anterior" data-semana="-1"><Icon name="caret-left" class="size-5" /></button>
+              <span class="min-w-[10rem] text-center text-sm font-semibold text-profundo" data-semana-texto></span>
+              <button type="button" class="boton-icono" aria-label="Semana siguiente" data-semana="1"><Icon name="caret-right" class="size-5" /></button>
+              <button type="button" class="boton boton-secundario !px-3 !py-1.5 !text-sm" data-semana="0">Esta semana</button>
+            </div>
+            <p class="mt-1 text-sm text-texto-2">Horas de cada día y el total contra la carga horaria. Tocá un día para verlo y corregirlo en <strong>Día a día</strong>.</p>
+            <div class="planilla-caja mt-4" data-planilla></div>
+            <p class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-texto-2">
+              <span class="flex items-center gap-1.5"><i class="leyenda ok"></i> Completo</span>
+              <span class="flex items-center gap-1.5"><i class="leyenda alerta"></i> Para mirar (falta una fichada, llegó tarde…)</span>
+              <span class="flex items-center gap-1.5"><i class="leyenda adentro"></i> Adentro ahora</span>
+            </p>
+          </section>
+
+          <section class="tarjeta mt-5">
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
+            <p class="tarjeta-sub">Un mes completo. Sirve para la liquidación y como copia de seguridad.</p>
+            <div class="mt-4 grid gap-3 sm:grid-cols-[auto_1fr_1fr]">
+              <label class="sr-only" for="mes">Mes</label>
+              <input id="mes" type="month" class="campo" data-mes />
+              <button type="button" class="boton boton-principal" data-excel="horas"><Icon name="download-simple" class="size-5" /> Horas por persona</button>
+              <button type="button" class="boton boton-secundario" data-excel="detalle"><Icon name="download-simple" class="size-5" /> Todas las fichadas</button>
+            </div>
+          </section>
+        </section>
+
+        <!-- ==================== DÍA A DÍA: revisar y corregir ==================== -->
+        <section data-vista="dia" hidden>
+          <!-- Para revisar (de cualquier día) -->
+          <section class="tarjeta mt-6 hidden !ring-ambar/40" data-revisar-seccion>
+            <h2 class="seccion-titulo"><Icon name="seal-warning" class="size-6 text-ambar" /> Para revisar <span class="contador" data-revisar-cuantas></span></h2>
+            <p class="mt-1 text-sm text-texto-2">Fichadas guardadas sin internet o que llegaron desde otra conexión de internet. Mirá la foto: si está bien, marcala.</p>
+            <ul class="mt-3 grid gap-3 sm:grid-cols-2" data-revisar></ul>
+          </section>
+
+          <div class="mt-6 flex flex-wrap items-center gap-2">
+            <button type="button" class="boton-icono" aria-label="Día anterior" data-dia-mover="-1"><Icon name="caret-left" class="size-5" /></button>
+            <h2 class="min-w-[13rem] text-center text-xl font-bold text-profundo first-letter:uppercase" data-dia-texto></h2>
+            <button type="button" class="boton-icono" aria-label="Día siguiente" data-dia-mover="1"><Icon name="caret-right" class="size-5" /></button>
+            <button type="button" class="boton boton-secundario !px-3 !py-1.5 !text-sm" data-dia-hoy>Hoy</button>
+            <label class="ml-auto flex items-center gap-2 text-sm font-semibold text-texto-2"
+              >Ir a
+              <input type="date" class="campo !w-auto !py-1.5 !text-sm" data-dia-fecha />
             </label>
-            <label class="text-sm font-semibold text-profundo"
-              >Tolerancia para el horario fijo (minutos)
-              <input class="campo mt-1" name="tolerancia_min" type="number" min="0" max="60" step="1" />
-            </label>
-            <button type="submit" class="boton boton-principal self-end">Guardar</button>
-          </form>
-          <p class="mt-2 text-xs text-texto-2">Si el fichador confunde personas, subí la exigencia. Si a alguien le cuesta que la reconozca, volvé a registrar su cara con buena luz. "Pedir un parpadeo" frena a quien quiera fichar con una foto impresa, a cambio de un segundo más. Para ver los números con la cámara del local, abrí el fichador con <strong>?calibrar</strong> al final de la dirección.</p>
-        </details>
+          </div>
+          <div class="tira-dias mt-3" data-dias-tira></div>
+
+          <section class="tarjeta mt-4 !p-2 sm:!p-3">
+            <ul class="flex flex-col" data-dia-lista></ul>
+          </section>
+          <p class="mt-2 text-sm text-texto-2">Tocá <strong>Ver y corregir</strong> para ver las fotos, corregir una hora, cambiar entrada por salida o anular. Nada se borra: queda quién lo cambió y por qué.</p>
+        </section>
+
+        <!-- ==================== CONFIGURACIÓN ==================== -->
+        <section data-vista="config" hidden>
+          <details class="tarjeta mt-6" data-como open>
+            <summary class="flex cursor-pointer list-none items-center gap-2">
+              <Icon name="lightbulb" class="size-6 text-marca" />
+              <span class="tarjeta-titulo flex-1">Cómo funciona el fichaje</span>
+              <Icon name="caret-down" class="size-5 text-texto-2" />
+            </summary>
+            <ol class="pasos mt-4">
+              <li>
+                <strong>Se ficha solo en el local</strong>, en la compu o en el celular del local (la app <strong>Lola · Fichador</strong>): mirando a la cámara, o mostrándole el código de
+                <strong>Fichar</strong> desde el celular propio. Desde otro lado no se puede.
+              </li>
+              <li><strong>Cada día, como mucho 2 entradas y 2 salidas</strong> (para el horario cortado). Si es entrada o salida, lo decide solo.</li>
+              <li><strong>Una sola vez, acá abajo:</strong> activá los aparatos, registrá las caras y cargá la carga horaria de cada una.</li>
+              <li><strong>Todos los días:</strong> en <strong>Resumen</strong> ves quién vino y cómo va la semana; en <strong>Día a día</strong> revisás y corregís.</li>
+              <li><strong>A fin de mes:</strong> en <strong>Resumen</strong>, bajá el Excel de horas por persona.</li>
+            </ol>
+            <p class="mt-3 text-sm text-texto-2">
+              Para sumar a alguien o darlo de baja: pestaña <a class="enlace" href={url('/admin#equipo')}>Aprendizaje → Equipo y accesos</a>.
+            </p>
+          </details>
+
+          <section class="tarjeta mt-5">
+            <div class="flex flex-wrap items-baseline gap-2">
+              <h2 class="tarjeta-titulo flex flex-1 items-center gap-2"><Icon name="timer" class="size-6 text-marca" /> Carga horaria y horarios</h2>
+              <span class="text-sm text-texto-2" data-horas-resumen></span>
+            </div>
+            <p class="tarjeta-sub mt-2">
+              <strong>Carga horaria:</strong> cuántas horas por semana trabaja cada una. En la semana se ve cuánto lleva y cuánto le falta. Es flexible: no importa qué días ni a qué hora.
+            </p>
+            <p class="tarjeta-sub mt-1">
+              <strong>Horario fijo (opcional):</strong> si alguien tiene días y horarios fijos, cargalos y se marca si llegó tarde o se fue antes. Nunca bloquea a nadie: los cambios de turno y
+              los reemplazos se fichan igual.
+            </p>
+            <ul class="mt-4 flex flex-col gap-2" data-horarios></ul>
+          </section>
+
+          <section class="tarjeta mt-5">
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="desktop" class="size-6 text-marca" /> Aparatos que fichan</h2>
+            <p class="tarjeta-sub">
+              La compu y el celular del local. Para sumar uno: en ese aparato abrí <a class="enlace" href={linkFichador} target="_blank" rel="noopener">{linkFichador.replace('https://', '')}</a>, instalalo como app y
+              tocá <strong>Activar con mi cuenta de admin</strong>.
+            </p>
+            <ul class="mt-3 flex flex-col gap-2" data-compus></ul>
+          </section>
+
+          <section class="tarjeta mt-5">
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="user-focus" class="size-6 text-marca" /> Caras registradas</h2>
+            <p class="tarjeta-sub">
+              Siempre en el fichador del local, con la persona adelante. En el celular del local (con la sesión de admin abierta) tocá <strong>Registrar cara</strong> y elegí a la persona.
+              En la compu, generá acá un código, tocá <strong>Registrar cara</strong> y escribilo. Vale 15 minutos.
+            </p>
+            <ul class="mt-3 flex flex-col gap-2" data-caras></ul>
+          </section>
+
+          <section class="tarjeta mt-5">
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="gear-six" class="size-6 text-marca" /> Ajustes del reconocimiento</h2>
+            <form class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]" data-ajustes>
+              <label class="text-sm font-semibold text-profundo"
+                >Exigencia del reconocimiento
+                <select class="campo mt-1" name="similitud_min">
+                  <option value="0.45">Suave</option>
+                  <option value="0.5">Normal (recomendada)</option>
+                  <option value="0.55">Estricta</option>
+                </select>
+              </label>
+              <label class="text-sm font-semibold text-profundo"
+                >Contra fotos
+                <span class="campo mt-1 flex items-center gap-2 !py-2.5 font-normal">
+                  <input type="checkbox" name="parpadeo" class="size-5 accent-[var(--color-marca)]" /> Pedir un parpadeo
+                </span>
+              </label>
+              <label class="text-sm font-semibold text-profundo"
+                >Tolerancia para el horario fijo (minutos)
+                <input class="campo mt-1" name="tolerancia_min" type="number" min="0" max="60" step="1" />
+              </label>
+              <button type="submit" class="boton boton-principal self-end">Guardar</button>
+            </form>
+            <p class="mt-2 text-xs text-texto-2">
+              Si el fichador confunde personas, subí la exigencia. Si a alguien le cuesta que la reconozca, volvé a registrar su cara con buena luz. "Pedir un parpadeo" frena a quien quiera fichar
+              con una foto impresa, a cambio de un segundo más. Para ver los números con la cámara del local, abrí el fichador con <strong>?calibrar</strong> al final de la dirección.
+            </p>
+          </section>
+        </section>
 
         <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
       </div>
@@ -355,6 +402,335 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     border-radius: 9999px;
     background: var(--color-marca);
   }
+  /* ---------- Resumen: números de arriba ---------- */
+  :global(.metrica) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: 20px;
+    background: #fff;
+    padding: 14px 16px;
+    text-align: left;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  :global(button.metrica:hover) {
+    box-shadow: inset 0 0 0 2px var(--color-ambar);
+  }
+  :global(.metrica.aviso) {
+    background: var(--color-ambar-suave);
+  }
+  :global(.metrica-titulo) {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-texto-2);
+  }
+  :global(.metrica-valor) {
+    font-size: 1.75rem;
+    line-height: 1.15;
+    font-weight: 800;
+    color: var(--color-profundo);
+    font-variant-numeric: tabular-nums;
+  }
+  :global(.metrica.aviso .metrica-valor) {
+    color: var(--color-ambar);
+  }
+  :global(.metrica-sub) {
+    font-size: 0.75rem;
+    color: var(--color-texto-2);
+  }
+
+  /* ---------- Resumen: línea de tiempo de hoy ---------- */
+  :global(.linea-fila),
+  :global(.linea-eje) {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 2px 10px;
+  }
+  :global(.linea-fila) {
+    grid-template-areas: 'nombre pista' '. texto';
+    align-items: center;
+    border-radius: 12px;
+    padding: 6px 8px;
+    text-align: left;
+  }
+  :global(.linea-fila:hover) {
+    background: var(--color-menta-suave);
+  }
+  :global(.linea-eje) {
+    padding: 2px 8px 0;
+  }
+  @media (min-width: 640px) {
+    :global(.linea-fila),
+    :global(.linea-eje) {
+      grid-template-columns: 110px minmax(0, 1fr) 220px;
+    }
+    :global(.linea-fila) {
+      grid-template-areas: 'nombre pista texto';
+    }
+  }
+  :global(.linea-nombre) {
+    grid-area: nombre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  :global(.linea-pista) {
+    position: relative;
+    grid-area: pista;
+    height: 18px;
+    border-radius: 6px;
+    background: var(--color-crema);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.06);
+  }
+  :global(.linea-tramo) {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    border-radius: 5px;
+    background: var(--color-marca);
+  }
+  :global(.linea-tramo.abierto),
+  .leyenda-tramo.abierto {
+    background: var(--color-menta);
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  :global(.linea-suelta) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: var(--color-ambar);
+  }
+  :global(.linea-ahora) {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: var(--color-peligro);
+    opacity: 0.7;
+  }
+  :global(.linea-texto) {
+    grid-area: texto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    color: var(--color-texto-2);
+    font-variant-numeric: tabular-nums;
+  }
+  :global(.linea-texto.adentro) {
+    font-weight: 700;
+    color: var(--color-marca);
+  }
+  :global(.linea-apagado) {
+    font-weight: 500;
+    color: var(--color-texto-2) !important;
+  }
+  :global(.linea-reglas) {
+    position: relative;
+    height: 16px;
+    font-size: 0.6875rem;
+    color: var(--color-texto-2);
+  }
+  :global(.linea-reglas span) {
+    position: absolute;
+    transform: translateX(-50%);
+  }
+  .leyenda-tramo {
+    display: inline-block;
+    width: 18px;
+    height: 10px;
+    border-radius: 4px;
+    background: var(--color-marca);
+  }
+
+  /* ---------- Resumen: planilla de la semana ---------- */
+  .planilla-caja {
+    margin: 0 -8px;
+    overflow-x: auto;
+    padding: 0 8px;
+  }
+  :global(.planilla) {
+    width: 100%;
+    min-width: 660px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 4px;
+  }
+  :global(.planilla th) {
+    padding: 2px;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-texto-2);
+  }
+  :global(.planilla th.es-hoy) {
+    color: var(--color-marca);
+  }
+  :global(.planilla thead .col-nombre) {
+    width: 120px;
+  }
+  :global(.planilla thead .col-total) {
+    width: 118px;
+  }
+  :global(.planilla .col-nombre) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 96px;
+    max-width: 140px;
+    overflow: hidden;
+    background: #fff;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9375rem;
+    color: var(--color-profundo);
+  }
+  :global(.planilla .col-total) {
+    min-width: 108px;
+    padding-left: 8px;
+    text-align: left;
+    font-size: 0.875rem;
+  }
+  :global(.planilla td) {
+    padding: 0;
+  }
+  :global(.celda) {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 50px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    padding: 4px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+    transition: transform 120ms;
+  }
+  :global(.celda:hover) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -10px rgb(33 76 59 / 0.6);
+  }
+  :global(.celda.ok),
+  .leyenda.ok {
+    background: var(--color-menta-suave);
+    color: var(--color-profundo);
+  }
+  :global(.celda.alerta),
+  .leyenda.alerta {
+    background: var(--color-ambar-suave);
+    color: var(--color-ambar);
+  }
+  :global(.celda.adentro),
+  .leyenda.adentro {
+    background: var(--color-marca);
+    color: #fff;
+  }
+  :global(.celda.vacia) {
+    background: var(--color-crema);
+    font-weight: 500;
+    color: rgb(33 76 59 / 0.35);
+  }
+  :global(td.es-hoy .celda) {
+    outline: 2px solid rgb(33 76 59 / 0.25);
+    outline-offset: 1px;
+  }
+  :global(.celda-sub) {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+  :global(.celda-punto) {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-ambar);
+    box-shadow: 0 0 0 2px #fff;
+  }
+  .leyenda {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Día a día ---------- */
+  .tira-dias {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+  }
+  :global(.dia-tira) {
+    position: relative;
+    border-radius: 14px;
+    background: #fff;
+    padding: 8px 4px;
+    text-align: center;
+    color: var(--color-texto-2);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  :global(.dia-tira:hover) {
+    background: var(--color-menta-suave);
+  }
+  :global(.dia-tira.es-hoy) {
+    color: var(--color-marca);
+  }
+  :global(.dia-tira.elegido) {
+    background: var(--color-profundo);
+    color: #fff;
+    box-shadow: none;
+  }
+  :global(.fila-dia) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    border-radius: 16px;
+    padding: 12px;
+    transition: background 300ms;
+  }
+  :global(.fila-dia + .fila-dia) {
+    box-shadow: 0 -1px 0 rgb(33 76 59 / 0.08);
+  }
+  :global(.fila-dia.resaltada) {
+    background: var(--color-menta-suave);
+  }
+  :global(.chip-fichada) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 10px;
+    background: var(--color-crema);
+    padding: 4px 10px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+    font-variant-numeric: tabular-nums;
+  }
+  :global(.chip-fichada.salida) {
+    background: var(--color-menta-suave);
+  }
+  :global(.chip-extra) {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-texto-2);
+  }
   :global(.grilla-horario) {
     display: grid;
     grid-template-columns: auto 1fr 1fr;
@@ -367,6 +743,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   import { supabase } from '../lib/supabase';
   import { sesionLista } from '../scripts/sesion';
   import { descargarCsv, fechaExcel } from '../lib/csv';
+  import { irAVista } from '../scripts/vistas';
   import { hora, diaClave, diaLargo, duracion, tramos, type Fichada, type Tramo } from '../lib/fichador';
 
   // ---------- Tipos ----------
@@ -489,6 +866,13 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
 
   // ---------- Carga ----------
+  /** Las que fichan: activas, empleadas o con cara registrada (la encargada también puede fichar). */
+  const quienesFichan = () => personas.filter((p) => p.activo && (p.rol === 'empleada' || conCara.has(p.email) || p.horas_semana));
+
+  /** Fichadas entre dos días de Argentina (desde incluido, hasta excluido), de a 1000. */
+  const fichadasEntre = (desde: string, hasta: string) =>
+    todas<FichadaCompleta>((a, b) => supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(desde)).lt('hora', inicioDia(hasta)).order('hora').order('id').range(a, b));
+
   async function cargarTodo() {
     const db = supabase!;
     const [ps, aj, hs, cs] = await Promise.all([
@@ -501,41 +885,122 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     personas = ps;
     if (aj[0]) ajustes = aj[0];
     horarios = hs;
-    await Promise.all([pintarAhora(), pintarRevisar(), cargarSemana(), pintarConfig()]);
+    await Promise.all([pintarHoy(), pintarRevisar(), cargarSemana(), cargarDia(), pintarConfig()]);
   }
 
-  // ---------- Ahora en el local ----------
-  async function pintarAhora() {
+  // ---------- Resumen: los números de arriba ----------
+  let hoyTramos: Tramo[] = [];
+  let semanaActualMs = 0;
+  let cuantasRevisar = 0;
+
+  function pintarMetricas() {
+    const fichan = quienesFichan();
+    const adentro = new Set(hoyTramos.filter((t) => t.entrada && !t.salida).map((t) => t.email)).size;
+    const vinieron = new Set(hoyTramos.map((t) => t.email)).size;
+    const carga = fichan.reduce((s, p) => s + Number(p.horas_semana ?? 0), 0);
+    const horas = Math.floor(semanaActualMs / 3600000);
+    const tarjeta = (titulo: string, valor: string, sub: string, aviso = false, alTocar?: () => void) => {
+      const c = el(alTocar ? 'button' : 'div', `metrica${aviso ? ' aviso' : ''}`);
+      if (alTocar) {
+        (c as HTMLButtonElement).type = 'button';
+        c.addEventListener('click', alTocar);
+      }
+      c.append(el('span', 'metrica-titulo', titulo), el('span', 'metrica-valor', valor), el('span', 'metrica-sub', sub));
+      return c;
+    };
+    $('[data-metricas]').replaceChildren(
+      tarjeta('Ahora en el local', String(adentro), adentro === 1 ? 'persona adentro' : 'personas adentro'),
+      tarjeta('Hoy ficharon', `${vinieron} de ${fichan.length}`, 'del equipo'),
+      tarjeta('Para revisar', String(cuantasRevisar), cuantasRevisar ? 'Tocá para verlas' : 'Todo en orden', cuantasRevisar > 0, cuantasRevisar ? () => {
+        irAVista('dia');
+        $('[data-revisar-seccion]').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      } : undefined),
+      tarjeta('Horas de esta semana', `${horas} h`, carga ? `de ${Math.round(carga)} h de carga horaria` : 'entre todas'),
+    );
+  }
+
+  // ---------- Resumen: hoy, en una línea de tiempo ----------
+  async function pintarHoy() {
     const hoy = diaClave(new Date());
-    const fs = await q<FichadaCompleta[]>(supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(hoy)).eq('anulada', false).order('hora'));
-    // Solo lo de hoy: una entrada de ayer sin salida es un olvido (se ve en la semana), no alguien que sigue adentro.
-    const ts = tramosPorPersona(fs).filter((t) => t.dia === hoy);
-    const caja = $('[data-ahora]');
-    if (!ts.length) {
-      caja.replaceChildren(el('p', 'text-sm text-texto-2 sm:col-span-3', 'Hoy todavía no fichó nadie.'));
+    const l = lunesDe(hoy);
+    // La semana actual entera: sirve para hoy y para las horas de la semana.
+    const fs = (await fichadasEntre(l, sumarDias(l, 7))).filter((f) => !f.anulada);
+    const ts = tramosPorPersona(fs);
+    hoyTramos = ts.filter((t) => t.dia === hoy);
+    semanaActualMs = ts.reduce((s, t) => s + t.ms, 0);
+    $('[data-hoy-fecha]').textContent = diaLargo(new Date());
+    pintarLineaHoy();
+    pintarMetricas();
+  }
+
+  function pintarLineaHoy() {
+    const hoy = diaClave(new Date());
+    const ahora = minutosDe(new Date().toISOString());
+    const conFichadas = [...new Set(hoyTramos.map((t) => t.email))];
+    const primera = (email: string) => Math.min(...hoyTramos.filter((t) => t.email === email).map((t) => minutosDe((t.entrada ?? t.salida)!.hora)));
+    conFichadas.sort((a, b) => primera(a) - primera(b));
+    const emails = [...conFichadas, ...quienesFichan().map((p) => p.email).filter((e) => !conFichadas.includes(e))];
+    const caja = $('[data-linea-hoy]');
+    if (!emails.length) {
+      caja.replaceChildren(el('p', 'text-sm text-texto-2', 'Todavía no hay nadie en el equipo.'));
       return;
     }
-    const adentro = ts.filter((t) => t.entrada && !t.salida);
-    const fueron = ts.filter((t) => t.salida && !adentro.some((a) => a.email === t.email));
-    const unicos = (lista: Tramo[]) => [...new Map(lista.map((t) => [t.email, t])).values()];
-    caja.replaceChildren(
-      ...unicos(adentro).map((t) => {
-        const c = el('div', 'rounded-2xl bg-white p-4 ring-2 ring-marca/40');
-        c.append(
-          el('p', 'flex items-center gap-2 font-bold text-profundo', ''),
-          el('p', 'mt-0.5 text-sm text-texto-2 tabular-nums', `Entró a las ${hora(t.entrada!.hora)} · lleva ${duracion(Date.now() - new Date(t.entrada!.hora).getTime())}`),
-        );
-        const n = c.firstElementChild!;
-        n.append(el('span', 'size-2.5 rounded-full bg-marca'), nombreDe(t.email));
-        return c;
-      }),
-      ...unicos(fueron).map((t) => {
-        const c = el('div', 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10');
-        const total = ts.filter((x) => x.email === t.email).reduce((s, x) => s + x.ms, 0);
-        c.append(el('p', 'font-bold text-texto-2', nombreDe(t.email)), el('p', 'mt-0.5 text-sm text-texto-2 tabular-nums', `Se fue a las ${hora(t.salida!.hora)} · ${duracion(total)} hoy`));
-        return c;
-      }),
-    );
+    // El eje: de 8 a 21 h, o más si alguien fichó antes o después.
+    const marcas = hoyTramos.flatMap((t) => [t.entrada, t.salida].filter(Boolean).map((f) => minutosDe(f!.hora)));
+    const desde = Math.min(8 * 60, ...marcas.map((m) => Math.floor(m / 60) * 60));
+    const hasta = Math.min(24 * 60, Math.max(21 * 60, ahora + 30, ...marcas.map((m) => Math.ceil(m / 60) * 60)));
+    const pos = (m: number) => `${((Math.max(desde, Math.min(hasta, m)) - desde) / (hasta - desde)) * 100}%`;
+
+    const filas = emails.map((email) => {
+      const mios = hoyTramos.filter((t) => t.email === email);
+      const fila = el('button', 'linea-fila');
+      fila.type = 'button';
+      fila.title = 'Ver y corregir';
+      fila.addEventListener('click', () => void abrirDetalle(email, hoy));
+      const pista = el('span', 'linea-pista');
+      for (const t of mios) {
+        if (!t.entrada) {
+          const suelta = el('i', 'linea-suelta');
+          suelta.style.left = pos(minutosDe(t.salida!.hora));
+          pista.append(suelta);
+          continue;
+        }
+        const ini = minutosDe(t.entrada.hora);
+        const fin = t.salida ? minutosDe(t.salida.hora) : ahora;
+        const b = el('i', `linea-tramo${t.salida ? '' : ' abierto'}`);
+        b.style.left = pos(ini);
+        b.style.width = `max(6px, calc(${pos(fin)} - ${pos(ini)}))`;
+        pista.append(b);
+      }
+      if (ahora >= desde && ahora <= hasta) {
+        const ya = el('i', 'linea-ahora');
+        ya.style.left = pos(ahora);
+        pista.append(ya);
+      }
+      const total = mios.reduce((s, t) => s + t.ms, 0);
+      const abierto = mios.find((t) => t.entrada && !t.salida);
+      const texto = abierto
+        ? `Adentro desde las ${hora(abierto.entrada!.hora)}`
+        : mios.length
+          ? `${mios.map((t) => `${t.entrada ? hora(t.entrada.hora) : '¿?'}–${t.salida ? hora(t.salida.hora) : '¿?'}`).join(' y ')} · ${duracion(total)}`
+          : 'Todavía no fichó';
+      fila.append(
+        el('span', `linea-nombre${mios.length ? '' : ' linea-apagado'}`, nombreDe(email)),
+        pista,
+        el('span', `linea-texto${abierto ? ' adentro' : mios.length ? '' : ' linea-apagado'}`, texto),
+      );
+      return fila;
+    });
+    const eje = el('div', 'linea-eje');
+    eje.append(el('span'));
+    const reglas = el('span', 'linea-reglas');
+    for (let h = Math.ceil(desde / 60); h <= Math.floor(hasta / 60); h += 2) {
+      const r = el('span', '', `${h} h`);
+      r.style.left = pos(h * 60);
+      reglas.append(r);
+    }
+    eje.append(reglas);
+    caja.replaceChildren(...filas, eje);
   }
 
   // ---------- Para revisar ----------
@@ -555,6 +1020,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     );
     $('[data-revisar-seccion]').classList.toggle('hidden', !fs.length && !sin.length);
     $('[data-revisar-cuantas]').textContent = String(fs.length + sin.length);
+    cuantasRevisar = fs.length + sin.length;
+    pintarMetricas();
     $('[data-revisar]').replaceChildren(
       ...sin.map((x) => filaSinReconocer(x)),
       ...fs.map((f) => {
@@ -642,32 +1109,25 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     return [...por.values()].flatMap((lista) => tramos(lista, ajustes.horas_max_turno));
   }
 
-  /** Marcas de horario (solo si la persona tiene horario fijo prendido). */
-  function marcasHorario(email: string, dia: string, ts: Tramo[]): string[] {
+  /** Marcas de horario fijo (solo si la persona lo tiene prendido): el texto largo y uno corto para la planilla. */
+  function marcasHorario(email: string, dia: string, ts: Tramo[]): { texto: string; corto: string }[] {
     const p = personas.find((x) => x.email === email);
     if (!p?.horario_fijo) return [];
     const h = horarios.find((x) => x.email === email && x.dia === diaSemana(dia));
-    if (!h) return ts.length ? ['Día fuera de su horario'] : [];
-    const marcas: string[] = [];
+    if (!h) return ts.length ? [{ texto: 'Día fuera de su horario', corto: 'Fuera de horario' }] : [];
+    const marcas: { texto: string; corto: string }[] = [];
     const tol = ajustes.tolerancia_min;
     const primera = ts.find((t) => t.entrada)?.entrada;
     const ultima = [...ts].reverse().find((t) => t.salida)?.salida;
     if (primera) {
       const tarde = minutosDe(primera.hora) - minutos(h.entrada);
-      if (tarde > tol) marcas.push(`Llegó ${tarde} min tarde`);
+      if (tarde > tol) marcas.push({ texto: `Llegó ${tarde} min tarde`, corto: `Tarde ${tarde}′` });
     }
     if (ultima) {
       const antes = minutos(h.salida) - minutosDe(ultima.hora);
-      if (antes > tol) marcas.push(`Se fue ${antes} min antes`);
+      if (antes > tol) marcas.push({ texto: `Se fue ${antes} min antes`, corto: `Antes ${antes}′` });
     }
     return marcas;
-  }
-
-  async function cargarSemana() {
-    const desde = inicioDia(sumarDias(lunes, -1));
-    const hasta = inicioDia(sumarDias(lunes, 8));
-    semana = await todas<FichadaCompleta>((a, b) => supabase!.from('fichadas').select(COLUMNAS).gte('hora', desde).lt('hora', hasta).order('hora').order('id').range(a, b));
-    pintarSemana();
   }
 
   /** Horas de la carga horaria como texto: 30 → "30 h", 22.5 → "22 h 30". */
@@ -676,87 +1136,108 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   /** Cuánto lleva contra su carga horaria de la semana. */
   function avanceCarga(ms: number, horas: number, semanaActual: boolean) {
     const falta = horas * 3600000 - ms;
-    if (Math.abs(falta) < 5 * 60000) return { texto: 'Cumplió su carga', clase: 'text-marca' };
-    if (falta > 0) return { texto: `${semanaActual ? 'Le faltan' : 'Le faltaron'} ${duracion(falta)}`, clase: semanaActual ? 'text-texto-2' : 'text-ambar' };
+    if (Math.abs(falta) < 5 * 60000) return { texto: 'Cumplió', clase: 'text-marca' };
+    if (falta > 0) return { texto: `${semanaActual ? 'Faltan' : 'Faltaron'} ${duracion(falta)}`, clase: semanaActual ? 'text-texto-2' : 'text-ambar' };
     return { texto: `${duracion(-falta)} de más`, clase: 'text-marca' };
   }
 
-  function pintarSemana() {
+  /** Cómo está un día de una persona: para la celda de la planilla y la fila del Día a día. */
+  function estadoDia(email: string, dia: string, ts: Tramo[], fs: FichadaCompleta[]) {
+    const hoy = diaClave(new Date());
+    const abierto = ts.some((t) => t.entrada && !t.salida);
+    const faltaSalida = abierto && dia !== hoy;
+    const faltaEntrada = ts.some((t) => !t.entrada);
+    const marcas = marcasHorario(email, dia, ts);
+    const revisar = fs.some((f) => !f.anulada && f.revisar && !f.revisada_el);
+    const ms = ts.reduce((s, t) => s + t.ms, 0);
+    return { abierto: abierto && !faltaSalida, faltaSalida, faltaEntrada, marcas, revisar, ms };
+  }
+
+  async function cargarSemana() {
+    semana = await fichadasEntre(lunes, sumarDias(lunes, 7));
+    pintarPlanilla();
+  }
+
+  /** La planilla: una fila por persona, una columna por día y el total contra la carga horaria. */
+  function pintarPlanilla() {
     const dias = Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i));
-    const actual = lunes === lunesDe(diaClave(new Date()));
+    const hoy = diaClave(new Date());
+    const actual = lunes === lunesDe(hoy);
     const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', timeZone: 'America/Argentina/Buenos_Aires' });
     $('[data-semana-texto]').textContent = `${fmt.format(new Date(`${dias[0]}T12:00:00-03:00`))} al ${fmt.format(new Date(`${dias[6]}T12:00:00-03:00`))}`;
-    const ts = tramosPorPersona(semana).filter((t) => dias.includes(t.dia));
-    // Las que fichan: empleadas, y admins con cara registrada (la encargada también ficha).
-    const activas = personas.filter((p) => p.activo && (p.rol === 'empleada' || conCara.has(p.email)));
-    // Se muestran las que ficharon y las que tienen carga horaria (aunque no hayan venido).
-    const mostrar = personas.filter((p) => ts.some((t) => t.email === p.email) || (p.activo && p.horas_semana));
-    const sin = activas.filter((p) => !mostrar.includes(p));
-    $('[data-semana-sin]').textContent = sin.length ? `Sin fichadas esta semana: ${sin.map((p) => p.nombre || p.email.split('@')[0]).join(', ')}.` : '';
+    const validas = semana.filter((f) => !f.anulada);
+    const ts = tramosPorPersona(validas).filter((t) => dias.includes(t.dia));
+    const quienes = personas.filter((p) => quienesFichan().includes(p) || ts.some((t) => t.email === p.email));
 
-    const caja = $('[data-semana-personas]');
-    if (!mostrar.length) {
-      caja.replaceChildren(el('p', 'text-sm text-texto-2 lg:col-span-2', 'No hay fichadas en esta semana.'));
-      return;
+    const tabla = el('table', 'planilla');
+    const cab = el('tr');
+    cab.append(el('th', 'col-nombre', ''));
+    for (const d of dias) {
+      const th = el('th', d === hoy ? 'es-hoy' : '');
+      th.append(el('span', 'block', DIAS[diaSemana(d)].slice(0, 3)), el('span', 'block text-xs font-normal', String(Number(d.slice(8)))));
+      cab.append(th);
     }
-    caja.replaceChildren(
-      ...mostrar.map((p) => {
-        const mios = ts.filter((t) => t.email === p.email);
-        const total = mios.reduce((s, t) => s + t.ms, 0);
-        const tarjeta = el('article', 'tarjeta !p-4');
-        const cab = el('div', 'flex items-baseline justify-between gap-3 px-2');
-        cab.append(el('h3', 'text-lg font-bold text-profundo', p.nombre || p.email.split('@')[0]), el('span', 'text-lg font-bold tabular-nums text-marca', duracion(total)));
-        tarjeta.append(cab);
-
-        // Carga horaria: barra y cuánto le falta
-        if (p.horas_semana) {
-          const horas = Number(p.horas_semana);
-          const a = avanceCarga(total, horas, actual);
-          const carga = el('div', 'mt-1 px-2');
-          const barra = el('div', 'barra-carga');
-          const lleno = el('span');
-          lleno.style.width = `${Math.min(100, (total / (horas * 3600000)) * 100)}%`;
-          barra.append(lleno);
-          const linea = el('p', 'mt-1 flex flex-wrap justify-between gap-x-3 text-sm tabular-nums');
-          linea.append(el('span', 'text-texto-2', `${duracion(total)} de ${horasTexto(horas)}`), el('span', `font-semibold ${a.clase}`, a.texto));
-          carga.append(barra, linea);
-          tarjeta.append(carga);
+    cab.append(el('th', 'col-total', 'Total'));
+    const thead = el('thead');
+    thead.append(cab);
+    const cuerpo = el('tbody');
+    for (const p of quienes) {
+      const tr = el('tr');
+      tr.append(el('th', 'col-nombre', p.nombre || p.email.split('@')[0]));
+      let total = 0;
+      for (const d of dias) {
+        const delDia = ts.filter((t) => t.email === p.email && t.dia === d);
+        const fsDia = semana.filter((f) => f.email === p.email && diaClave(f.hora) === d);
+        const td = el('td', d === hoy ? 'es-hoy' : '');
+        const b = el('button', 'celda');
+        b.type = 'button';
+        b.addEventListener('click', () => void irADia(d, p.email));
+        const e = estadoDia(p.email, d, delDia, fsDia);
+        total += e.ms;
+        let texto: string;
+        let clase: string;
+        if (!delDia.length) {
+          texto = d > hoy ? '' : '—';
+          clase = 'vacia';
+        } else if (e.faltaSalida) {
+          texto = 'Falta salida';
+          clase = 'alerta';
+        } else if (e.faltaEntrada) {
+          texto = 'Falta entrada';
+          clase = 'alerta';
+        } else if (e.abierto) {
+          texto = 'Adentro';
+          clase = 'adentro';
+        } else {
+          texto = duracion(e.ms);
+          clase = e.marcas.length ? 'alerta' : 'ok';
         }
-
-        const lista = el('ul', 'mt-2 flex flex-col');
-        for (const dia of dias) {
-          const delDia = mios.filter((t) => t.dia === dia);
-          if (!delDia.length) continue;
-          const li = el('li');
-          const fila = el('button', 'dia-fila');
-          fila.type = 'button';
-          const nombreDia = el('span', 'w-12 shrink-0 pt-0.5 text-sm font-semibold text-texto-2', `${DIAS[diaSemana(dia)].slice(0, 3)} ${Number(dia.slice(8))}`);
-          const cuerpo = el('span', 'flex min-w-0 flex-1 flex-col gap-1');
-          for (const t of delDia) {
-            const linea = el('span', 'flex flex-wrap items-center gap-1.5 text-sm tabular-nums text-texto');
-            linea.append(el('span', 'font-semibold', `${t.entrada ? hora(t.entrada.hora) : '¿?'} – ${t.salida ? hora(t.salida.hora) : '¿?'}`));
-            if (t.ms) linea.append(el('span', 'text-texto-2', `· ${duracion(t.ms)}`));
-            if (!t.salida && dia !== diaClave(new Date())) linea.append(el('span', 'marca marca-ambar', 'Falta la salida'));
-            if (!t.salida && dia === diaClave(new Date())) linea.append(el('span', 'marca marca-verde', 'Adentro'));
-            if (!t.entrada) linea.append(el('span', 'marca marca-ambar', 'Falta la entrada'));
-            for (const f of [t.entrada, t.salida].filter(Boolean) as FichadaCompleta[]) {
-              if (f.revisar && !f.revisada_el) linea.append(el('span', 'marca marca-ambar', 'Revisar'));
-              if (f.metodo === 'manual') linea.append(el('span', 'marca marca-gris', 'A mano'));
-              if (f.hora_original) linea.append(el('span', 'marca marca-gris', 'Corregida'));
-            }
-            cuerpo.append(linea);
-          }
-          for (const m of marcasHorario(p.email, dia, delDia)) cuerpo.append(el('span', 'marca marca-ambar self-start', m));
-          fila.append(nombreDia, cuerpo);
-          fila.addEventListener('click', () => abrirDetalle(p.email, dia));
-          li.append(fila);
-          lista.append(li);
-        }
-        if (!mios.length) lista.append(el('li', 'px-2 text-sm text-texto-2', 'Sin fichadas esta semana.'));
-        tarjeta.append(lista);
-        return tarjeta;
-      }),
-    );
+        b.classList.add(clase);
+        b.append(el('span', 'block', texto));
+        if (e.marcas.length) b.append(el('span', 'celda-sub', e.marcas.map((m) => m.corto).join(' · ')));
+        if (e.revisar) b.append(el('i', 'celda-punto'));
+        b.title = [`${p.nombre || p.email.split('@')[0]}, ${diaLargo(`${d}T12:00:00-03:00`)}`, texto, ...e.marcas.map((m) => m.texto), e.revisar ? 'Hay algo para revisar' : '']
+          .filter(Boolean)
+          .join(' · ');
+        td.append(b);
+        tr.append(td);
+      }
+      const tdTotal = el('td', 'col-total');
+      tdTotal.append(el('span', 'block font-bold text-profundo tabular-nums', duracion(total)));
+      if (p.horas_semana) {
+        const horas = Number(p.horas_semana);
+        const a = avanceCarga(total, horas, actual);
+        const barra = el('span', 'barra-carga mt-1 block');
+        const lleno = el('span');
+        lleno.style.width = `${Math.min(100, (total / (horas * 3600000)) * 100)}%`;
+        barra.append(lleno);
+        tdTotal.append(el('span', 'block text-xs text-texto-2', `de ${horasTexto(horas)}`), barra, el('span', `block text-xs font-semibold ${a.clase}`, a.texto));
+      }
+      tr.append(tdTotal);
+      cuerpo.append(tr);
+    }
+    tabla.append(thead, cuerpo);
+    $('[data-planilla]').replaceChildren(quienes.length ? tabla : el('p', 'text-sm text-texto-2', 'Todavía no hay nadie en el equipo.'));
   }
 
   document.querySelectorAll<HTMLButtonElement>('[data-semana]').forEach((b) =>
@@ -767,6 +1248,128 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     }),
   );
 
+  // ---------- Día a día ----------
+  let diaVista = diaClave(new Date());
+  let semanaDia: FichadaCompleta[] = [];
+  let lunesDia = '';
+
+  /** Trae la semana del día elegido (si hace falta) y lo pinta. */
+  async function cargarDia(forzar = true) {
+    const l = lunesDe(diaVista);
+    if (forzar || l !== lunesDia) {
+      semanaDia = await fichadasEntre(l, sumarDias(l, 7));
+      lunesDia = l;
+    }
+    pintarDia();
+  }
+
+  /** Desde la planilla (o la línea de hoy): abre el día y marca a la persona. */
+  async function irADia(dia: string, email?: string) {
+    diaVista = dia;
+    await cargarDia(false);
+    irAVista('dia');
+    if (!email) return;
+    const fila = document.querySelector<HTMLElement>(`[data-dia-lista] [data-email="${CSS.escape(email)}"]`);
+    if (!fila) return;
+    requestAnimationFrame(() => fila.scrollIntoView({ block: 'center' }));
+    fila.classList.add('resaltada');
+    setTimeout(() => fila.classList.remove('resaltada'), 1800);
+  }
+
+  function pintarDia() {
+    const hoy = diaClave(new Date());
+    $('[data-dia-texto]').textContent = diaVista === hoy ? `Hoy, ${diaLargo(`${diaVista}T12:00:00-03:00`)}` : diaLargo(`${diaVista}T12:00:00-03:00`);
+    $<HTMLInputElement>('[data-dia-fecha]').value = diaVista;
+    const validas = semanaDia.filter((f) => !f.anulada);
+    const ts = tramosPorPersona(validas);
+
+    // La tira de la semana: un botón por día, con un punto si hay algo para mirar.
+    const l = lunesDe(diaVista);
+    $('[data-dias-tira]').replaceChildren(
+      ...Array.from({ length: 7 }, (_, i) => {
+        const d = sumarDias(l, i);
+        const b = el('button', `dia-tira${d === diaVista ? ' elegido' : ''}${d === hoy ? ' es-hoy' : ''}`);
+        b.type = 'button';
+        b.append(el('span', 'block text-xs', DIAS[diaSemana(d)].slice(0, 3)), el('span', 'block text-lg font-bold', String(Number(d.slice(8)))));
+        const alerta = personas.some((p) => {
+          const e = estadoDia(p.email, d, ts.filter((t) => t.email === p.email && t.dia === d), semanaDia.filter((f) => f.email === p.email && diaClave(f.hora) === d));
+          return e.faltaSalida || e.faltaEntrada || e.marcas.length || e.revisar;
+        });
+        if (alerta) b.append(el('i', 'celda-punto'));
+        b.addEventListener('click', () => {
+          diaVista = d;
+          pintarDia();
+        });
+        return b;
+      }),
+    );
+
+    // Una fila por persona: primero las que ficharon ese día, después las demás.
+    const delDia = ts.filter((t) => t.dia === diaVista);
+    const fsDia = semanaDia.filter((f) => diaClave(f.hora) === diaVista);
+    const ficharon = personas.filter((p) => fsDia.some((f) => f.email === p.email));
+    const resto = quienesFichan().filter((p) => !ficharon.includes(p));
+    const lista = $('[data-dia-lista]');
+    lista.replaceChildren(
+      ...[...ficharon, ...resto].map((p) => filaDia(p, delDia.filter((t) => t.email === p.email), fsDia.filter((f) => f.email === p.email))),
+    );
+    if (!lista.children.length) lista.append(el('li', 'p-3 text-sm text-texto-2', 'Todavía no hay nadie en el equipo.'));
+  }
+
+  function filaDia(p: Persona, ts: Tramo[], fs: FichadaCompleta[]) {
+    const hoy = diaClave(new Date());
+    const li = el('li', 'fila-dia');
+    li.dataset.email = p.email;
+    const cuerpo = el('div', 'flex min-w-0 flex-1 flex-wrap items-center gap-2');
+    cuerpo.append(el('span', 'w-32 shrink-0 truncate font-bold text-profundo', p.nombre || p.email.split('@')[0]));
+    const validas = fs.filter((f) => !f.anulada);
+    const anuladas = fs.length - validas.length;
+    const e = estadoDia(p.email, diaVista, ts, fs);
+    if (!validas.length) {
+      const noTrabaja = p.horario_fijo && !horarios.some((h) => h.email === p.email && h.dia === diaSemana(diaVista));
+      cuerpo.append(el('span', 'marca marca-gris', diaVista > hoy ? 'Todavía no llegó el día' : noTrabaja ? 'No trabaja este día' : 'No fichó'));
+    } else {
+      for (const f of validas) {
+        const chip = el('span', `chip-fichada ${f.tipo}`, `${f.tipo === 'entrada' ? 'Entrada' : 'Salida'} ${hora(f.hora)}`);
+        if (f.metodo === 'manual') chip.append(el('span', 'chip-extra', 'a mano'));
+        if (f.hora_original) chip.append(el('span', 'chip-extra', 'corregida'));
+        cuerpo.append(chip);
+      }
+      if (e.ms) cuerpo.append(el('span', 'text-sm font-semibold tabular-nums text-texto-2', duracion(e.ms)));
+      if (e.abierto) cuerpo.append(el('span', 'marca marca-verde', 'Adentro'));
+      if (e.faltaSalida) cuerpo.append(el('span', 'marca marca-ambar', 'Falta la salida'));
+      if (e.faltaEntrada) cuerpo.append(el('span', 'marca marca-ambar', 'Falta la entrada'));
+      for (const m of e.marcas) cuerpo.append(el('span', 'marca marca-ambar', m.texto));
+      if (e.revisar) cuerpo.append(el('span', 'marca marca-ambar', 'Para revisar'));
+    }
+    if (anuladas) cuerpo.append(el('span', 'marca marca-gris', anuladas === 1 ? '1 anulada' : `${anuladas} anuladas`));
+
+    const acciones = el('div', 'flex shrink-0 flex-wrap gap-2');
+    if (e.faltaSalida) acciones.append(boton('Agregar la salida', 'boton-principal', () => void abrirDetalle(p.email, diaVista, 'salida')));
+    if (validas.length || anuladas) acciones.append(boton('Ver y corregir', 'boton-secundario', () => void abrirDetalle(p.email, diaVista)));
+    else if (diaVista <= hoy) acciones.append(boton('Agregar fichada', 'boton-secundario', () => void abrirDetalle(p.email, diaVista, 'entrada')));
+    li.append(cuerpo, acciones);
+    return li;
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-dia-mover]').forEach((b) =>
+    b.addEventListener('click', () => {
+      diaVista = sumarDias(diaVista, Number(b.dataset.diaMover));
+      void cargarDia(false);
+    }),
+  );
+  $('[data-dia-hoy]').addEventListener('click', () => {
+    diaVista = diaClave(new Date());
+    void cargarDia(false);
+  });
+  $<HTMLInputElement>('[data-dia-fecha]').addEventListener('change', (e) => {
+    const v = (e.target as HTMLInputElement).value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return;
+    diaVista = v;
+    void cargarDia(false);
+  });
+  $('[data-ir-config]').addEventListener('click', () => irAVista('config'));
+
   // ---------- Detalle de un día ----------
   const dialogo = $<HTMLDialogElement>('[data-detalle]');
   let detalle: { email: string; dia: string } | null = null;
@@ -775,11 +1378,18 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
   const METODO: Record<string, string> = { cara: 'Con la cara', codigo: 'Con el código del celular', manual: 'Cargada a mano' };
 
-  function abrirDetalle(email: string, dia: string) {
+  async function abrirDetalle(email: string, dia: string, tipo?: 'entrada' | 'salida') {
     detalle = { email, dia };
+    let fs: FichadaCompleta[];
+    try {
+      fs = await q<FichadaCompleta[]>(
+        supabase!.from('fichadas').select(COLUMNAS).eq('email', email).gte('hora', inicioDia(dia)).lt('hora', inicioDia(sumarDias(dia, 1))).order('hora').order('id'),
+      );
+    } catch {
+      return alert('No se pudieron cargar las fichadas. Revisá la conexión.');
+    }
     $('[data-detalle-titulo]').textContent = nombreDe(email);
     $('[data-detalle-sub]').textContent = diaLargo(`${dia}T12:00:00-03:00`);
-    const fs = semana.filter((f) => f.email === email && diaClave(f.hora) === dia);
     const lista = $('[data-detalle-lista]');
     lista.replaceChildren(
       ...fs.map((f) => {
@@ -845,7 +1455,10 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       }),
     );
     if (!fs.length) lista.replaceChildren(el('li', 'text-sm text-texto-2', 'Sin fichadas este día.'));
+    const form = $<HTMLFormElement>('[data-agregar-fichada]');
+    if (tipo) (form.elements.namedItem('tipo') as HTMLSelectElement).value = tipo;
     if (!dialogo.open) dialogo.showModal();
+    if (tipo) (form.elements.namedItem('hora') as HTMLInputElement).focus();
   }
 
   async function anular(f: Fichada, reabrir = false) {
@@ -945,6 +1558,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       q<Compu[]>(db.from('dispositivos').select('id,nombre,activo,creado_por,creado_el,ultimo_uso').order('creado_el')),
       q<Cara[]>(db.from('caras').select('id,email,foto,creada_el,parecida_a').order('id')),
     ]);
+
+    // Si falta lo básico, el Resumen lo avisa
+    $('[data-arranque]').hidden = compus.some((c) => c.activo) && caras.length > 0;
 
     // Compus
     const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' });
@@ -1116,7 +1732,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       horarios = [...horarios.filter((x) => x.email !== p.email), ...filas];
       pintarChips();
       pintarResumenHoras();
-      pintarSemana();
+      pintarPlanilla();
+      pintarDia();
     });
     det.append(sum, cuerpo);
     li.append(det);
@@ -1137,7 +1754,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     const { error } = await supabase!.from('ajustes_fichador').update(nuevos).eq('id', 1);
     if (error) return alert('No se pudieron guardar los ajustes.');
     ajustes = { ...ajustes, ...nuevos };
-    pintarSemana();
+    pintarPlanilla();
+      pintarDia();
     alert('Ajustes guardados.');
   });
 
@@ -1166,6 +1784,10 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     await refrescar();
     $('[data-cargando]').classList.add('hidden');
     $('[data-panel]').classList.remove('hidden');
-    setInterval(() => document.visibilityState === 'visible' && !dialogo.open && void pintarAhora(), 60000);
+    setInterval(() => {
+      if (document.visibilityState !== 'visible' || dialogo.open) return;
+      void pintarHoy();
+      if (diaVista === diaClave(new Date())) void cargarDia();
+    }, 60000);
   });
 </script>

@@ -1,10 +1,13 @@
 ---
-// Panel de administración: tablero del equipo, avance de cada persona, descargas para Excel
-// y quiénes pueden entrar. Solo lo ven las admins (rol 'admin' en la tabla autorizados);
-// la base lo controla con RLS.
+// Panel de admin → Aprendizaje, en dos partes que se ven de a una:
+//  · Resumen: los números, los gráficos, cómo va cada persona (se abre para ver el detalle) y el Excel.
+//  · Equipo y accesos: dar acceso, cambiar el rol, dar de baja y reactivar.
+// Solo lo ven las admins (rol 'admin' en la tabla autorizados); la base lo controla con RLS.
+// La otra pestaña del panel (Fichaje) es fichadas.astro.
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
+import VistasPanel from '../components/VistasPanel.astro';
 import { getGuia } from '../data/guia';
 import { secciones } from '../data/bienvenida';
 import { NIVELES } from '../data/niveles';
@@ -21,7 +24,12 @@ const datos = {
   <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
     <div class="mx-auto max-w-[960px]">
       <PestanasAdmin activa="aprendizaje" />
-      <p class="mt-4 text-base text-texto-2">Cómo viene el equipo con la guía y los exámenes, y quiénes pueden entrar.</p>
+      <VistasPanel
+        opciones={[
+          { id: 'resumen', texto: 'Resumen', icono: 'chart-bar' },
+          { id: 'equipo', texto: 'Equipo y accesos', icono: 'user-gear' },
+        ]}
+      />
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
         <Icon name="lock-key" class="mx-auto size-10 text-marca" />
@@ -34,6 +42,8 @@ const datos = {
       </p>
 
       <div class="hidden" data-panel>
+        <!-- ==================== RESUMEN ==================== -->
+        <section data-vista="resumen">
         <!-- Números principales -->
         <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" data-resumen></div>
         <p class="mt-2 text-xs text-texto-2" data-base-texto></p>
@@ -59,6 +69,13 @@ const datos = {
           </section>
         </div>
 
+        <!-- Cómo va cada una -->
+        <section class="mt-8">
+          <h2 class="text-xl font-bold text-profundo">Cómo va cada una</h2>
+          <p class="mt-1 text-sm text-texto-2">Tocá a una persona para ver su avance: cada góndola, los exámenes y lo último que hizo.</p>
+          <ul class="mt-4 flex flex-col gap-3" data-equipo></ul>
+        </section>
+
         <!-- Descargas -->
         <section class="tarjeta mt-6">
           <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
@@ -73,6 +90,10 @@ const datos = {
           </div>
         </section>
 
+        </section>
+
+        <!-- ==================== EQUIPO Y ACCESOS ==================== -->
+        <section data-vista="equipo" hidden>
         <!-- Agregar -->
         <section class="tarjeta mt-6">
           <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca" /> Dar acceso a alguien</h2>
@@ -92,11 +113,11 @@ const datos = {
           <p class="mt-3 hidden text-sm font-semibold" data-agregar-estado aria-live="polite"></p>
         </section>
 
-        <!-- Equipo -->
+        <!-- El equipo: rol y bajas -->
         <section class="mt-8">
           <h2 class="text-xl font-bold text-profundo">El equipo</h2>
-          <p class="mt-1 text-sm text-texto-2">Tocá a una persona para ver su tablero.</p>
-          <ul class="mt-4 flex flex-col gap-3" data-equipo></ul>
+          <p class="mt-1 text-sm text-texto-2">Quiénes pueden entrar a la app y fichar. Desde acá cambiás el rol o das de baja a alguien (su historial queda guardado).</p>
+          <ul class="mt-4 flex flex-col gap-2" data-accesos></ul>
         </section>
 
         <!-- Dadas de baja: no entran ni fichan, pero su historial queda -->
@@ -104,6 +125,7 @@ const datos = {
           <h2 class="text-lg font-bold text-profundo">Dadas de baja</h2>
           <p class="mt-1 text-sm text-texto-2">No pueden entrar ni fichar. Su avance y sus fichadas quedan guardados.</p>
           <ul class="mt-3 flex flex-col gap-2" data-bajas></ul>
+        </section>
         </section>
 
         <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
@@ -577,6 +599,7 @@ const datos = {
 
     // Equipo, con el tablero de cada persona
     $('[data-equipo]').replaceChildren(...d.equipo.map((p) => persona(p, d, evs, total)));
+    $('[data-accesos]').replaceChildren(...d.equipo.map((p) => filaAcceso(p, d)));
 
     // Dadas de baja
     $('[data-bajas-seccion]').classList.toggle('hidden', !d.bajas.length);
@@ -707,34 +730,46 @@ const datos = {
       cuerpo.append(plegable(`Exámenes (${its.length})`, listaEx));
     }
 
-    // Acciones
-    const acciones = el('div', 'mt-5 flex flex-wrap gap-2');
-    if (p.email !== miEmail) {
-      const rol = el('button', 'boton boton-secundario !py-2 !text-sm', p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin');
-      rol.type = 'button';
-      rol.addEventListener('click', async () => {
-        const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
-        if (!confirm(`¿Cambiar a ${nombreDe(p)} a ${nuevo}?`)) return;
-        const { error } = await supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email);
-        if (error) alert('No se pudo cambiar el rol.');
-        void refrescar();
-      });
-      const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Dar de baja');
-      quitar.type = 'button';
-      quitar.addEventListener('click', async () => {
-        if (!confirm(`¿Dar de baja a ${nombreDe(p)}? Ya no va a poder entrar ni fichar. Su avance y sus fichadas quedan guardados, y la podés reactivar cuando quieras.`)) return;
-        const { error } = await supabase!.from('autorizados').update({ activo: false, baja_el: new Date().toISOString() }).eq('email', p.email);
-        if (error) alert('No se pudo dar de baja. Si es la primera vez, falta actualizar la base (supabase/schema.sql).');
-        void refrescar();
-      });
-      acciones.append(rol, quitar);
-    } else {
-      acciones.append(el('p', 'text-sm text-texto-2', 'Sos vos.'));
-    }
-    cuerpo.append(acciones);
 
     det.append(sum, cuerpo);
     li.append(det);
+    return li;
+  }
+
+  /** Equipo y accesos: una fila por persona, con su rol y los botones para cambiarlo o darla de baja. */
+  function filaAcceso(p: Autorizado, d: Datos) {
+    const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-profundo/10');
+    li.append(el('span', 'flex size-10 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo', nombreDe(p)[0].toUpperCase()));
+    const quien = el('span', 'min-w-0 flex-1');
+    const nombre = el('span', 'block truncate font-semibold text-profundo', nombreDe(p));
+    nombre.append(
+      el('span', `ml-2 rounded-full px-2 py-0.5 text-[0.7rem] font-bold uppercase ${p.rol === 'admin' ? 'bg-profundo text-white' : 'bg-menta-suave text-profundo'}`, p.rol === 'admin' ? 'Admin' : 'Empleada'),
+    );
+    if (d.conCara.has(p.email)) nombre.append(el('span', 'ml-2 rounded-full bg-menta-suave px-2 py-0.5 text-[0.7rem] font-bold text-profundo', 'Cara ✓'));
+    quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
+    li.append(quien);
+    if (p.email === miEmail) {
+      li.append(el('span', 'text-sm text-texto-2', 'Sos vos'));
+      return li;
+    }
+    const rol = el('button', 'boton boton-secundario !py-2 !text-sm', p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin');
+    rol.type = 'button';
+    rol.addEventListener('click', async () => {
+      const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
+      if (!confirm(`¿Cambiar a ${nombreDe(p)} a ${nuevo}?`)) return;
+      const { error } = await supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email);
+      if (error) alert('No se pudo cambiar el rol.');
+      void refrescar();
+    });
+    const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Dar de baja');
+    quitar.type = 'button';
+    quitar.addEventListener('click', async () => {
+      if (!confirm(`¿Dar de baja a ${nombreDe(p)}? Ya no va a poder entrar ni fichar. Su avance y sus fichadas quedan guardados, y la podés reactivar cuando quieras.`)) return;
+      const { error } = await supabase!.from('autorizados').update({ activo: false, baja_el: new Date().toISOString() }).eq('email', p.email);
+      if (error) alert('No se pudo dar de baja.');
+      void refrescar();
+    });
+    li.append(rol, quitar);
     return li;
   }
 
@@ -822,7 +857,7 @@ const datos = {
     const { error } = await supabase!.from('autorizados').insert({ email, nombre, rol });
     if (error) {
       estado.className = 'mt-3 text-sm font-semibold text-peligro';
-      estado.textContent = error.code === '23505' ? 'Ese mail ya está en la lista (si está dado de baja, reactivalo abajo, en Dadas de baja).' : 'No se pudo agregar. Revisá el mail y la conexión.';
+      estado.textContent = error.code === '23505' ? 'Ese mail ya está en la lista (si está dado de baja, reactivalo más abajo, en Dadas de baja).' : 'No se pudo agregar. Revisá el mail y la conexión.';
       return;
     }
     estado.className = 'mt-3 text-sm font-semibold text-marca';

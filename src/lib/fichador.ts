@@ -56,7 +56,8 @@ export const diaLargo = (iso: string | Date) =>
 export const duracion = (ms: number) => {
   const min = Math.max(0, Math.round(ms / 60000));
   const h = Math.floor(min / 60);
-  return h ? `${h} h ${String(min % 60).padStart(2, '0')}` : `${min} min`;
+  if (!h) return `${min} min`;
+  return min % 60 ? `${h} h ${String(min % 60).padStart(2, '0')}` : `${h} h`;
 };
 
 // ---------- Tramos: cada entrada con su salida ----------

@@ -1,0 +1,64 @@
+---
+// Sub-pestañas dentro de una parte del panel de admin (por ejemplo: Resumen · Día a día · Configuración).
+// La lógica está en src/scripts/vistas.ts.
+import Icon from './Icon.astro';
+
+interface Props {
+  opciones: { id: string; texto: string; icono: string }[];
+}
+const { opciones } = Astro.props;
+---
+
+<nav class="vistas" aria-label="Secciones" data-vistas>
+  {
+    opciones.map((o, i) => (
+      <button type="button" class="vista-boton" data-vista-boton={o.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+        <Icon name={o.icono} class="size-5 shrink-0" />
+        <span>{o.texto}</span>
+      </button>
+    ))
+  }
+</nav>
+
+<style>
+  .vistas {
+    display: flex;
+    gap: 4px;
+    margin-top: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-bottom: 1px solid rgb(33 76 59 / 0.12);
+  }
+  .vista-boton {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 3px solid transparent;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: var(--color-texto-2);
+    transition:
+      color 160ms,
+      border-color 160ms;
+  }
+  .vista-boton:hover {
+    color: var(--color-profundo);
+  }
+  .vista-boton[aria-pressed='true'] {
+    border-bottom-color: var(--color-marca);
+    color: var(--color-profundo);
+  }
+  .vista-boton[aria-pressed='true'] :global(svg) {
+    color: var(--color-marca);
+  }
+  /* Una sección oculta queda oculta aunque sus estilos digan otra cosa. */
+  :global([data-vista][hidden]) {
+    display: none !important;
+  }
+</style>
+
+<script>
+  import { iniciarVistas } from '../scripts/vistas';
+  iniciarVistas();
+</script>
