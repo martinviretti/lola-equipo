@@ -22,19 +22,29 @@ const sugerencias = ['chía', 'nuez pecán', 'leche para café', 'sin TACC', 'st
           enterkeyhint="search"
           autocomplete="off"
           autofocus
-          placeholder="¿Qué te preguntaron?"
-          class="w-full rounded-2xl bg-white py-4 pr-4 pl-12 text-base text-texto ring-1 ring-profundo/15 outline-none placeholder:text-texto-2 focus:ring-2 focus:ring-marca"
+          placeholder="Buscá un producto…"
+          class="campo-busqueda w-full rounded-2xl bg-white py-4 pr-14 pl-12 text-base text-texto ring-1 ring-profundo/15 outline-none placeholder:text-texto-2 focus:ring-2 focus:ring-marca"
         />
+        <button type="button" class="borrar-busqueda" aria-label="Borrar lo que escribiste" data-borrar hidden>
+          <span><Icon name="x" class="size-4" /></span>
+        </button>
       </div>
 
-      <div class="mt-4 flex flex-wrap gap-2" data-sugerencias>
-        {
-          sugerencias.map((s) => (
-            <button type="button" data-sugerencia={s} class="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-profundo ring-1 ring-profundo/10 hover:bg-menta-suave">
-              {s}
-            </button>
-          ))
-        }
+      <div class="mt-4" data-sugerencias>
+        <p class="text-sm text-texto-2">Probá con:</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          {
+            sugerencias.map((s) => (
+              <button
+                type="button"
+                data-sugerencia={s}
+                class="inline-flex min-h-11 items-center rounded-full bg-white px-4 text-[0.9375rem] font-semibold text-profundo ring-1 ring-profundo/10 hover:bg-menta-suave"
+              >
+                {s}
+              </button>
+            ))
+          }
+        </div>
       </div>
 
       <p class="mt-4 hidden text-sm text-texto-2" data-buscador-estado aria-live="polite"></p>
@@ -43,10 +53,60 @@ const sugerencias = ['chía', 'nuez pecán', 'leche para café', 'sin TACC', 'st
   </main>
 </Manual>
 
+<style>
+  /* La "x" propia (44 px y con los colores de la app) en lugar de la azul del navegador */
+  .campo-busqueda::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+  .borrar-busqueda {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    display: flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    color: var(--color-profundo);
+  }
+  .borrar-busqueda > span {
+    display: flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+  }
+  @media (hover: hover) {
+    .borrar-busqueda:hover > span {
+      background: var(--color-menta);
+    }
+  }
+</style>
+
 <script>
   import { initBuscador } from '../scripts/buscador';
   initBuscador();
   const input = document.querySelector<HTMLInputElement>('#buscador')!;
+  const borrar = document.querySelector<HTMLButtonElement>('[data-borrar]')!;
+  const sugerencias = document.querySelector<HTMLElement>('[data-sugerencias]')!;
+  // Con algo escrito, las sugerencias se van (dejan lugar a los resultados) y aparece la "x".
+  const actualizar = () => {
+    const hay = input.value.trim().length > 0;
+    borrar.hidden = !input.value;
+    sugerencias.hidden = hay;
+  };
+  input.addEventListener('input', actualizar);
+  borrar.addEventListener('click', () => {
+    input.value = '';
+    input.dispatchEvent(new Event('input'));
+    input.focus();
+  });
   document.querySelectorAll<HTMLButtonElement>('[data-sugerencia]').forEach((b) =>
     b.addEventListener('click', () => {
       input.value = b.dataset.sugerencia!;
@@ -54,4 +114,5 @@ const sugerencias = ['chía', 'nuez pecán', 'leche para café', 'sin TACC', 'st
       input.focus();
     }),
   );
+  actualizar();
 </script>

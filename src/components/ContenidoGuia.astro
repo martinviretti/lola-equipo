@@ -7,9 +7,15 @@
 //   "## Lo que más te van a preguntar"   → <section class="preguntas">
 //
 // modo "app" (la página de cada góndola en la app): reparte el contenido en paneles para las
-// pestañas (data-panel="basico" | "productos" | "preguntas"), cada producto es una tarjeta que
-// se abre (<details class="ficha">, con el h3 y su id adentro del <summary>) y cada pregunta de
-// cliente muestra la respuesta al tocarla.
+// pestañas (role="tabpanel", id="panel-<id>", data-panel="productos" | "basico" | "preguntas",
+// rotulados por la pestaña id="tab-<id>"). Cada producto es una tarjeta que se abre
+// (<details class="ficha">, con el h3 y su id adentro del <summary>) envuelta en un
+// <div class="ficha-wrap">, donde la página pone la estrella (afuera del summary: un summary ya
+// es un botón). Cada pregunta de cliente muestra la respuesta al tocarla.
+// Ranuras opcionales (solo modo "app"), para que cada panel tenga todo lo suyo adentro:
+//   productos-antes / productos-despues → antes y después de la lista de fichas
+//   basico-antes                        → arriba de "Lo básico"
+//   preguntas-ayuda                     → debajo del título de las preguntas
 //
 // Uso: <ContenidoGuia modo="app"><Content components={{ table: Tabla }} /></ContenidoGuia>
 interface Props {
@@ -44,13 +50,13 @@ function bajada(html: string) {
 const FLECHA =
   '<svg class="ficha-flecha" viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg>';
 
-/** Una ficha como tarjeta plegable: el h3 (con su id) queda en el summary. */
+/** Una ficha como tarjeta plegable: el h3 (con su id) queda en el summary; la envoltura deja lugar a la estrella. */
 function fichaApp(parte: string) {
   const m = parte.match(/^(<h3[^>]*>[\s\S]*?<\/h3>)([\s\S]*)$/);
   if (!m) return parte;
   const [, h3, cuerpo] = m;
   const id = h3.match(/id="([^"]+)"/)?.[1] ?? '';
-  return `<details class="ficha" data-ficha="${id}"><summary><span class="ficha-cabeza">${h3}<span class="ficha-bajada">${bajada(cuerpo)}</span></span><span class="ficha-abrir">${FLECHA}</span></summary><div class="ficha-cuerpo">${marcarDestacados(cuerpo)}</div></details>`;
+  return `<div class="ficha-wrap"><details class="ficha" data-ficha="${id}"><summary><span class="ficha-cabeza">${h3}<span class="ficha-bajada">${bajada(cuerpo)}</span></span><span class="ficha-abrir">${FLECHA}</span></summary><div class="ficha-cuerpo">${marcarDestacados(cuerpo)}</div></details></div>`;
 }
 
 /** Cada "**"¿Pregunta?"**" + respuesta, como tarjeta que muestra la respuesta al tocarla. */
@@ -111,32 +117,58 @@ function armarImprimir(html: string) {
   return salida;
 }
 
-function armarApp(html: string) {
+interface Ranuras {
+  productosAntes: string;
+  productosDespues: string;
+  basicoAntes: string;
+  preguntasAyuda: string;
+}
+
+function armarApp(html: string, r: Ranuras) {
   const paneles: Record<'basico' | 'productos' | 'preguntas', string[]> = { basico: [], productos: [], preguntas: [] };
   let h2 = '';
   for (const parte of html.split(/(?=<h[23][\s>])/)) {
     const titulo = parte.match(/^<h([23])[^>]*>([\s\S]*?)<\/h\1>/);
     if (titulo?.[1] === '2') h2 = sinEtiquetas(titulo[2]);
     if (h2 === 'Los productos') {
-      // El título "Los productos" lo reemplaza la pestaña; cada h3 es una ficha.
-      if (titulo?.[1] === '3') paneles.productos.push(fichaApp(parte));
+      // El título "Los productos" lo reemplaza la pestaña a la vista; queda para los lectores de
+      // pantalla (así el orden de títulos es h1 → h2 → h3). Cada h3 es una ficha.
+      if (titulo?.[1] === '2') paneles.productos.push(titulo[0].replace(/^<h2/, '<h2 class="sr-only"'));
+      else if (titulo?.[1] === '3') paneles.productos.push(fichaApp(parte));
     } else if (h2 === 'Lo que más te van a preguntar') {
-      paneles.preguntas.push(preguntasApp(parte));
+      // La ayuda va debajo del título, no arriba.
+      const p = preguntasApp(parte);
+      paneles.preguntas.push(titulo?.[1] === '2' ? p.replace(/<\/h2>/, `</h2>${r.preguntasAyuda}`) : p);
     } else if (h2 === 'Lo básico') {
       paneles.basico.push(`<section class="lo-basico">${parte}</section>`);
     } else {
       paneles.basico.push(parte);
     }
   }
+  const panel = (id: string, contenido: string, oculto: boolean, enfocable: boolean) =>
+    `<div id="panel-${id}" role="tabpanel" aria-labelledby="tab-${id}" data-panel="${id}"${enfocable ? ' tabindex="0"' : ''}${oculto ? ' hidden' : ''}>${contenido}</div>`;
   return [
-    `<div data-panel="basico" hidden>${tablasApp(paneles.basico.join(''))}</div>`,
-    `<div data-panel="productos" class="lista-fichas">${paneles.productos.join('')}</div>`,
-    `<div data-panel="preguntas" class="lista-preguntas" hidden>${paneles.preguntas.join('')}</div>`,
+    panel(
+      'productos',
+      `${r.productosAntes}<div class="prosa guia mt-4"><div class="lista-fichas">${paneles.productos.join('')}</div></div>${r.productosDespues}`,
+      false,
+      false,
+    ),
+    panel('basico', `${r.basicoAntes}<div class="prosa guia mt-5"><div>${tablasApp(paneles.basico.join(''))}</div></div>`, true, true),
+    panel('preguntas', `<div class="prosa guia mt-4"><div class="lista-preguntas">${paneles.preguntas.join('')}</div></div>`, true, true),
   ].join('');
 }
 
 const renderizado = await Astro.slots.render('default');
-const html = modo === 'app' ? armarApp(renderizado) : armarImprimir(renderizado);
+const html =
+  modo === 'app'
+    ? armarApp(renderizado, {
+        productosAntes: Astro.slots.has('productos-antes') ? await Astro.slots.render('productos-antes') : '',
+        productosDespues: Astro.slots.has('productos-despues') ? await Astro.slots.render('productos-despues') : '',
+        basicoAntes: Astro.slots.has('basico-antes') ? await Astro.slots.render('basico-antes') : '',
+        preguntasAyuda: Astro.slots.has('preguntas-ayuda') ? await Astro.slots.render('preguntas-ayuda') : '',
+      })
+    : armarImprimir(renderizado);
 ---
 
 <Fragment set:html={html} />
