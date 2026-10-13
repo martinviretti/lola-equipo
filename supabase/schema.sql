@@ -19,7 +19,7 @@ create table if not exists public.autorizados (
 insert into public.autorizados (email, nombre, rol) values
   ('martinviretti@gmail.com', 'Martín', 'admin'),
   ('jimenasavarro@gmail.com', 'Jimena', 'admin')
-on conflict (email) do update set rol = 'admin';
+on conflict (email) do nothing;  -- si ya están, no se tocan (por si alguna dejó de ser admin a propósito)
 
 -- Dar de baja sin borrar: la persona deja de entrar, pero su historial (avance y fichadas) queda.
 alter table public.autorizados add column if not exists activo boolean not null default true;
@@ -291,7 +291,7 @@ $$;
 -- Distancia entre huellas → parecido de 0 a 1. Con face-api, la misma persona suele quedar a menos de 0,5
 -- y dos personas distintas a más de 0,6 (por eso el mínimo de parecido por defecto es 0,5).
 create or replace function public._similitud(d double precision) returns real
-language sql immutable as $$
+language sql immutable set search_path = public as $$
   select greatest(0, least(1, 1 - d))::real
 $$;
 
@@ -315,13 +315,13 @@ $$;
 
 -- Conexión de internet desde la que llega el pedido (Supabase la pasa en los encabezados).
 create or replace function public._ip() returns text
-language sql stable as $$
+language sql stable set search_path = public as $$
   select nullif(trim(split_part(coalesce(nullif(current_setting('request.headers', true), '')::json ->> 'x-forwarded-for', ''), ',', 1)), '')
 $$;
 
 -- Día de Argentina de una hora.
 create or replace function public._dia(t timestamptz) returns date
-language sql immutable as $$ select (t at time zone 'America/Argentina/Buenos_Aires')::date $$;
+language sql immutable set search_path = public as $$ select (t at time zone 'America/Argentina/Buenos_Aires')::date $$;
 
 -- Por día, como mucho 2 entradas y 2 salidas (horario cortado). ¿Ya tiene 2 de ese tipo ese día?
 -- p_excluir: la fichada que se está cambiando (no cuenta).
@@ -627,7 +627,7 @@ declare v_secreto text := encode(gen_random_bytes(32), 'hex'); v_id uuid;
 begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
   insert into public.dispositivos (nombre, secreto_hash, creado_por)
-  values (coalesce(nullif(trim(p_nombre), ''), 'Compu del local'), encode(digest(v_secreto, 'sha256'), 'hex'), public.mi_email())
+  values (left(coalesce(nullif(trim(p_nombre), ''), 'Compu del local'), 40), encode(digest(v_secreto, 'sha256'), 'hex'), public.mi_email())
   returning id into v_id;
   return jsonb_build_object('id', v_id, 'secreto', v_secreto);
 end $$;
@@ -659,7 +659,7 @@ begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
   if public._dia_completo(lower(p_email), p_tipo, p_hora) then raise exception 'limite_dia' using errcode = 'P0001'; end if;
   insert into public.fichadas (email, tipo, hora, metodo, creada_por, nota)
-  values (lower(p_email), p_tipo, p_hora, 'manual', public.mi_email(), nullif(trim(p_nota), ''))
+  values (lower(p_email), p_tipo, p_hora, 'manual', public.mi_email(), left(nullif(trim(p_nota), ''), 300))
   returning id into v_id;
   return v_id;
 end $$;
@@ -676,7 +676,7 @@ begin
   end if;
   update public.fichadas
      set hora_original = coalesce(hora_original, hora), hora = p_hora,
-         corregida_por = public.mi_email(), corregida_el = now(), motivo = nullif(trim(p_motivo), '')
+         corregida_por = public.mi_email(), corregida_el = now(), motivo = left(nullif(trim(p_motivo), ''), 300)
    where id = p_id;
 end $$;
 
@@ -686,7 +686,7 @@ language plpgsql security definer set search_path = public, extensions as $$
 begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
   update public.fichadas
-     set anulada = true, anulada_por = public.mi_email(), anulada_el = now(), anulada_motivo = nullif(trim(p_motivo), '')
+     set anulada = true, anulada_por = public.mi_email(), anulada_el = now(), anulada_motivo = left(nullif(trim(p_motivo), ''), 300)
    where id = p_id;
 end $$;
 
@@ -704,7 +704,7 @@ begin
   update public.fichadas
      set tipo = case tipo when 'entrada' then 'salida' else 'entrada' end,
          corregida_por = public.mi_email(), corregida_el = now(),
-         motivo = concat_ws(' · ', nullif(trim(p_motivo), ''), 'Se cambió entrada/salida')
+         motivo = concat_ws(' · ', left(nullif(trim(p_motivo), ''), 300), 'Se cambió entrada/salida')
    where id = p_id;
 end $$;
 
