@@ -2,10 +2,10 @@
   {
     "id": "11-1",
     "tipo": "opcion",
-    "pregunta": "¿Cómo sabés si un pan es integral de verdad?",
-    "opciones": ["Por el color oscuro de la miga", "Porque la harina integral está primera en los ingredientes", "Porque tiene puntitos de salvado"],
-    "correcta": 1,
-    "explicacion": "El color engaña: hay panes oscuros por malta o caramelo. El integral de verdad lleva la harina integral primera."
+    "pregunta": "Una clienta pide un pan bajo en hidratos y es alérgica a las almendras. ¿Qué tenés en cuenta?",
+    "opciones": ["Que casi todos los keto llevan frutos secos: leés la lista", "Que el keto sirve para cualquier alergia porque no tiene harina", "Que el de centeno es el pan con menos hidratos de la góndola"],
+    "correcta": 0,
+    "explicacion": "Los panes keto se hacen con harinas de almendras, coco o lino, y casi todos tienen frutos secos y huevo. Ante una alergia, se lee toda la lista."
   },
   {
     "id": "11-2",
@@ -20,7 +20,7 @@
     "pregunta": "Una clienta celíaca te pide un pan de la panera. ¿Qué hacés?",
     "opciones": ["Le ofrecés uno envasado con el logo sin TACC", "Le das uno con una pinza limpia", "Le das un chipá, que es de mandioca"],
     "correcta": 0,
-    "explicacion": "Una miga de pan común alcanza para contaminar. Para celíacos, solo envasado, cerrado y con logo."
+    "explicacion": "Lo que estuvo en la panera con pan común se contamina: una miga alcanza. Para celíacos, solo envasado, cerrado y con logo."
   },
   {
     "id": "11-4",

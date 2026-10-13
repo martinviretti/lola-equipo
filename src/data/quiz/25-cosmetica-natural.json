@@ -10,7 +10,7 @@
     "id": "25-2",
     "tipo": "opcion",
     "pregunta": "Una clienta pregunta si un producto natural le puede dar alergia. ¿Qué le decís?",
-    "opciones": ["Que no, porque es natural", "Que sí, y que pruebe primero en una zona chica", "Que solo si tiene perfume"],
+    "opciones": ["Que no, porque lo natural no da ninguna reacción", "Que sí, y que lo pruebe en una zona chica", "Que solo puede pasar si el producto tiene perfume"],
     "correcta": 1,
     "explicacion": "Natural no quiere decir que no dé reacción. Conviene probar en el interior del brazo y esperar un día."
   },
@@ -18,7 +18,7 @@
     "id": "25-3",
     "tipo": "opcion",
     "pregunta": "Un cliente pregunta si la rosa mosqueta le borra las cicatrices. ¿Qué respondés?",
-    "opciones": ["Que no se lo podés prometer, que vea un dermatólogo", "Que sí, con unas gotas por día", "Que mejor use un aceite esencial"],
+    "opciones": ["Que no se lo prometés: que vea un dermatólogo", "Que sí, si se pone unas gotas todas las noches", "Que le va mejor con un aceite esencial bien puro"],
     "correcta": 0,
     "explicacion": "Todo es de uso cosmético. Contás para qué lo usa la gente, sin prometer que trate ningún problema."
   },
@@ -33,8 +33,8 @@
   {
     "id": "25-5",
     "tipo": "vf",
-    "pregunta": "Los productos de esta góndola van lejos de los alimentos y fuera del alcance de los chicos.",
+    "pregunta": "Un hidrolato, o agua floral, se puede usar sin diluir.",
     "correcta": true,
-    "explicacion": "Son de uso externo o de limpieza, así que se guardan aparte para que nadie los tome por error."
+    "explicacion": "Tiene apenas una mínima parte de aceite esencial, por eso es mucho más suave. El aceite esencial, en cambio, nunca va puro."
   }
 ]

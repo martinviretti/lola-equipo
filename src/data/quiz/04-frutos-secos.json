@@ -3,9 +3,9 @@
     "id": "04-1",
     "tipo": "opcion",
     "pregunta": "Una mamá te cuenta que su hijo es alérgico a las nueces. ¿Qué le ofrecés?",
-    "opciones": ["Almendras del granel, que no son nueces", "Algo envasado con rótulo, y que consulte al médico", "Maní, porque es una legumbre"],
+    "opciones": ["Almendras del granel, que no son nueces", "Algo envasado, leyendo los ingredientes", "Maní del granel, porque es una legumbre"],
     "correcta": 1,
-    "explicacion": "En el granel se comparten palas y balanzas. A un alérgico nunca le asegures nada suelto."
+    "explicacion": "En el granel se comparten palas y balanzas. A un alérgico nunca le asegures nada suelto: mirá con ella los ingredientes de algo envasado y sugerile que lo consulte con su médico."
   },
   {
     "id": "04-2",
@@ -33,8 +33,8 @@
   {
     "id": "04-5",
     "tipo": "vf",
-    "pregunta": "A un celíaco le podés recomendar frutos secos del granel, porque no tienen gluten.",
+    "pregunta": "A un celíaco le podés recomendar frutos secos del granel, porque no son cereales con TACC.",
     "correcta": false,
-    "explicacion": "No tienen gluten, pero lo fraccionado puede tener contacto cruzado. Para celíacos, solo envasado con el logo sin TACC."
+    "explicacion": "No son cereales con TACC, pero lo fraccionado puede tener contacto cruzado. Para celíacos, solo envasado cerrado con el logo sin TACC."
   }
 ]

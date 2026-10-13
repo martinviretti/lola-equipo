@@ -2,7 +2,7 @@
   {
     "id": "07-1",
     "tipo": "opcion",
-    "pregunta": "Un cliente quiere hacer una torta. ¿Qué harina de trigo le ofrecés?",
+    "pregunta": "Un cliente quiere una harina de trigo bien fina para tortas y masas delicadas. ¿Cuál le ofrecés?",
     "opciones": ["La 000", "La 0000", "La sémola"],
     "correcta": 1,
     "explicacion": "Más ceros, más refinada. La 0000 es la de tortas y masas finas, y la 000 la de pan y pizza."
@@ -20,7 +20,7 @@
     "pregunta": "¿Cuál de estas harinas tiene TACC?",
     "opciones": ["Harina de arroz", "Harina de garbanzo", "Harina de centeno"],
     "correcta": 2,
-    "explicacion": "Trigo, avena, cebada y centeno tienen TACC. El arroz y las legumbres no tienen gluten naturalmente."
+    "explicacion": "Trigo, avena, cebada y centeno tienen TACC. El arroz y las legumbres no de por sí, pero para un celíaco solo sirven envasadas con el logo sin TACC."
   },
   {
     "id": "07-4",

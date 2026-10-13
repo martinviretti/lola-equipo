@@ -3,9 +3,9 @@
     "id": "15-1",
     "tipo": "opcion",
     "pregunta": "Un cliente busca un aceite para freír. ¿Qué le ofrecés?",
-    "opciones": ["Aceite de lino", "Girasol alto oleico", "Sésamo tostado"],
+    "opciones": ["Aceite de lino", "Aceite de girasol", "Aceite de sésamo tostado"],
     "correcta": 1,
-    "explicacion": "Para freír van los que aguantan mucho calor. El lino es solo para crudo y el sésamo tostado se amarga."
+    "explicacion": "Para freír van los que aguantan mucho calor, como el girasol o el alto oleico. El lino es solo para crudo y el sésamo tostado se amarga."
   },
   {
     "id": "15-2",
@@ -25,16 +25,16 @@
   {
     "id": "15-4",
     "tipo": "vf",
-    "pregunta": "La luz, el calor y el aire ponen rancios los aceites.",
+    "pregunta": "El aceite de oliva extra virgen conviene usarlo fresco: no mejora con los años como el vino.",
     "correcta": true,
-    "explicacion": "Por eso van bien cerrados, en la alacena, lejos de la ventana y de la cocina."
+    "explicacion": "Cuanto más fresco, mejor. La luz, el calor y el aire lo ponen rancio: botella oscura, bien cerrada y lejos de la cocina."
   },
   {
     "id": "15-5",
     "tipo": "opcion",
     "pregunta": "Una mamá pregunta qué pasta puede comer su hijo alérgico al maní. ¿Qué hacés?",
-    "opciones": ["Le ofrecés la pasta de almendras", "Leen juntos la lista y que consulte al médico", "Le decís que la crocante no da alergia"],
+    "opciones": ["Le ofrecés la pasta de almendras, que no tiene maní", "Leés la lista con ella y le sugerís ver al médico", "Le decís que la pasta crocante da menos alergia"],
     "correcta": 1,
-    "explicacion": "No se lo podés asegurar. El maní es de los alérgenos más peligrosos, y los frutos secos también son alérgenos."
+    "explicacion": "No se lo podés asegurar: muchas pastas dicen “puede contener” maní, y los frutos secos también son alérgenos. Que lo consulte con su médico."
   }
 ]

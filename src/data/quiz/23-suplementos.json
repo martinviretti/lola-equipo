@@ -3,7 +3,7 @@
     "id": "23-1",
     "tipo": "opcion",
     "pregunta": "Un cliente pregunta cuánta creatina tiene que tomar. ¿Qué le respondés?",
-    "opciones": ["Que con una cucharada por día alcanza", "Le mostrás el envase y que consulte al profesional", "Que tome el doble los días que entrena"],
+    "opciones": ["Que con una cucharada por día ya alcanza para todos", "Le mostrás el envase y le sugerís consultarlo", "Que tome el doble los días que va a entrenar"],
     "correcta": 1,
     "explicacion": "Nunca indiques cuánto tomar. La cantidad la dice el envase o la define su médico o nutricionista."
   },
@@ -18,16 +18,16 @@
     "id": "23-3",
     "tipo": "opcion",
     "pregunta": "Te piden algo para tener más energía. ¿Qué hacés?",
-    "opciones": ["Derivás al médico y contás qué es cada producto", "Recomendás un pre entreno", "Recomendás un multivitamínico"],
+    "opciones": ["Derivás al médico y le contás qué es cada cosa", "Le recomendás un pre entreno, que tiene cafeína", "Le recomendás un multivitamínico para todos los días"],
     "correcta": 0,
     "explicacion": "El cansancio puede tener muchas causas. Derivá con amabilidad y después contá qué es cada producto."
   },
   {
     "id": "23-4",
     "tipo": "vf",
-    "pregunta": "Los pre entrenos suelen tener cafeína.",
+    "pregunta": "Un quemador y varios mates en el mismo día pueden sumar mucha cafeína.",
     "correcta": true,
-    "explicacion": "Por eso no son para menores, embarazadas ni personas con presión alta o problemas del corazón."
+    "explicacion": "Casi todos los quemadores traen cafeína, y se suma a la del mate o el café. Con presión alta o problemas del corazón, al médico antes."
   },
   {
     "id": "23-5",

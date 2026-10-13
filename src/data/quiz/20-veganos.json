@@ -3,7 +3,7 @@
     "id": "20-1",
     "tipo": "opcion",
     "pregunta": "Una clienta celíaca pregunta por el seitán. ¿Qué le respondés?",
-    "opciones": ["Que sirve si lo cocina bien", "Que no, es gluten de trigo puro", "Que sí, porque es vegetal"],
+    "opciones": ["Que sirve si lo cocina bien, porque el calor lo elimina", "Que no, es gluten de trigo puro", "Que sí, porque es un producto vegetal"],
     "correcta": 1,
     "explicacion": "El seitán es gluten puro. Ofrecele tofu, tempeh o legumbres envasados con logo sin TACC."
   },
@@ -17,23 +17,23 @@
   {
     "id": "20-3",
     "tipo": "opcion",
-    "pregunta": "¿Qué diferencia hay entre el tofu y el tempeh?",
-    "opciones": ["El tofu es cuajado y el tempeh, fermentado", "El tofu es de trigo y el tempeh, de soja", "Son el mismo producto con otro nombre"],
+    "pregunta": "Un cliente quiere algo de soja con más gusto y más textura que el tofu. ¿Qué le mostrás?",
+    "opciones": ["Tempeh", "Tofu sedoso, que es más cremoso", "Seitán, que es el más parecido a la carne"],
     "correcta": 0,
-    "explicacion": "Los dos son de soja. El tofu es suave y neutro, y el tempeh tiene más gusto y textura."
+    "explicacion": "El tempeh es soja entera fermentada, con más sabor. El sedoso es más blando, y el seitán no es soja: es gluten de trigo."
   },
   {
     "id": "20-4",
     "tipo": "vf",
-    "pregunta": "Si un producto es vegano, no tiene alérgenos.",
-    "correcta": false,
-    "explicacion": "Puede tener soja, maní o frutos secos. Para un alérgico, mirá siempre la lista de ingredientes."
+    "pregunta": "La levadura nutricional no sirve para leudar el pan.",
+    "correcta": true,
+    "explicacion": "Está desactivada. Se usa por su gusto parecido al queso, sobre pastas, pochoclo o en salsas."
   },
   {
     "id": "20-5",
     "tipo": "opcion",
     "pregunta": "Un cliente pregunta si un producto es vegano. ¿Qué hacés?",
-    "opciones": ["Le decís que sí, si es vegetal", "Te guiás por el color del envase", "Leen juntos la lista de ingredientes"],
+    "opciones": ["Le decís que sí, porque todo lo vegetal es vegano", "Te fijás si el envase es verde o dice natural", "Leés con él los ingredientes"],
     "correcta": 2,
     "explicacion": "Hay ingredientes animales escondidos, como gelatina, caseína, suero de leche, carmín, colágeno o miel."
   }

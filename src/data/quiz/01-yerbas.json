@@ -25,10 +25,10 @@
   {
     "id": "01-4",
     "tipo": "opcion",
-    "pregunta": "Un cliente te pide medio kilo de yerba suelta. ¿Qué le ofrecés?",
-    "opciones": ["Un paquete cerrado del tamaño que necesita", "Medio kilo fraccionado en una bolsa", "Una yerba compuesta suelta"],
+    "pregunta": "Un cliente celíaco te pide yerba. ¿Qué le ofrecés?",
+    "opciones": ["Un paquete cerrado con el logo sin TACC", "Cualquier yerba pura, que es solo hoja", "Una suelta, si sale de un paquete nuevo"],
     "correcta": 0,
-    "explicacion": "La yerba nunca se fracciona. Se vende siempre en su paquete cerrado, así que ofrecé el tamaño que le sirva."
+    "explicacion": "La yerba pura no tiene trigo, avena, cebada ni centeno, pero para un celíaco solo sirve el paquete cerrado con el logo sin TACC. Lo suelto, nunca."
   },
   {
     "id": "01-5",

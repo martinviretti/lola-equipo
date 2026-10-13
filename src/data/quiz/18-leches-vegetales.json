@@ -3,7 +3,7 @@
     "id": "18-1",
     "tipo": "opcion",
     "pregunta": "Una clienta quiere leche vegetal para el café. ¿Qué le ofrecés primero?",
-    "opciones": ["Una barista, como la de avena", "La de arroz", "La de coco"],
+    "opciones": ["Una barista, como la de avena", "La de arroz, que es la más dulce y suave", "La de coco para cocinar, que es más espesa"],
     "correcta": 0,
     "explicacion": "La barista espuma y no se corta. Igual preguntale si tiene alguna alergia o si es celíaca."
   },
@@ -17,18 +17,18 @@
   {
     "id": "18-3",
     "tipo": "opcion",
-    "pregunta": "Una clienta celíaca pide leche de avena sin logo. ¿Qué hacés?",
-    "opciones": ["Se la vendés, la avena es liviana", "Le mostrás otras leches con logo sin TACC", "Le decís que la avena no tiene gluten"],
+    "pregunta": "Una clienta celíaca te pide leche de avena. ¿Qué hacés?",
+    "opciones": ["Se la vendés, porque la avena es un cereal liviano", "Le mostrás otras leches con logo sin TACC", "Le decís que la avena no tiene gluten, así que sirve"],
     "correcta": 1,
-    "explicacion": "La avena tiene TACC. Sin el logo sin TACC, no es para celíacos."
+    "explicacion": "En Argentina la avena cuenta como TACC. Mostrale otras leches vegetales envasadas con el logo sin TACC."
   },
   {
     "id": "18-4",
     "tipo": "opcion",
-    "pregunta": "¿Cuál de estas leches vegetales tiene más proteína?",
-    "opciones": ["La de almendras", "La de arroz", "La de soja"],
+    "pregunta": "Un cliente te pide alpiste para hacer leche de alpiste. ¿Qué le ofrecés?",
+    "opciones": ["Cualquier alpiste, porque es la misma semilla de siempre", "El de pajarería, que es más barato y rinde igual", "El alpiste que dice apto para consumo humano"],
     "correcta": 2,
-    "explicacion": "La de soja es la que más proteína tiene. Almendras, arroz y coco tienen poca."
+    "explicacion": "Para tomar va solo el que dice apto para consumo humano. Y sin promesas de salud: contás qué es y cómo se prepara."
   },
   {
     "id": "18-5",

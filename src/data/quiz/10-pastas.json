@@ -3,7 +3,7 @@
     "id": "10-1",
     "tipo": "opcion",
     "pregunta": "Un cliente celíaco te pide fideos. ¿Qué le ofrecés?",
-    "opciones": ["Fideos de arroz sueltos del granel", "Pastas envasadas con el logo sin TACC", "Fideos de espinaca o de verduras"],
+    "opciones": ["Fideos de arroz sueltos, que no tienen gluten", "Pastas envasadas con el logo sin TACC", "Fideos de espinaca o de verduras"],
     "correcta": 1,
     "explicacion": "Para celíacos solo sirven las pastas envasadas con logo. Nada suelto, y los de verdura son de trigo."
   },
@@ -18,7 +18,7 @@
     "id": "10-3",
     "tipo": "opcion",
     "pregunta": "¿Qué cuidado hay que tener al cocinar fideos de arroz o de legumbres?",
-    "opciones": ["Necesitan remojo la noche anterior", "Van con poca agua y tapados", "Se pasan rápido: hay que probarlos antes"],
+    "opciones": ["Necesitan un par de horas de remojo antes de cocinarlos", "Van con poca agua y la olla tapada todo el tiempo", "Se pasan rápido: hay que probarlos antes"],
     "correcta": 2,
     "explicacion": "Se pasan enseguida. Conviene probarlos antes del tiempo del paquete y escurrirlos apenas estén."
   },
@@ -33,7 +33,7 @@
     "id": "10-5",
     "tipo": "opcion",
     "pregunta": "¿Cómo se cocina la pasta para que quede al dente?",
-    "opciones": ["Mucha agua con sal y probarla antes de escurrir", "Poca agua y tapada todo el tiempo", "En agua fría, esperando que hierva"],
+    "opciones": ["Mucha agua con sal y probarla antes de escurrir", "Poca agua y la olla tapada", "Desde el agua fría, así se cocina más pareja"],
     "correcta": 0,
     "explicacion": "La pasta va cuando el agua hierve fuerte. Se revuelve al principio y se prueba un minuto antes del tiempo."
   }

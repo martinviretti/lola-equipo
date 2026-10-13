@@ -2,15 +2,15 @@
   {
     "id": "02-1",
     "tipo": "vf",
-    "pregunta": "Ninguna hierba de esta góndola tiene cafeína.",
-    "correcta": true,
-    "explicacion": "Por eso son la opción para la noche. La cafeína está en la yerba, el té y el café."
+    "pregunta": "Todas las hierbas de esta góndola sirven para tomar a la noche, porque ninguna tiene cafeína.",
+    "correcta": false,
+    "explicacion": "Es cierto que ninguna tiene cafeína, pero no todas son para la noche: el sen y la cáscara sagrada son laxantes. Para la noche, las suaves, como manzanilla, tilo o melisa."
   },
   {
     "id": "02-2",
     "tipo": "opcion",
     "pregunta": "Un cliente te pide algo para el dolor de estómago. ¿Qué le decís?",
-    "opciones": ["Le contás la costumbre y sugerís consultar al médico", "Le recomendás boldo todos los días", "Le indicás cuántas tazas de manzanilla tomar"],
+    "opciones": ["Le contás la costumbre y lo derivás al médico", "Le recomendás boldo para tomar todos los días", "Le indicás cuántas tazas de manzanilla tomar"],
     "correcta": 0,
     "explicacion": "Los yuyos se cuentan por sabor y costumbre. No prometas efectos ni indiques cantidades: si le pasa seguido, al médico."
   },
@@ -26,7 +26,7 @@
     "id": "02-4",
     "tipo": "opcion",
     "pregunta": "Una clienta embarazada te pide una hierba para tomar. ¿Qué hacés?",
-    "opciones": ["Le ofrecés manzanilla porque es suave", "Le mostrás lo que hay y sugerís consultar al médico", "Le recomendás tilo para la noche"],
+    "opciones": ["Le ofrecés manzanilla, que es de las más suaves", "Le mostrás lo que hay y la derivás al médico", "Le recomendás tilo, que se toma a la noche"],
     "correcta": 1,
     "explicacion": "Con embarazo, lactancia, chicos o medicación no recomendás ninguna hierba. Eso lo decide su médico."
   },

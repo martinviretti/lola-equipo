@@ -9,18 +9,18 @@
   {
     "id": "22-2",
     "tipo": "opcion",
-    "pregunta": "¿Qué cereales resume la sigla TACC?",
-    "opciones": ["Trigo, avena, cebada y centeno", "Trigo, arroz, cebada y centeno", "Trigo, avena, maíz y centeno"],
-    "correcta": 0,
-    "explicacion": "Son los cereales con gluten. Por eso la avena tampoco se considera apta para celíacos."
+    "pregunta": "Una clienta celíaca quiere un alfajor de maicena que no tiene el logo sin TACC. ¿Qué le decís?",
+    "opciones": ["Que la maicena no tiene gluten, así que le sirve igual", "Que sin el logo en el envase no se lo podés asegurar", "Que lo pruebe de a poquito y vea cómo le cae"],
+    "correcta": 1,
+    "explicacion": "Que la tapa sea de maicena no alcanza: el relleno y el baño también cuentan. Manda el logo del envase."
   },
   {
     "id": "22-3",
     "tipo": "opcion",
     "pregunta": "Un cliente te pide abrir un paquete sin TACC para verlo. ¿Qué hacés?",
-    "opciones": ["Lo abrís y lo volvés a cerrar", "No lo abrís y le mostrás el envase", "Lo abrís solo si lo va a comprar"],
-    "correcta": 1,
-    "explicacion": "Abierto deja de estar garantizado. Mostrale el frente, la foto y la lista de ingredientes."
+    "opciones": ["No lo abrís y le mostrás el envase", "Lo abrís con cuidado y lo volvés a cerrar con cinta", "Lo abrís solo si te asegura que lo va a comprar"],
+    "correcta": 0,
+    "explicacion": "Abierto deja de estar garantizado para un celíaco. Mostrale el frente, la foto y la lista de ingredientes."
   },
   {
     "id": "22-4",
@@ -33,8 +33,8 @@
   {
     "id": "22-5",
     "tipo": "vf",
-    "pregunta": "Para un celíaco, un poquito de gluten también hace daño.",
-    "correcta": true,
-    "explicacion": "Una miga alcanza para dañar el intestino, aunque la persona no sienta nada en el momento."
+    "pregunta": "Si una galletita dice “de arroz” en el frente, es apta para celíacos aunque no tenga el logo.",
+    "correcta": false,
+    "explicacion": "Que diga de arroz no alcanza: puede llevar otras harinas o contaminarse en la fábrica. Sin el logo sin TACC, no."
   }
 ]
