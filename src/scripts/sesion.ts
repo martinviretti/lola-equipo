@@ -1,5 +1,6 @@
 // Login con Google (Supabase): controla que quien abre la app esté autorizada, pinta su usuario
 // en el encabezado y sincroniza su avance. Si Supabase no está configurado, no hace nada.
+import type { Session, SupabaseClient } from '@supabase/supabase-js';
 import { url } from '../lib/url';
 import { supabase, configurado } from '../lib/supabase';
 import { app } from './app';
@@ -19,6 +20,8 @@ const ACCESO = 'lola-acceso:v1';
 /** Datos del avance que son de la persona: se borran al salir o si entra otra cuenta en el mismo celular. */
 const DATOS_PERSONALES = ['lola-app:v1', 'lola-bienvenida:v1', 'lola-pendientes:v1', 'lola-cierre:v1'];
 const REVERIFICAR_MS = 10 * 60 * 1000;
+/** Cuánto esperamos a Supabase antes de seguir con lo que ya sabemos de la persona. */
+const TOPE_SESION_MS = 4000;
 
 export const accesoGuardado = (): Acceso | null => {
   try {
@@ -33,7 +36,12 @@ const guardarAcceso = (a: Acceso | null) => {
     else localStorage.removeItem(ACCESO);
   } catch {}
 };
-const borrarDatosPersonales = () => DATOS_PERSONALES.forEach((k) => localStorage.removeItem(k));
+const borrarDatosPersonales = () =>
+  DATOS_PERSONALES.forEach((k) => {
+    try {
+      localStorage.removeItem(k);
+    } catch {}
+  });
 
 const mostrar = () => document.documentElement.classList.remove('verificando');
 
@@ -93,6 +101,17 @@ let resolver: (a: Acceso | null) => void;
 /** Se resuelve con el acceso de la persona (o null si la app no pide login). */
 export const sesionLista = new Promise<Acceso | null>((r) => (resolver = r));
 
+type Lectura = Awaited<ReturnType<SupabaseClient['auth']['getSession']>>;
+const esperar = (ms: number) => new Promise<null>((r) => setTimeout(() => r(null), ms));
+/** No se pudo hablar con Supabase: sin señal, señal colgada (`null`: no contestó a tiempo) o el servidor caído. */
+const sinRed = (l: Lectura | null) => l === null || !navigator.onLine || l.error?.name === 'AuthRetryableFetchError';
+
+const entrar = (a: Acceso) => {
+  mostrar();
+  resolver(a);
+  pintarUsuario(a);
+};
+
 /** Llamado en cada página (menos /entrar). */
 export async function controlarAcceso() {
   if (!configurado) {
@@ -100,16 +119,23 @@ export async function controlarAcceso() {
     resolver(null);
     return;
   }
-  const { data } = await supabase!.auth.getSession();
-  if (!data.session) return irAEntrar();
-
   const guardado = accesoGuardado();
-  const email = data.session.user.email?.toLowerCase();
+  const pedido = supabase!.auth.getSession();
+  // Con el token vencido y sin señal, getSession() intenta renovarlo durante ~30 s y termina en session = null.
+  // Si ya conocemos a la persona no la hacemos esperar ni la sacamos de la app: sigue en modo sin conexión.
+  const lectura = guardado ? await Promise.race([pedido, esperar(TOPE_SESION_MS)]) : await pedido;
+  if (lectura?.data.session) return seguir(lectura.data.session);
+  if (guardado && sinRed(lectura)) return modoSinConexion(guardado, lectura ? null : pedido);
+  irAEntrar();
+}
+
+/** Con la sesión confirmada: entra (o confirma que sigue autorizada) y sube lo pendiente. */
+async function seguir(session: Session) {
+  const guardado = accesoGuardado();
+  const email = session.user.email?.toLowerCase();
   if (guardado && guardado.email === email) {
     // Entrada rápida con lo que ya sabemos; se vuelve a confirmar en segundo plano.
-    mostrar();
-    resolver(guardado);
-    pintarUsuario(guardado);
+    entrar(guardado);
     if (navigator.onLine && Date.now() - guardado.t > REVERIFICAR_MS) {
       const a = await verificar();
       if (a === null) return salirSinPermiso();
@@ -119,11 +145,47 @@ export async function controlarAcceso() {
     const a = await verificar();
     if (a === null) return salirSinPermiso();
     if (a === undefined) return irAEntrar('sin-conexion');
-    mostrar();
-    resolver(a);
-    pintarUsuario(a);
+    entrar(a);
   }
   void procesarPendientes();
+}
+
+/**
+ * Sin señal y con la sesión sin confirmar: sigue con lo que ya sabemos de la persona. Cuando vuelve la señal
+ * (o supabase-js logra renovar el token solo) se confirma la sesión; si ya no vale, recién ahí va a /entrar.
+ */
+function modoSinConexion(guardado: Acceso, pedido: Promise<Lectura> | null) {
+  entrar(guardado);
+  let listo = false;
+  let probando = false;
+  const probar = async (l?: Lectura) => {
+    if (listo || probando) return;
+    probando = true;
+    try {
+      const lectura = l ?? (await supabase!.auth.getSession());
+      if (lectura.data.session) {
+        terminar();
+        await seguir(lectura.data.session);
+      } else if (!sinRed(lectura)) {
+        terminar();
+        irAEntrar();
+      }
+    } finally {
+      probando = false;
+    }
+  };
+  const alVolver = () => void probar();
+  // supabase-js pide no esperar otras llamadas suyas adentro de este aviso: se prueba en el turno siguiente.
+  const { data } = supabase!.auth.onAuthStateChange((evento) => {
+    if (evento === 'TOKEN_REFRESHED' || evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') setTimeout(alVolver, 0);
+  });
+  const terminar = () => {
+    listo = true;
+    data.subscription.unsubscribe();
+    removeEventListener('online', alVolver);
+  };
+  addEventListener('online', alVolver);
+  void pedido?.then((l) => probar(l));
 }
 
 async function salirSinPermiso() {

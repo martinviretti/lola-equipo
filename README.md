@@ -5,11 +5,11 @@ App web instalable (PWA) para el equipo de La Almacén de Lola.
 ## La app en el celular
 
 - **Instalar:** en Android, abrir el link en Chrome y tocar "Instalar la app" en el inicio (o menú ⋮ → Instalar). En iPhone, abrirlo en Safari → Compartir → Agregar a inicio. Queda el ícono de Lola y se abre a pantalla completa.
-- **Sin internet:** después de la primera visita, toda la guía, el buscador y el examen funcionan sin conexión. El PDF se baja aparte.
+- **Sin internet:** después de la primera visita, toda la guía, el buscador y el examen funcionan sin conexión. El PDF se baja aparte. Admin, Fichadas, Fichar y Fichador no se bajan de entrada: se guardan la primera vez que se abren. Con señal "colgada", a los 4 segundos se muestra la copia guardada; con el token vencido y sin señal no se sale de la app: la sesión se renueva sola cuando vuelve la conexión.
 - **Pestañas:** Inicio, Buscar, Guardados (fichas marcadas con la estrella) y Examinarme (opción múltiple armada sola con la guía: qué producto es, sus propiedades y qué responderle a un cliente). Menú lateral con todas las góndolas.
 - **Archivado, sin publicar:** el manual largo (`src/content/modulos`) y los carteles (`src/data/carteles.json`) quedaron en el repo pero ya no tienen páginas. Para volver a publicarlos, recuperar las páginas del historial de git.
 - **Lo personal** (fichas guardadas, avance de estudio, góndolas vistas) queda en el celular de cada persona.
-- **Actualizaciones:** cada `npm run build` genera un `sw.js` nuevo; la próxima vez que la persona abra la app con internet, se baja todo lo nuevo sola.
+- **Actualizaciones:** la versión del `sw.js` sale del contenido: si un build cambió algo, la próxima vez que la persona abra la app con internet se baja todo lo nuevo sola (si no cambió nada, no se vuelve a bajar).
 
 Archivos de la app: `public/manifest.webmanifest`, `public/iconos/` (regenerarlos si llega el logo en alta) y `integraciones/service-worker.mjs`.
 
@@ -76,5 +76,14 @@ Se publica sola: cada cambio que llega a la rama `main` de
   junto con el resto, desde `public/`.
 - La app vive en la subcarpeta `/lola-equipo` (`base` en `astro.config.mjs`). Toda dirección interna pasa por
   `url()` de `src/lib/url.ts`: no escribir rutas que empiecen con `/` a mano.
-- El sitio lleva `noindex`, así que no aparece en Google, pero **no tiene login**: no cargar información
-  sensible del local (precios de proveedores, datos personales, claves).
+- Antes del build, el workflow corre `npm run validar` (guía y banco del examen): si algo no pasa, no se publica
+  y queda la versión anterior. Conviene correrlo también en la compu antes de subir cambios.
+- **La guía es abierta; el avance y el panel requieren cuenta.** El login con Google identifica a la persona y
+  protege los datos (avance, exámenes, fichadas, panel de admin) con las reglas de Supabase, pero las páginas,
+  el PDF y los videos se pueden abrir con solo tener la dirección. No cargar información sensible del local
+  (precios de proveedores, datos personales, claves).
+- GitHub Pages no aplica `_headers` ni lee un `robots.txt` dentro de `/lola-equipo`, por eso no están en `public/`.
+  Lo que frena a los buscadores es el `<meta name="robots" content="noindex">` de cada página (no cubre el PDF
+  ni los videos).
+- El workflow `mantener-supabase.yml` despierta la base cada 3 días. GitHub lo apaga solo si el repo pasa 60 días
+  sin cambios: en ese caso, volver a activarlo desde Actions.
