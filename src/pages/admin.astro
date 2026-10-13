@@ -4,6 +4,7 @@
 // la base lo controla con RLS.
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
+import PestanasAdmin from '../components/PestanasAdmin.astro';
 import { getGuia } from '../data/guia';
 import { secciones } from '../data/bienvenida';
 import { NIVELES } from '../data/niveles';
@@ -19,8 +20,8 @@ const datos = {
 <Manual title="Panel de admin">
   <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
     <div class="mx-auto max-w-[960px]">
-      <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Panel de admin</h1>
-      <p class="mt-1 text-base text-texto-2">Cómo viene el equipo con la guía y los exámenes, y quiénes pueden entrar.</p>
+      <PestanasAdmin activa="aprendizaje" />
+      <p class="mt-4 text-base text-texto-2">Cómo viene el equipo con la guía y los exámenes, y quiénes pueden entrar.</p>
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
         <Icon name="lock-key" class="mx-auto size-10 text-marca" />

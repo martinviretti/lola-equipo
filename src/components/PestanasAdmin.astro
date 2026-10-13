@@ -1,0 +1,64 @@
+---
+// Encabezado del Panel de admin, con sus dos partes: Aprendizaje (la guía, los exámenes y el equipo)
+// y Fichaje (entradas, salidas y horas). Cada parte es una página; las pestañas las unen.
+import Icon from './Icon.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  activa: 'aprendizaje' | 'fichaje';
+}
+const { activa } = Astro.props;
+const pestanas = [
+  { id: 'aprendizaje', href: url('/admin'), icono: 'book-open-text', texto: 'Aprendizaje', sub: 'Guía, exámenes y el equipo' },
+  { id: 'fichaje', href: url('/fichadas'), icono: 'clock', texto: 'Fichaje', sub: 'Entradas, salidas y horas' },
+];
+---
+
+<h1 class="titulo-degrade text-4xl font-bold tracking-tight">Panel de admin</h1>
+<nav class="pestanas mt-5" aria-label="Partes del panel de admin">
+  {
+    pestanas.map((p) => (
+      <a href={p.href} class:list={['pestana', { activa: p.id === activa }]} aria-current={p.id === activa ? 'page' : undefined}>
+        <Icon name={p.icono} class="size-7 shrink-0" />
+        <span class="min-w-0 text-left leading-tight">
+          <span class="block text-base font-bold sm:text-lg">{p.texto}</span>
+          <span class="block text-xs sm:text-sm">{p.sub}</span>
+        </span>
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .pestanas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    border-radius: 22px;
+    background: var(--color-menta-suave);
+    padding: 6px;
+  }
+  .pestana {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 16px;
+    padding: 12px 14px;
+    color: var(--color-texto-2);
+    transition:
+      background 160ms,
+      color 160ms;
+  }
+  .pestana:hover {
+    background: rgb(255 255 255 / 0.55);
+    color: var(--color-profundo);
+  }
+  .pestana.activa {
+    background: #fff;
+    color: var(--color-profundo);
+    box-shadow: 0 8px 24px -14px rgb(33 76 59 / 0.6);
+  }
+  .pestana.activa :global(svg) {
+    color: var(--color-marca);
+  }
+</style>

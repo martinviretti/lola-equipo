@@ -14,11 +14,15 @@ Lo que nadie puede hacer:
 
 Cada fichada guarda una foto chica como prueba.
 
-Las admins lo ven todo en **Fichadas** (menú de la app):
+**Por día, como mucho 2 entradas y 2 salidas** (para el horario cortado). Una quinta fichada en el día se rechaza, y tampoco se puede cargar a mano.
 
+Las admins lo ven todo en la intranet, en **Panel de admin → Fichaje** (el panel tiene dos partes: **Aprendizaje** y **Fichaje**):
+
+- cómo funciona, en cinco pasos;
 - quién está ahora;
-- la semana de cada persona, con sus horas;
 - lo que hay que revisar;
+- la semana de cada persona, con sus horas contra su **carga horaria**;
+- la carga horaria y el horario fijo de cada una;
 - descargas para Excel;
 - la configuración.
 
@@ -69,14 +73,14 @@ Igual quedaría a la vista: cada fichada registra desde qué conexión de intern
   New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability -Value 2 -Type DWord
   ```
   Para Chrome es lo mismo, cambiando `Microsoft\Edge` por `Google\Chrome`. Para deshacerlo: `Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability`.
-- Si alguna vez sospechás que copiaron el secreto: **Fichadas → Configurar → Aparatos que fichan → Desactivar** y activalo de nuevo. El secreto viejo deja de servir.
+- Si alguna vez sospechás que copiaron el secreto: **Panel de admin → Fichaje → Configurar → Aparatos que fichan → Desactivar** y activalo de nuevo. El secreto viejo deja de servir.
 
 ### 3. Registrar la cara de cada una
 
 Siempre en un aparato del local (nunca desde el celular propio), con la persona adelante y buena luz de frente:
 
 - **En el celular del local** (con la sesión de admin abierta): **Registrar cara** → tocá su nombre.
-- **En la compu del local**: primero **Fichadas → Configurar el fichador → Caras registradas → Generar código** (6 números, dura 15 minutos). Después **Registrar cara** y escribí el código.
+- **En la compu del local**: primero **Panel de admin → Fichaje → Configurar el fichador → Caras registradas → Generar código** (6 números, dura 15 minutos). Después **Registrar cara** y escribí el código.
 
 Son 5 tomas guiadas: de frente, girando hacia su izquierda, hacia su derecha, con una sonrisa y de frente otra vez. Las indicaciones se dicen en voz alta, una flecha marca hacia dónde girar y se llena a medida que gira, y cada toma suena, vibra (en el celular) y completa una parte del círculo.
 
@@ -100,8 +104,10 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 - **Con el código del celular**: menú → **Fichar** → acercar la pantalla a la cámara del local, a un palmo, con el brillo al máximo.
 - **Sin internet en el local**: con la cara se guarda y se manda sola cuando vuelve la conexión. Queda marcada "sin internet" para revisar. Con el celular no se puede sin conexión.
 - **Fichar dos veces seguidas** (dentro de los 10 minutos de la entrada) cuenta como la misma fichada: no la convierte en salida.
+- **Horario cortado**: se puede entrar, salir, volver a entrar y volver a salir. Más de 2 entradas y 2 salidas en el día no se aceptan: el fichador avisa "hoy ya fichaste 4 veces".
+- **Cada una ve sus horas** en la app, en **Fichar**: cuánto lleva en la semana y, si tiene carga horaria, cuánto le falta.
 
-## El panel (Fichadas)
+## El panel (Panel de admin → Fichaje)
 
 - **Ahora en el local**: quién está adentro y desde qué hora.
 - **Para revisar**: mirás la foto y tocás **Está bien** o **Anular**. Aparecen acá:
@@ -109,18 +115,20 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
   - las que llegaron desde otra conexión que la del local.
 
   Si una fichada guardada sin internet no se pudo reconocer al mandarla, aparece como **"¿Quién es?"** con la foto: elegís la persona y si fue entrada o salida.
-- **Semana**: cada persona con sus días y horas. Una salida solo cierra una entrada **del mismo día**, así que un olvido no desordena los días siguientes: queda marcado "Falta la salida" o "Falta la entrada". Tocá un día para ver las fotos y:
+- **Semana**: cada persona con sus días y horas. Si tiene carga horaria, una barra muestra cuánto lleva y cuánto le falta ("22 h 15 de 30 h · Le faltan 7 h 45"). Una salida solo cierra una entrada **del mismo día**, así que un olvido no desordena los días siguientes: queda marcado "Falta la salida" o "Falta la entrada". Tocá un día para ver las fotos y:
   - **corregir una hora**;
   - **cambiar entrada por salida** (por ejemplo, si alguien se olvidó de fichar la entrada y su salida quedó como entrada);
   - **anular**;
   - **agregar una fichada que faltó**.
 
   Nada se borra: queda quién lo cambió y por qué.
-- **Descargar para Excel**: por mes, en dos versiones: horas por persona y todas las fichadas.
+- **Carga horaria y horarios**: tocá a cada persona.
+  - **Carga horaria**: cuántas horas por semana trabaja. Es flexible: no dice qué días ni a qué hora.
+  - **Horario fijo** (opcional): si tiene días y horarios fijos, en la semana se marca "llegó tarde", "se fue antes" o "día fuera de su horario". Nunca bloquea: los reemplazos y cambios de turno se fichan igual.
+- **Descargar para Excel**: por mes, en dos versiones: horas por persona (con la carga horaria y las horas esperadas en el mes) y todas las fichadas.
 - **Configurar el fichador**:
   - los aparatos que fichan (la compu y el celular del local);
   - las caras registradas;
-  - el **horario fijo** (opcional, apagado por defecto). Si lo prendés para una persona, en la semana se marca "llegó tarde", "se fue antes" o "día fuera de su horario". Nunca bloquea: los reemplazos y cambios de turno se fichan igual;
   - los ajustes.
 
 **Altas y bajas**: siguen en el **Panel de admin** de siempre. "Dar de baja" deja a la persona sin acceso y sin poder fichar, pero guarda su historial. Se puede **reactivar**.
@@ -129,7 +137,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 
 - **"Falta el permiso de la cámara"**: tocá el candado al lado de la dirección → Cámara → Permitir → Reintentar.
 - **"No encontramos la cámara"**: revisá el cable USB y que ninguna otra app (Zoom, Teams) la esté usando.
-- **Cambiaste de compu o de celular, o se rompió**: en **Fichadas → Configurar → Aparatos que fichan**, tocá **Desactivar** en el viejo y activá el nuevo.
+- **Cambiaste de compu o de celular, o se rompió**: en **Panel de admin → Fichaje → Configurar → Aparatos que fichan**, tocá **Desactivar** en el viejo y activá el nuevo.
 - **Alguien se olvidó de fichar**: en la semana, tocá el día → **Agregar una fichada que faltó**.
 
 ## Antes de usarlo con el equipo
@@ -164,7 +172,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
   - la compu se identifica con un secreto propio (en la base, solo su hash);
   - el QR del celular se firma con HMAC-SHA256 por paso de 3 segundos;
   - todas las escrituras pasan por funciones `security definer`, con RLS en todas las tablas.
-- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 90 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", entrada y salida del mismo día, sin internet, la conexión del local, los permisos, las bajas y las correcciones. Se corre así:
+- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 101 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", entrada y salida del mismo día, sin internet, la conexión del local, los permisos, las bajas y las correcciones. Se corre así:
   ```
   npm i --no-save @electric-sql/pglite @electric-sql/pglite-pgvector
   node supabase/pruebas/fichador.mjs

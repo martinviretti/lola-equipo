@@ -268,6 +268,28 @@ await como('martin', `update public.ajustes_fichador set similitud_min = 0.6`);
 ok((await db.query(`select similitud_min from public.ajustes_fichador`)).rows[0].similitud_min > 0.59, 'la admin cambia la exigencia');
 ok((await como('sofi', `update public.ajustes_fichador set similitud_min = 0.1 returning id`)).length === 0, 'una empleada no puede cambiar ajustes');
 
+// Carga horaria por semana
+await como('martin', `update public.autorizados set horas_semana = 30 where email = 'sofi@gmail.com'`);
+ok((await uno('sofi', `select horas_semana from public.autorizados where email = 'sofi@gmail.com'`)) == 30, 'la admin carga 30 h por semana y Sofía ve su carga');
+ok((await falla('martin', `update public.autorizados set horas_semana = 200 where email = 'sofi@gmail.com'`)) !== null, 'una carga imposible (200 h) no se acepta');
+ok((await como('sofi', `update public.autorizados set horas_semana = 10 where email = 'sofi@gmail.com' returning email`)).length === 0, 'una empleada no puede cambiar su carga');
+
+// Por día, como mucho 2 entradas y 2 salidas (horario cortado)
+const manual = (tipo, hhmm) => como('martin', `select public.fichada_manual('lu@gmail.com', $1, $2::timestamptz, 'prueba') as id`, [tipo, ayer(hhmm)]).then((r) => r[0].id);
+const cortado = [await manual('entrada', '08:00'), await manual('salida', '12:00'), await manual('entrada', '14:00'), await manual('salida', '18:00')];
+ok(cortado.every(Boolean), 'horario cortado: 2 entradas y 2 salidas en el día se cargan bien');
+ok((await falla('martin', `select public.fichada_manual('lu@gmail.com', 'entrada', $1::timestamptz, 'x')`, [ayer('19:00')]))?.includes('limite_dia'), 'una tercera entrada en el día no se puede cargar');
+const quinta = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4)`, [...D, JSON.stringify(toma(LU)), ayer('20:00')]);
+ok(quinta.estado === 'limite_dia' && quinta.nombre === 'Lucía', 'el fichador tampoco deja fichar una quinta vez en el día');
+await como('martin', `select public.anular_fichada($1, 'error')`, [cortado[2]]);
+ok(!!(await manual('entrada', '19:00')), 'anulando una, se puede cargar otra');
+ok((await falla('martin', `select public.cambiar_tipo($1, 'x')`, [cortado[3]]))?.includes('limite_dia'), 'cambiar una salida por entrada no puede dejar 3 entradas');
+await db.exec(`update public.fichadas set hora = hora - interval '10 days' where id = ${desdeAfuera.id}`); // la de la prueba de conexión
+const hoyLu = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null)`, [...D, JSON.stringify(toma(LU))]);
+ok(hoyLu.estado === 'ok' && hoyLu.tipo === 'entrada', 'al día siguiente vuelve a fichar normal');
+ok((await falla('martin', `select public.corregir_fichada($1, $2::timestamptz, 'x')`, [hoyLu.id, ayer('21:00')]))?.includes('limite_dia'), 'corregir la hora a un día completo tampoco');
+ok((await falla('anon', `select public._dia_completo('lu@gmail.com', 'entrada', now())`))?.includes('permission denied'), 'la función del tope no se puede llamar de afuera');
+
 // Dar de baja
 await como('martin', `update public.autorizados set activo = false, baja_el = now() where email = 'ana@gmail.com'`);
 ok((await uno('ana', `select public.es_autorizado()`)) === false, 'dada de baja: ya no entra');

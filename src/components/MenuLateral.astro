@@ -49,16 +49,11 @@ const principales = [
           </li>
         ))
       }
+      <!-- El panel tiene dos partes: Aprendizaje (/admin) y Fichaje (/fichadas). -->
       <li class="hidden" data-solo-admin>
-        <a href={url('/admin')} class="menu-item" aria-current={ruta.startsWith('/admin') ? 'page' : undefined}>
+        <a href={url('/admin')} class="menu-item" aria-current={ruta.startsWith('/admin') || ruta.startsWith('/fichadas') ? 'page' : undefined}>
           <Icon name="users-three" class="size-5 shrink-0" />
           Panel de admin
-        </a>
-      </li>
-      <li class="hidden" data-solo-admin>
-        <a href={url('/fichadas')} class="menu-item" aria-current={ruta.startsWith('/fichadas') ? 'page' : undefined}>
-          <Icon name="clock" class="size-5 shrink-0" />
-          Fichadas
         </a>
       </li>
       <li class="solo-navegador">

@@ -32,6 +32,13 @@ import Icon from '../components/Icon.astro';
         <li class="flex gap-2"><Icon name="lock-key" class="size-5 shrink-0 text-marca" /> El código cambia cada 3 segundos: una foto o una captura no sirve. Y solo lo lee la cámara del local: desde otro lado no se puede fichar.</li>
       </ul>
 
+      <section class="mt-9 hidden rounded-2xl bg-white px-4 py-3 ring-1 ring-profundo/10" data-mi-semana>
+        <p class="text-sm font-semibold text-texto-2">Esta semana</p>
+        <p class="text-2xl font-bold text-profundo tabular-nums" data-mi-semana-total></p>
+        <div class="barra mt-2 hidden" data-mi-semana-barra><span></span></div>
+        <p class="mt-1 text-sm font-semibold text-texto-2" data-mi-semana-texto></p>
+      </section>
+
       <section class="mt-9">
         <h2 class="text-xl font-bold text-profundo">Tus fichadas de los últimos 7 días</h2>
         <ul class="mt-3 flex flex-col gap-2" data-mias>
@@ -71,6 +78,21 @@ import Icon from '../components/Icon.astro';
     overflow: hidden;
     border-radius: 9999px;
     background: var(--color-menta-suave);
+  }
+  .barra {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+  }
+  .barra.hidden {
+    display: none;
+  }
+  .barra span {
+    display: block;
+    height: 100%;
+    border-radius: 9999px;
+    background: var(--color-marca);
   }
   .tiempo span {
     display: block;
@@ -157,6 +179,28 @@ import Icon from '../components/Icon.astro';
 
   // ---------- Mis fichadas ----------
   let email = '';
+  /** Carga horaria semanal que le puso la admin (null = no tiene). */
+  let carga: number | null = null;
+
+  /** Esta semana (de lunes a domingo): cuántas horas lleva y, si tiene carga horaria, cuánto le falta. */
+  function pintarSemana(ts: ReturnType<typeof tramos>) {
+    const hoy = diaClave(new Date());
+    const dow = new Date(`${hoy}T12:00:00-03:00`).getUTCDay();
+    const lunes = diaClave(new Date(new Date(`${hoy}T12:00:00-03:00`).getTime() - ((dow + 6) % 7) * 86400000));
+    const ms = ts.filter((t) => t.dia >= lunes).reduce((s, t) => s + t.ms, 0);
+    $('[data-mi-semana]').classList.remove('hidden');
+    const cargaTexto = carga && (Number.isInteger(carga) ? `${carga} h` : duracion(carga * 3600000));
+    $('[data-mi-semana-total]').textContent = carga ? `${duracion(ms)} de ${cargaTexto}` : duracion(ms);
+    $('[data-mi-semana-barra]').classList.toggle('hidden', !carga);
+    const texto = $('[data-mi-semana-texto]');
+    if (!carga) {
+      texto.textContent = 'Horas trabajadas desde el lunes.';
+      return;
+    }
+    ($('[data-mi-semana-barra] span') as HTMLElement).style.width = `${Math.min(100, (ms / (carga * 3600000)) * 100)}%`;
+    const falta = carga * 3600000 - ms;
+    texto.textContent = Math.abs(falta) < 5 * 60000 ? 'Cumpliste tu carga horaria de la semana.' : falta > 0 ? `Te faltan ${duracion(falta)} para tu carga horaria.` : `Hiciste ${duracion(-falta)} de más.`;
+  }
   async function misFichadas() {
     const desde = new Date(Date.now() - 7 * 86400000).toISOString();
     const { data, error } = await supabase!
@@ -179,8 +223,10 @@ import Icon from '../components/Icon.astro';
       codigo = null;
     }
 
+    const todos = tramos(lista);
+    pintarSemana(todos);
     const porDia = new Map<string, ReturnType<typeof tramos>>();
-    for (const t of tramos(lista)) porDia.set(t.dia, [...(porDia.get(t.dia) ?? []), t]);
+    for (const t of todos) porDia.set(t.dia, [...(porDia.get(t.dia) ?? []), t]);
     const ul = $('[data-mias]');
     if (!porDia.size) {
       ul.replaceChildren(Object.assign(document.createElement('li'), { className: 'text-sm text-texto-2', textContent: 'Todavía no fichaste en estos días.' }));
@@ -219,6 +265,8 @@ import Icon from '../components/Icon.astro';
       return;
     }
     email = acceso.email;
+    const { data: yo } = await supabase.from('autorizados').select('horas_semana').eq('email', email).maybeSingle();
+    carga = yo?.horas_semana ? Number(yo.horas_semana) : null;
     void mantenerPrendida();
     void pintar();
     await misFichadas();

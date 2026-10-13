@@ -26,6 +26,10 @@ alter table public.autorizados add column if not exists activo boolean not null 
 alter table public.autorizados add column if not exists baja_el timestamptz;
 -- Horario fijo opcional (fichador): si está apagado, solo se registran las fichadas.
 alter table public.autorizados add column if not exists horario_fijo boolean not null default false;
+-- Carga horaria (fichador): cuántas horas por semana trabaja cada persona. Vacío = sin carga cargada.
+-- Es flexible: no dice qué días ni a qué hora, solo el total de la semana.
+alter table public.autorizados add column if not exists horas_semana numeric(4, 1)
+  check (horas_semana is null or (horas_semana > 0 and horas_semana <= 80));
 
 -- ---------- Avance por góndola (lectura y quiz final) ----------
 create table if not exists public.progreso_gondola (
@@ -319,6 +323,17 @@ $$;
 create or replace function public._dia(t timestamptz) returns date
 language sql immutable as $$ select (t at time zone 'America/Argentina/Buenos_Aires')::date $$;
 
+-- Por día, como mucho 2 entradas y 2 salidas (horario cortado). ¿Ya tiene 2 de ese tipo ese día?
+-- p_excluir: la fichada que se está cambiando (no cuenta).
+create or replace function public._dia_completo(p_email text, p_tipo text, p_hora timestamptz, p_excluir bigint default null)
+returns boolean
+language sql stable security definer set search_path = public, extensions as $$
+  select count(*) >= 2 from public.fichadas f
+   where f.email = p_email and f.tipo = p_tipo and not f.anulada
+     and public._dia(f.hora) = public._dia(p_hora)
+     and (p_excluir is null or f.id <> p_excluir)
+$$;
+
 -- Registra una fichada: decide sola si es entrada o salida y guarda la foto.
 -- Una salida solo cierra una entrada del MISMO día: si alguien se olvida de fichar, el error no se
 -- arrastra a los días siguientes y queda a la vista ("falta la salida") para que la admin lo arregle.
@@ -364,6 +379,11 @@ begin
          and v_hora - v_ult.hora < make_interval(hours => v_aj.horas_max_turno) then 'salida'
     else 'entrada' end;
 
+  -- Tope del día: 2 entradas y 2 salidas.
+  if public._dia_completo(p_email, v_tipo, v_hora) then
+    return jsonb_build_object('estado', 'limite_dia', 'nombre', v_nombre, 'tipo', v_tipo);
+  end if;
+
   -- Si llega de la compu pero desde otra conexión que la del local, puede ser alguien que copió el secreto
   -- de la compu: se registra igual, pero queda para revisar.
   if p_dispositivo is not null and v_ip is not null then
@@ -390,7 +410,7 @@ end $$;
 
 revoke all on function public._dispositivo(uuid, text), public._vector(jsonb), public._similitud(double precision),
   public._reconocer(extensions.vector, text), public._registrar_fichada(text, text, uuid, real, text, timestamptz, text),
-  public._ip(), public._dia(timestamptz)
+  public._ip(), public._dia(timestamptz), public._dia_completo(text, text, timestamptz, bigint)
   from public, anon, authenticated;
 
 -- ---------- Lo que usa la compu del local (con su id y secreto) ----------
@@ -637,6 +657,7 @@ language plpgsql security definer set search_path = public, extensions as $$
 declare v_id bigint;
 begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
+  if public._dia_completo(lower(p_email), p_tipo, p_hora) then raise exception 'limite_dia' using errcode = 'P0001'; end if;
   insert into public.fichadas (email, tipo, hora, metodo, creada_por, nota)
   values (lower(p_email), p_tipo, p_hora, 'manual', public.mi_email(), nullif(trim(p_nota), ''))
   returning id into v_id;
@@ -646,8 +667,13 @@ end $$;
 -- Corregir la hora (se guarda la original y quién la cambió).
 create or replace function public.corregir_fichada(p_id bigint, p_hora timestamptz, p_motivo text) returns void
 language plpgsql security definer set search_path = public, extensions as $$
+declare v_f public.fichadas;
 begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
+  select * into v_f from public.fichadas where id = p_id;
+  if v_f.id is not null and not v_f.anulada and public._dia_completo(v_f.email, v_f.tipo, p_hora, p_id) then
+    raise exception 'limite_dia' using errcode = 'P0001';
+  end if;
   update public.fichadas
      set hora_original = coalesce(hora_original, hora), hora = p_hora,
          corregida_por = public.mi_email(), corregida_el = now(), motivo = nullif(trim(p_motivo), '')
@@ -667,8 +693,14 @@ end $$;
 -- Cambiar una entrada por salida o al revés (por ejemplo, cuando alguien se olvidó de fichar la entrada).
 create or replace function public.cambiar_tipo(p_id bigint, p_motivo text) returns void
 language plpgsql security definer set search_path = public, extensions as $$
+declare v_f public.fichadas;
 begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
+  select * into v_f from public.fichadas where id = p_id;
+  if v_f.id is not null and not v_f.anulada
+     and public._dia_completo(v_f.email, case v_f.tipo when 'entrada' then 'salida' else 'entrada' end, v_f.hora, p_id) then
+    raise exception 'limite_dia' using errcode = 'P0001';
+  end if;
   update public.fichadas
      set tipo = case tipo when 'entrada' then 'salida' else 'entrada' end,
          corregida_por = public.mi_email(), corregida_el = now(),
@@ -705,6 +737,7 @@ begin
   if not public.es_admin() then raise exception 'solo_admin' using errcode = 'P0001'; end if;
   select * into v_s from public.fichadas_sin_reconocer where id = p_id and resuelta_el is null for update;
   if v_s.id is null then raise exception 'ya_resuelta' using errcode = 'P0001'; end if;
+  if public._dia_completo(lower(p_email), p_tipo, v_s.hora) then raise exception 'limite_dia' using errcode = 'P0001'; end if;
   insert into public.fichadas (email, tipo, hora, metodo, dispositivo, creada_por, nota, sin_conexion, hora_pc)
   values (lower(p_email), p_tipo, v_s.hora, 'manual', v_s.dispositivo, public.mi_email(),
           'Se guardó sin internet y la cara no se reconoció: la asignó una admin mirando la foto', true, v_s.hora)

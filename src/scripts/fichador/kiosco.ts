@@ -199,6 +199,15 @@ function contarRespuesta(r: { estado: string; nombre?: string; tipo?: 'entrada' 
         tipo: 'aviso',
       });
       return true;
+    case 'limite_dia':
+      mostrarResultado({
+        titulo: `${primerNombre(r.nombre!)}, hoy ya fichaste 4 veces`,
+        detalle: 'Ya tenés tus 2 entradas y 2 salidas del día',
+        sub: 'Es el máximo por día (horario cortado). Si hay un error, avisale a la encargada.',
+        tipo: 'aviso',
+        segundos: 7,
+      });
+      return true;
     case 'cara_de_otra':
       mostrarResultado({
         titulo: 'Ese código no es tuyo',
