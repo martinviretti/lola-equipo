@@ -1,17 +1,35 @@
 ---
 // Examen del equipo en 3 niveles (diseño en DISENO-EXAMEN.md). Las preguntas están escritas a
 // mano en src/data/examen/<tema>.json, cada una con su "nivel" (1, 2 o 3); reglas en
-// EXAMEN-BANCO.md. Se aprueba solo por porcentaje (APRUEBA).
+// EXAMEN-BANCO.md. Se aprueba con APRUEBA% y sin fallar ninguna de las preguntas clave
+// (CLAVES por examen, sorteadas entre las `critica: true` del nivel y de los anteriores).
 import { Image } from 'astro:assets';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import logo from '../assets/logo-lola-circulo.png';
 import { NIVELES, APRUEBA, TEMAS } from '../data/niveles';
+import { getGuia } from '../data/guia';
 
-const archivos = import.meta.glob<{ default: { tema: string }[] }>('../data/examen/*.json', { eager: true });
+interface Pregunta {
+  id: string;
+  tema: string;
+  nivel: number;
+  tipo: string;
+  critica?: boolean;
+}
+
+/** Preguntas clave por examen. */
+const CLAVES = 3;
+
+const archivos = import.meta.glob<{ default: Pregunta[] }>('../data/examen/*.json', { eager: true });
 const banco = Object.values(archivos)
   .flatMap((m) => m.default)
   .sort((a, b) => TEMAS.indexOf(a.tema) - TEMAS.indexOf(b.tema));
+/** Cuántas claves puede llevar cada nivel con el banco actual (nunca "unir"). */
+const clavesDe = (n: number) => Math.min(CLAVES, banco.filter((p) => p.critica && p.tipo !== 'unir' && p.nivel <= n).length);
+/** Nombre de cada góndola, para los enlaces "Ver en la guía: ...". */
+const gondolas = Object.fromEntries((await getGuia()).map((c) => [c.id, c.data.titulo]));
+const json = (d: unknown) => JSON.stringify(d).replace(/</g, '\\u003c');
 ---
 
 <Manual title="Examinarme">
@@ -19,11 +37,16 @@ const banco = Object.values(archivos)
     <div class="mx-auto max-w-[680px]">
       <!-- 1. Los tres niveles -->
       <section data-pantalla="inicio">
-        <h1 class="titulo-degrade text-4xl font-bold tracking-tight">Examinarme</h1>
+        <h1 class="titulo-degrade text-4xl font-bold tracking-tight focus:outline-none" tabindex="-1" data-titulo-inicio>Examinarme</h1>
         <p class="mt-2 text-lg text-texto-2">
-          Tres niveles para comprobar lo que sabés, de lo indispensable a lo más difícil del mostrador. Cada examen recorre las
-          {TEMAS.length} áreas del local. Se aprueba con {APRUEBA}%.
+          Tres niveles para comprobar lo que sabés, de lo indispensable a lo más difícil del mostrador. Cada examen recorre todas las góndolas y no tiene cronómetro.
         </p>
+        <div class="mt-4 flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-profundo/10">
+          <Icon name="seal-warning" class="size-6 shrink-0 text-marca-texto" />
+          <p class="text-[0.95rem] leading-relaxed text-texto">
+            <strong class="text-profundo">Para aprobar:</strong> {APRUEBA}% bien y las preguntas clave bien. Las clave son de seguridad, como sin TACC y alergias: si fallás una, lo repetís aunque saques más de {APRUEBA}%.
+          </p>
+        </div>
         <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-menta-suave px-4 py-2 text-sm font-bold text-profundo" data-resumen>
           <Icon name="trophy" class="size-5 text-marca-texto" /> <span>Aprobaste 0 de 3 niveles</span>
         </p>
@@ -43,9 +66,9 @@ const banco = Object.values(archivos)
                 </div>
                 <p class="mt-2 text-base text-texto">{n.subtitulo}</p>
                 <p class="mt-1 text-sm text-texto-2">
-                  {n.preguntas} preguntas · {n.minutos} min · aprobás con {APRUEBA}% · {n.cuando}
+                  {n.preguntas} preguntas{clavesDe(n.numero) > 0 && ` (${clavesDe(n.numero)} clave)`} · unos {n.minutos} min, sin cronómetro · {n.cuando}
                 </p>
-                <p class="mt-4 text-xs font-bold tracking-wide text-profundo uppercase">Qué entra</p>
+                <p class="mt-4 text-xs font-bold tracking-wide text-profundo uppercase">Qué incluye</p>
                 <ul class="mt-2 flex flex-col gap-1.5">
                   {n.entra.map((e) => (
                     <li class="flex gap-2 text-[0.95rem]">
@@ -54,123 +77,173 @@ const banco = Object.values(archivos)
                     </li>
                   ))}
                 </ul>
-                <p class="mt-3 hidden text-sm text-texto-2" data-detalle />
-                <div class="mt-4 flex flex-wrap gap-2">
-                  <button type="button" class="boton boton-principal flex-1" data-empezar={n.numero}>
-                    <Icon name="exam" class="size-5" /> <span data-empezar-texto>Empezar</span>
+                <p class="mt-4 hidden items-start gap-2 text-sm text-texto-2 [&:not(.hidden)]:flex" data-detalle>
+                  <span class="hidden shrink-0" data-candado><Icon name="lock-key" class="size-5 text-texto-2" /></span>
+                  <span data-detalle-texto />
+                </p>
+                <div class="mt-4 flex flex-col gap-2" data-acciones-nivel>
+                  <button type="button" class="boton boton-principal hidden w-full" data-ver-certificado={n.numero}>
+                    <Icon name="seal-check" class="size-5" /> Ver certificado
                   </button>
-                  <button type="button" class="boton boton-secundario hidden" data-ver-certificado={n.numero}>
-                    Certificado
+                  <button type="button" class="boton boton-principal w-full" data-empezar={n.numero}>
+                    <Icon name="exam" class="size-5" /> <span data-empezar-texto>Empezar</span>
                   </button>
                 </div>
               </li>
             ))
           }
         </ol>
-
       </section>
 
       <!-- 2. Pregunta -->
       <section class="hidden" data-pantalla="pregunta">
-        <div class="flex items-center justify-between gap-3 text-sm">
-          <span class="font-semibold text-profundo" data-contador></span>
-          <button type="button" class="font-semibold text-texto-2 underline underline-offset-4" data-abandonar>Salir</button>
+        <div class="flex items-center justify-between gap-3">
+          <p class="min-w-0 leading-tight">
+            <span class="block text-xs font-bold tracking-wide text-marca-texto uppercase" data-contador-nivel></span>
+            <span class="mt-0.5 block font-bold text-profundo tabular-nums" data-contador></span>
+          </p>
+          <button type="button" class="salir-examen" data-abandonar>
+            <Icon name="x" class="size-5" /> Salir del examen
+          </button>
         </div>
-        <div class="mt-2 h-2 overflow-hidden rounded-full bg-menta-suave">
-          <div class="h-full w-0 rounded-full bg-marca transition-[width] duration-500 ease-fluid" data-barra></div>
+        <div class="mt-3 h-2 overflow-hidden rounded-full bg-menta-suave">
+          <div class="h-full w-0 rounded-full bg-marca transition-[width] duration-500 ease-fluid motion-reduce:transition-none" data-barra></div>
         </div>
 
-        <div class="mt-6 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 sm:p-6">
+        <div class="mt-5 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 sm:p-6">
           <p class="flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide uppercase">
             <span class="rounded-full bg-profundo px-2.5 py-1 text-white" data-formato></span>
+            <span class="hidden items-center gap-1 rounded-full bg-ambar-suave px-2.5 py-1 text-ambar [&:not(.hidden)]:inline-flex" data-chip-clave>
+              <Icon name="seal-warning" class="size-4" /> Pregunta clave
+            </span>
             <span class="text-marca-texto" data-tema></span>
           </p>
-          <p class="mt-3 text-xl leading-snug font-bold text-profundo" data-enunciado></p>
+          <h2 class="mt-3 text-xl leading-snug font-bold text-profundo focus:outline-none" tabindex="-1" data-enunciado></h2>
         </div>
 
+        <p class="mt-4 hidden text-[0.95rem] text-texto-2" data-ayuda></p>
         <div class="mt-4" data-respuestas></div>
 
-        <div class="mt-4 hidden rounded-2xl p-4" data-devolucion aria-live="polite">
-          <p class="font-bold" data-devolucion-titulo></p>
-          <p class="mt-1 text-[0.95rem] leading-relaxed" data-devolucion-texto></p>
+        <div class="mt-4 hidden" data-devolucion>
+          <span class="mt-0.5 shrink-0" data-devolucion-icono></span>
+          <div class="min-w-0">
+            <p class="font-bold" data-devolucion-titulo></p>
+            <p class="mt-1 text-[0.95rem] leading-relaxed" data-devolucion-texto></p>
+          </div>
         </div>
+        <!-- Siempre montada: los lectores de pantalla anuncian cada devolución -->
+        <p class="sr-only" role="status" aria-live="polite" data-anuncio></p>
 
         <button type="button" class="boton boton-principal mt-5 hidden w-full" data-siguiente>
           <span data-siguiente-texto>Siguiente</span> <Icon name="arrow-right" class="size-5" />
         </button>
+
+        <dialog class="dialogo" aria-labelledby="salir-titulo" aria-describedby="salir-texto" data-dialogo-salir>
+          <h2 id="salir-titulo" class="text-xl font-bold text-profundo">¿Salir del examen?</h2>
+          <p id="salir-texto" class="mt-2 text-base text-texto">Si salís, perdés lo que respondiste.</p>
+          <div class="mt-5 flex flex-col gap-3">
+            <button type="button" class="boton boton-principal w-full" data-seguir autofocus>Seguir con el examen</button>
+            <button type="button" class="boton boton-secundario w-full" data-confirmar-salir>Salir</button>
+          </div>
+        </dialog>
       </section>
 
       <!-- 3. Resultado -->
       <section class="hidden" data-pantalla="resultado">
         <div class="rounded-3xl p-6 text-center" data-sello>
-          <p class="text-sm font-bold tracking-wide uppercase" data-resultado-nivel></p>
+          <h2 class="text-sm font-bold tracking-wide uppercase focus:outline-none" tabindex="-1" data-resultado-nivel></h2>
           <p class="mt-2 text-6xl font-bold tabular-nums" data-resultado-nota></p>
           <p class="mt-2 inline-block rounded-full px-4 py-1.5 text-sm font-extrabold tracking-wide" data-resultado-sello></p>
-          <p class="mt-3 text-base" data-resultado-detalle></p>
+          <p class="mt-3 text-base leading-relaxed" data-resultado-detalle></p>
+
+          <div class="mt-5 hidden rounded-2xl bg-ambar-suave p-4 text-left text-texto" data-clave-bloque>
+            <p class="flex items-center gap-2 font-bold text-profundo">
+              <Icon name="seal-warning" class="size-6 shrink-0 text-ambar" /> <span data-clave-titulo></span>
+            </p>
+            <p class="mt-1 text-[0.95rem] leading-relaxed">Las preguntas clave son de seguridad: hay que saberlas sí o sí, aunque el resto te salga muy bien.</p>
+            <ul class="mt-3 flex flex-col gap-3" data-claves-falladas></ul>
+            <p class="mt-3 text-[0.95rem] font-semibold text-profundo" data-clave-cierre></p>
+          </div>
         </div>
 
-
-        <h2 class="mt-7 text-xl font-bold text-profundo">Cómo te fue en cada tema</h2>
-        <ul class="mt-3 flex flex-col gap-2" data-por-tema></ul>
-
-        <div class="mt-7 hidden" data-errores-bloque>
-          <h2 class="text-xl font-bold text-profundo">Para repasar</h2>
-          <ul class="mt-3 flex flex-col gap-3" data-errores></ul>
-        </div>
-
-        <p class="mt-6 text-center text-sm font-semibold text-texto-2" data-mejor></p>
-
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-          <button type="button" class="boton boton-principal hidden" data-siguiente-nivel>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2" data-acciones-resultado>
+          <button type="button" class="boton boton-principal hidden" data-accion="siguiente-nivel">
             Siguiente nivel <Icon name="arrow-right" class="size-5" />
           </button>
-          <button type="button" class="boton boton-secundario hidden" data-certificado-resultado>Ver certificado</button>
-          <button type="button" class="boton boton-secundario hidden" data-repasar>Repasar mis errores</button>
-          <button type="button" class="boton boton-secundario" data-otra>
-            <Icon name="arrows-clockwise" class="size-5" /> Otro examen
+          <button type="button" class="boton boton-secundario hidden" data-accion="certificado">
+            <Icon name="seal-check" class="size-5" /> Ver certificado
           </button>
-          <button type="button" class="boton boton-secundario" data-volver-niveles>Ver los niveles</button>
+          <button type="button" class="boton boton-secundario hidden" data-accion="repasar">Repasar mis errores</button>
+          <button type="button" class="boton boton-secundario hidden" data-accion="otra">
+            <Icon name="arrows-clockwise" class="size-5" /> <span data-otra-texto>Volver a intentar</span>
+          </button>
+          <button type="button" class="boton boton-secundario hidden" data-accion="niveles">Ver los niveles</button>
         </div>
+
+        <p class="mt-4 text-center text-sm font-semibold text-texto-2" data-mejor></p>
+
+        <div class="mt-7 hidden" data-reforzar-bloque>
+          <h3 class="text-xl font-bold text-profundo">Temas a reforzar</h3>
+          <ul class="mt-3 flex flex-col gap-2" data-reforzar></ul>
+        </div>
+
+        <details class="desplegable mt-7 hidden" data-errores-bloque>
+          <summary>
+            <span>Tus errores, con la respuesta <span class="font-semibold text-texto-2 tabular-nums" data-errores-cuenta></span></span>
+            <Icon name="caret-down" class="flecha size-5 shrink-0" />
+          </summary>
+          <ul class="flex flex-col gap-3 px-4 pb-4" data-errores></ul>
+        </details>
+
+        <details class="desplegable mt-3">
+          <summary>
+            <span>Cómo te fue por tema <span class="font-semibold text-texto-2 tabular-nums" data-temas-cuenta></span></span>
+            <Icon name="caret-down" class="flecha size-5 shrink-0" />
+          </summary>
+          <ul class="flex flex-col gap-2 px-4 pb-4" data-por-tema></ul>
+        </details>
       </section>
 
       <!-- 4. Certificado -->
       <section class="hidden" data-pantalla="certificado">
-        <div class="hidden rounded-3xl bg-white p-6 ring-1 ring-profundo/10" data-pedir-nombre>
-          <label for="nombre" class="block text-lg font-bold text-profundo">¿Cómo te llamás?</label>
+        <form class="hidden rounded-3xl bg-white p-6 ring-1 ring-profundo/10" data-pedir-nombre>
+          <label for="nombre" class="block text-lg font-bold text-profundo">¿Cómo querés que diga tu nombre?</label>
           <p class="mt-1 text-sm text-texto-2">Va en tu certificado. Se guarda solo en este celular.</p>
           <input
             id="nombre"
             type="text"
             autocomplete="name"
             maxlength="60"
-            class="mt-3 w-full rounded-2xl bg-crema px-4 py-3 text-base ring-1 ring-profundo/15 outline-none focus:ring-2 focus:ring-marca"
+            required
+            class="mt-3 min-h-12 w-full rounded-2xl bg-crema px-4 py-3 text-base ring-1 ring-profundo/15 outline-none focus:ring-2 focus:ring-marca"
           />
-          <button type="button" class="boton boton-principal mt-4 w-full" data-guardar-nombre>Guardar</button>
-        </div>
+          <button type="submit" class="boton boton-principal mt-4 w-full">Guardar</button>
+        </form>
 
         <div class="certificado hidden" data-certificado>
-          <Image src={logo} alt="Logo de Lola" width={88} height={88} class="mx-auto size-20 rounded-full shadow-[0_8px_32px_rgb(33_76_59/0.15)]" />
-          <p class="mt-4 text-sm font-semibold text-marca-texto">La Almacén de Lola · Equipo</p>
-          <p class="mt-1 text-xs font-bold tracking-[0.2em] text-texto-2 uppercase">Certificado</p>
-          <p class="mt-5 text-3xl font-bold text-profundo" data-cert-nombre></p>
+          <Image src={logo} alt="" width={88} height={88} class="mx-auto size-20 rounded-full shadow-[0_8px_32px_rgb(33_76_59/0.15)]" />
+          <p class="mt-4 text-base font-bold text-profundo">La Almacén de Lola</p>
+          <p class="text-sm font-semibold text-marca-texto">Intranet del equipo</p>
+          <p class="mt-4 text-xs font-bold tracking-[0.2em] text-texto-2 uppercase">Certificado</p>
+          <h2 class="mt-3 text-3xl font-bold break-words text-profundo focus:outline-none" tabindex="-1" data-cert-nombre></h2>
           <p class="mt-2 text-base text-texto">aprobó el examen</p>
           <p class="mt-1 text-2xl font-bold text-marca-texto" data-cert-nivel></p>
-          <dl class="mt-6 grid grid-cols-3 gap-2 text-center">
+          <dl class="mt-6 grid grid-cols-2 gap-2 text-center">
             <div class="rounded-2xl bg-menta-suave p-3">
               <dt class="text-xs text-texto-2">Nota</dt>
-              <dd class="text-lg font-bold text-profundo" data-cert-nota></dd>
-            </div>
-            <div class="rounded-2xl bg-menta-suave p-3">
-              <dt class="text-xs text-texto-2">Fecha</dt>
-              <dd class="text-lg font-bold text-profundo" data-cert-fecha></dd>
+              <dd class="text-lg font-bold text-profundo tabular-nums" data-cert-nota></dd>
             </div>
             <div class="rounded-2xl bg-menta-suave p-3">
               <dt class="text-xs text-texto-2">Intentos</dt>
-              <dd class="text-lg font-bold text-profundo" data-cert-intentos></dd>
+              <dd class="text-lg font-bold text-profundo tabular-nums" data-cert-intentos></dd>
+            </div>
+            <div class="col-span-2 rounded-2xl bg-menta-suave p-3">
+              <dt class="text-xs text-texto-2">Aprobado el</dt>
+              <dd class="text-lg font-bold whitespace-nowrap text-profundo tabular-nums" data-cert-fecha></dd>
             </div>
           </dl>
-          <p class="mt-5 text-sm text-texto-2">Hora actual: <strong class="tabular-nums text-profundo" data-cert-hora></strong></p>
-          <p class="mt-1 text-xs text-texto-2">Mostráselo a la encargada en tu celular.</p>
+          <p class="mt-5 text-sm text-texto-2">Hora actual: <strong class="whitespace-nowrap text-profundo tabular-nums" data-cert-hora></strong></p>
+          <p class="mt-1 text-sm text-texto-2">Mostráselo a la encargada en tu celular. Te puede hacer 2 preguntas en el mostrador para confirmar.</p>
         </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2" data-cert-acciones>
@@ -181,11 +254,25 @@ const banco = Object.values(archivos)
       </section>
     </div>
   </main>
+
+  <!-- Íconos que el script copia en cada respuesta (acierto y error no se distinguen solo por color) -->
+  <template data-icono="bien"><Icon name="check-circle" class="size-6" /></template>
+  <template data-icono="mal"><Icon name="x-circle" class="size-6" /></template>
+  <template data-icono="clave"><Icon name="seal-warning" class="size-4" /></template>
+
+  <script type="application/json" id="datos-examen" set:html={json({ banco, gondolas, claves: CLAVES })} />
 </Manual>
 
-<script type="application/json" id="banco-examen" set:html={JSON.stringify(banco)} />
-
 <style>
+  /* Mientras se responde: sin barra inferior ni menú, para no salir sin querer */
+  :global(html.examen-en-curso .barra-app),
+  :global(html.examen-en-curso [data-menu-abrir]) {
+    display: none !important;
+  }
+  :global(html.examen-en-curso body.con-barra-app) {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
   .tarjeta-nivel {
     border-radius: 28px;
     background: #fff;
@@ -194,10 +281,7 @@ const banco = Object.values(archivos)
   }
   .tarjeta-nivel.bloqueado {
     background: var(--color-arena-suave);
-  }
-  .tarjeta-nivel.bloqueado h2,
-  .tarjeta-nivel.bloqueado ul {
-    opacity: 0.6;
+    box-shadow: 0 0 0 1px rgb(33 76 59 / 0.1);
   }
   .estado {
     flex: none;
@@ -219,6 +303,43 @@ const banco = Object.values(archivos)
     color: var(--color-ambar);
     box-shadow: none;
   }
+  .estado.bloqueado {
+    background: var(--color-arena);
+    color: var(--color-texto-2);
+    box-shadow: none;
+  }
+  .salir-examen {
+    display: inline-flex;
+    min-height: 44px;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    border-radius: 9999px;
+    background: #fff;
+    padding: 0 14px 0 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.16);
+  }
+  .salir-examen:hover {
+    background: var(--color-menta-suave);
+  }
+  .dialogo {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(92vw, 420px);
+    height: fit-content;
+    border-radius: 28px;
+    background: #fff;
+    padding: 24px;
+    color: var(--color-texto);
+    box-shadow: 0 30px 60px -20px rgb(33 76 59 / 0.5);
+  }
+  .dialogo::backdrop {
+    background: rgb(33 76 59 / 0.45);
+  }
   .certificado {
     border-radius: 28px;
     background: var(--color-crema);
@@ -229,12 +350,34 @@ const banco = Object.values(archivos)
       inset 0 0 0 8px var(--color-crema),
       inset 0 0 0 9px var(--color-marca);
   }
-  [data-empezar]:disabled {
-    opacity: 0.55;
+  .desplegable {
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  .desplegable > summary {
+    display: flex;
+    min-height: 56px;
+    cursor: pointer;
+    list-style: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .desplegable > summary::-webkit-details-marker {
+    display: none;
+  }
+  .desplegable[open] > summary :global(.flecha) {
+    transform: rotate(180deg);
   }
   :global(.respuesta) {
     display: flex;
     width: 100%;
+    min-height: 48px;
     align-items: flex-start;
     gap: 12px;
     border-radius: 18px;
@@ -265,12 +408,20 @@ const banco = Object.values(archivos)
     font-weight: 800;
     color: var(--color-profundo);
   }
+  :global(.respuesta .marca) {
+    margin-left: auto;
+    flex: none;
+  }
   :global(.respuesta.vf) {
+    align-items: center;
     justify-content: center;
     padding: 18px;
     font-size: 1.0625rem;
     font-weight: 700;
     color: var(--color-profundo);
+  }
+  :global(.respuesta.vf .marca) {
+    margin-left: 0;
   }
   :global(.respuesta.correcta) {
     background: var(--color-menta);
@@ -280,6 +431,9 @@ const banco = Object.values(archivos)
     background: var(--color-profundo);
     color: #fff;
   }
+  :global(.respuesta.correcta .marca) {
+    color: var(--color-marca-texto);
+  }
   :global(.respuesta.incorrecta) {
     background: var(--color-peligro-suave);
     box-shadow: inset 0 0 0 2px var(--color-peligro);
@@ -287,6 +441,9 @@ const banco = Object.values(archivos)
   :global(.respuesta.incorrecta .letra) {
     background: var(--color-peligro);
     color: #fff;
+  }
+  :global(.respuesta.incorrecta .marca) {
+    color: var(--color-peligro);
   }
   :global(.respuesta:disabled) {
     cursor: default;
@@ -301,38 +458,69 @@ const banco = Object.values(archivos)
     box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.14);
   }
   :global(.par label) {
-    display: block;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
     font-weight: 700;
     color: var(--color-profundo);
   }
   :global(.par select) {
     margin-top: 8px;
     width: 100%;
+    min-height: 48px;
     border-radius: 12px;
     background: var(--color-crema);
     padding: 10px 12px;
-    font-size: 0.975rem;
+    font-size: 1rem;
     color: var(--color-texto);
     box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
+  }
+  :global(.par option.usada) {
+    color: var(--color-texto-2);
   }
   :global(.par.correcta) {
     background: var(--color-menta);
     box-shadow: inset 0 0 0 2px var(--color-marca);
   }
+  :global(.par.correcta .marca) {
+    color: var(--color-marca-texto);
+  }
   :global(.par.incorrecta) {
     background: var(--color-peligro-suave);
     box-shadow: inset 0 0 0 2px var(--color-peligro);
   }
+  :global(.par.incorrecta .marca) {
+    color: var(--color-peligro);
+  }
   :global(.par .solucion) {
     margin-top: 6px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--color-texto);
+  }
+  /* "Comprobar" de "Uní cada uno": siempre a la vista al pie de la pantalla */
+  :global(.comprobar) {
+    position: sticky;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 10;
+    box-shadow: 0 14px 30px -12px rgb(33 76 59 / 0.55);
+  }
+  :global(.enlace-guia) {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-profundo);
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 </style>
 
 <script>
   import { url } from '../lib/url';
   import { app, type Nivel } from '../scripts/app';
+  import { accesoGuardado } from '../scripts/sesion';
+  import { avisar } from '../scripts/aviso';
   import { NIVELES, APRUEBA, TEMAS } from '../data/niveles';
 
   type Tipo = 'opcion' | 'situacion' | 'vf' | 'unir';
@@ -347,6 +535,8 @@ const banco = Object.values(archivos)
     pares?: { a: string; b: string }[];
     explicacion: string;
     gondola?: string;
+    /** Pregunta de seguridad: puede salir como clave (fallarla = no aprobar). */
+    critica?: boolean;
   }
 
   const FORMATOS: Record<Tipo, string> = {
@@ -355,16 +545,33 @@ const banco = Object.values(archivos)
     vf: 'Verdadero o falso',
     unir: 'Uní cada uno',
   };
+  /** Por qué importa una clave: según de qué habla la pregunta (si no, la frase general). */
+  const POR_QUE: [RegExp, string][] = [
+    [/cel[ií]ac|tacc|gluten/i, 'a una persona celíaca, un poquito de gluten ya le hace mal, aunque no se note en el momento.'],
+    [/al[eé]rgi|trazas|puede contener/i, 'con una alergia, un descuido en el mostrador puede ser grave para el cliente.'],
+    [/embaraz|medicaci|remedio|beb[eé]s?|chic[oa]s|m[eé]dic/i, 'la salud de cada persona la ve su médico: lo nuestro es no prometer nada y derivar.'],
+  ];
+  const POR_QUE_GENERAL = 'es de las preguntas de seguridad: si se contesta mal en el mostrador, le puede hacer mal a un cliente.';
+  const porQue = (p: { pregunta: string; explicacion: string; tema: string }) =>
+    POR_QUE.find(([re]) => re.test(`${p.tema} ${p.pregunta} ${p.explicacion}`))?.[1] ?? POR_QUE_GENERAL;
+  const LETRAS = 'ABCDEFGH';
 
-  const banco: Pregunta[] = JSON.parse(document.getElementById('banco-examen')!.textContent!);
+  const $ = <T extends HTMLElement>(s: string, raiz: ParentNode = document) => raiz.querySelector<T>(s)!;
+  const $$ = <T extends HTMLElement>(s: string, raiz: ParentNode = document) => [...raiz.querySelectorAll<T>(s)];
+
+  const datos: { banco: Pregunta[]; gondolas: Record<string, string>; claves: number } = JSON.parse($('#datos-examen').textContent!);
+  const banco = datos.banco;
+  const porId = new Map(banco.map((p) => [p.id, p]));
   const temas = TEMAS.filter((t) => banco.some((p) => p.tema === t));
   const datosNivel = (n: Nivel) => NIVELES.find((x) => x.numero === n)!;
 
-  const $ = <T extends HTMLElement>(s: string, raiz: ParentNode = document) => raiz.querySelector<T>(s)!;
-  const $$ = <T extends HTMLElement>(s: string) => [...document.querySelectorAll<T>(s)];
+  const html = document.documentElement;
   const pantallas = $$<HTMLElement>('[data-pantalla]');
+  const suave = (): ScrollBehavior => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
+  const enfocar = (e: HTMLElement) => e.focus({ preventScroll: true });
   const mostrar = (nombre: string) => {
     pantallas.forEach((p) => p.classList.toggle('hidden', p.dataset.pantalla !== nombre));
+    html.classList.toggle('examen-en-curso', nombre === 'pregunta');
     scrollTo({ top: 0 });
   };
   const mezclar = <T,>(a: T[]) => a.map((v) => [Math.random(), v] as const).sort((x, y) => x[0] - y[0]).map(([, v]) => v);
@@ -374,21 +581,42 @@ const banco = Object.values(archivos)
     if (texto) e.textContent = texto;
     return e;
   };
+  const icono = (nombre: 'bien' | 'mal' | 'clave', clase: string) => {
+    const svg = $<HTMLTemplateElement>(`template[data-icono="${nombre}"]`).content.firstElementChild!.cloneNode(true) as SVGElement;
+    svg.setAttribute('class', clase);
+    return svg;
+  };
+  const anunciar = (texto: string) => {
+    const region = $('[data-anuncio]');
+    region.textContent = '';
+    requestAnimationFrame(() => (region.textContent = texto));
+  };
   const fecha = (iso: string) => new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
   const habilitado = (n: Nivel) => n === 1 || !!app.nivel((n - 1) as Nivel).aprobadoEl;
+  const plural = (n: number, uno: string, varios: string) => (n === 1 ? uno : varios);
+  const respuestaCorrecta = (p: Pregunta) =>
+    p.tipo === 'vf' ? (p.correcta ? 'Verdadero.' : 'Falso.') : p.tipo === 'unir' ? p.pares!.map((x) => `${x.a}: ${x.b}`).join(' · ') : p.opciones![p.correcta as number];
+  const enlaceGuia = (p: Pregunta) => {
+    if (!p.gondola) return null;
+    const a = el('a', 'enlace-guia', `Ver en la guía: ${datos.gondolas[p.gondola] ?? 'la góndola'}`);
+    a.href = url(`/guia/${p.gondola}`);
+    return a;
+  };
 
   // ---------- Armado del examen ----------
   /**
-   * Sortea el examen de un nivel: al menos una pregunta de cada tema y el resto respetando la
-   * mezcla de formatos. Prioriza las que no salieron en el intento anterior.
+   * Sortea el examen de un nivel: primero las preguntas clave (de temas distintos, entre las
+   * `critica` de este nivel y los anteriores), después al menos una pregunta de cada tema y el
+   * resto respetando la mezcla de formatos. Prioriza las que no salieron en el intento anterior.
    */
-  function armarExamen(n: Nivel): Pregunta[] {
+  function armarExamen(n: Nivel): { preguntas: Pregunta[]; claves: Set<string> } {
     const conf = datosNivel(n);
     const anteriores = new Set(app.nivel(n).ultimas);
     const orden = (lista: Pregunta[]) => mezclar(lista).sort((a, b) => Number(anteriores.has(a.id)) - Number(anteriores.has(b.id)));
     let pool = banco.filter((p) => p.nivel === n);
     const cupos: Record<Tipo, number> = { ...conf.mezcla };
     const elegidas: Pregunta[] = [];
+    const claves = new Set<string>();
     const tomar = (p: Pregunta) => {
       elegidas.push(p);
       cupos[p.tipo]--;
@@ -410,16 +638,26 @@ const banco = Object.values(archivos)
       return base.find((p) => cupos[p.tipo] > 0) ?? base[0];
     };
 
-    // 1. Al menos una de cada tema.
+    // 1. Las claves: de temas distintos mientras se pueda.
+    const candidatas = orden(banco.filter((p) => p.critica && p.tipo !== 'unir' && p.nivel <= n));
+    for (const distintoTema of [true, false]) {
+      for (const p of candidatas) {
+        if (claves.size >= datos.claves || elegidas.length >= conf.preguntas) break;
+        if (claves.has(p.id) || parecida(p) || (distintoTema && elegidas.some((x) => x.tema === p.tema))) continue;
+        tomar(p);
+        claves.add(p.id);
+      }
+    }
+    // 2. Al menos una de cada tema.
     for (const t of mezclar(temas)) {
       if (elegidas.length >= conf.preguntas) break;
       if (elegidas.some((p) => p.tema === t)) continue;
       const cand = orden(pool.filter((p) => p.tema === t));
       if (cand.length) tomar(conCupo(cand));
     }
-    // 2. El resto, respetando la mezcla de formatos mientras se pueda.
+    // 3. El resto, respetando la mezcla de formatos mientras se pueda.
     while (elegidas.length < conf.preguntas && pool.length) tomar(conCupo(orden(pool)));
-    return mezclar(elegidas);
+    return { preguntas: mezclar(elegidas), claves };
   }
 
   // ---------- Pantalla de niveles ----------
@@ -431,36 +669,41 @@ const banco = Object.values(archivos)
       const tarjeta = $<HTMLElement>(`[data-nivel="${n}"]`);
       const estado = $('[data-estado]', tarjeta);
       const detalle = $('[data-detalle]', tarjeta);
-      const boton = $<HTMLButtonElement>(`[data-empezar="${n}"]`);
-      const texto = $('[data-empezar-texto]', boton);
+      const empezar = $<HTMLButtonElement>(`[data-empezar="${n}"]`);
+      const certificado = $<HTMLButtonElement>(`[data-ver-certificado="${n}"]`);
       const abierto = habilitado(n);
+      const decir = (texto: string, candado = false) => {
+        $('[data-detalle-texto]', detalle).textContent = texto;
+        $('[data-candado]', detalle).classList.toggle('hidden', !candado);
+        detalle.classList.remove('hidden');
+      };
       tarjeta.classList.toggle('bloqueado', !abierto);
-      boton.disabled = !abierto;
+      $('[data-acciones-nivel]', tarjeta).classList.toggle('hidden', !abierto);
+      empezar.classList.toggle('hidden', !abierto);
+      empezar.classList.replace(v.aprobadoEl ? 'boton-principal' : 'boton-secundario', v.aprobadoEl ? 'boton-secundario' : 'boton-principal');
+      certificado.classList.toggle('hidden', !v.aprobadoEl);
       estado.className = 'estado';
       detalle.classList.add('hidden');
+      const texto = $('[data-empezar-texto]', empezar);
       if (v.aprobadoEl) {
         aprobados++;
         estado.classList.add('aprobado');
         estado.textContent = `Aprobado · ${v.notaAprobado}%`;
-        detalle.textContent = `Aprobado el ${fecha(v.aprobadoEl)}. Tu mejor nota: ${v.mejor}%. Podés volver a hacerlo cuando quieras para repasar.`;
-        detalle.classList.remove('hidden');
+        decir(`Aprobado el ${fecha(v.aprobadoEl)}. Tu mejor nota: ${v.mejor}%.`);
         texto.textContent = 'Hacerlo de nuevo';
       } else if (!abierto) {
+        estado.classList.add('bloqueado');
         estado.textContent = 'Bloqueado';
-        detalle.textContent = `Se habilita cuando aprobás el nivel ${datosNivel((n - 1) as Nivel).nombre}.`;
-        detalle.classList.remove('hidden');
-        texto.textContent = 'Bloqueado';
+        decir(`Se habilita cuando aprobás el nivel ${datosNivel((n - 1) as Nivel).nombre}.`, true);
       } else if (v.intentos) {
         estado.classList.add('pendiente');
         estado.textContent = 'No aprobado todavía';
-        detalle.textContent = `Tu mejor nota: ${v.mejor}%. Necesitás ${APRUEBA}% para aprobar.`;
-        detalle.classList.remove('hidden');
+        decir(`Tu mejor nota: ${v.mejor}%. Para aprobar necesitás ${APRUEBA}% y las preguntas clave bien.`);
         texto.textContent = 'Volver a intentar';
       } else {
         estado.textContent = 'Sin hacer';
         texto.textContent = 'Empezar';
       }
-      $(`[data-ver-certificado="${n}"]`).classList.toggle('hidden', !v.aprobadoEl);
     }
     $('[data-resumen] span').textContent = `Aprobaste ${aprobados} de 3 niveles`;
   }
@@ -469,33 +712,60 @@ const banco = Object.values(archivos)
   let nivel: Nivel = 1;
   let practica = false;
   let examen: Pregunta[] = [];
+  let claves = new Set<string>();
   let i = 0;
   let resultados: boolean[] = [];
 
-  function devolver(acerto: boolean, p: Pregunta, solucion: string) {
+  // Avance guardado en la pestaña: si se cierra o se toca otro lado sin querer, se retoma.
+  const AVANCE = 'lola-examen-en-curso:v1';
+  const guardarAvance = () => {
+    try {
+      sessionStorage.setItem(AVANCE, JSON.stringify({ nivel, practica, ids: examen.map((p) => p.id), claves: [...claves], resultados }));
+    } catch {}
+  };
+  const borrarAvance = () => {
+    try {
+      sessionStorage.removeItem(AVANCE);
+    } catch {}
+  };
+
+  function devolver(acerto: boolean, p: Pregunta, titulo: string, paraLector = '') {
     resultados[i] = acerto;
+    guardarAvance();
     const dev = $('[data-devolucion]');
-    dev.className = `mt-4 rounded-2xl p-4 ${acerto ? 'bg-menta-suave text-profundo' : 'bg-peligro-suave text-texto'}`;
-    $('[data-devolucion-titulo]').textContent = acerto ? '¡Bien!' : `No. ${solucion}`;
+    dev.className = `mt-4 flex gap-3 rounded-2xl p-4 ${acerto ? 'bg-menta-suave text-profundo' : 'bg-peligro-suave text-texto'}`;
+    $('[data-devolucion-icono]').replaceChildren(icono(acerto ? 'bien' : 'mal', `size-6 ${acerto ? 'text-marca-texto' : 'text-peligro'}`));
+    $('[data-devolucion-titulo]').textContent = titulo;
     $('[data-devolucion-texto]').textContent = p.explicacion;
+    anunciar(`${titulo} ${paraLector}${p.explicacion}`);
     const sig = $('[data-siguiente]');
     sig.classList.remove('hidden');
     $('[data-siguiente-texto]').textContent = i + 1 < examen.length ? 'Siguiente' : 'Ver el resultado';
-    sig.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    enfocar(sig);
+    sig.scrollIntoView({ behavior: suave(), block: 'nearest' });
+  }
+
+  /** Marca una opción como la correcta o la elegida mal: color, ícono y texto para lectores. */
+  function marcar(b: HTMLElement, bien: boolean) {
+    b.classList.add(bien ? 'correcta' : 'incorrecta');
+    b.append(icono(bien ? 'bien' : 'mal', 'marca size-6'), el('span', 'sr-only', bien ? ' (la correcta)' : ' (tu respuesta)'));
   }
 
   function opciones(p: Pregunta, cont: HTMLElement) {
+    // Las opciones se muestran mezcladas; cada botón recuerda su índice real en el banco.
+    const orden = mezclar(p.opciones!.map((texto, k) => ({ texto, k })));
+    const c = p.correcta as number;
+    const posCorrecta = orden.findIndex((o) => o.k === c);
     const lista = el('ol', 'flex flex-col gap-3');
-    const botones = p.opciones!.map((op, k) => {
+    const botones = orden.map(({ texto, k }, pos) => {
       const b = el('button', 'respuesta');
       b.type = 'button';
-      b.append(el('span', 'letra', 'ABCD'[k]), el('span', '', op));
+      b.append(el('span', 'letra', LETRAS[pos]), el('span', 'min-w-0', texto));
       b.addEventListener('click', () => {
         botones.forEach((x) => (x.disabled = true));
-        const c = p.correcta as number;
-        botones[c].classList.add('correcta');
-        if (k !== c) b.classList.add('incorrecta');
-        devolver(k === c, p, `La correcta es la ${'ABCD'[c]}.`);
+        marcar(botones[posCorrecta], true);
+        if (k !== c) marcar(b, false);
+        devolver(k === c, p, k === c ? '¡Bien!' : `No era esa. La correcta es la ${LETRAS[posCorrecta]}.`, k === c ? '' : `${orden[posCorrecta].texto} `);
       });
       const li = el('li');
       li.append(b);
@@ -508,14 +778,15 @@ const banco = Object.values(archivos)
   function verdaderoFalso(p: Pregunta, cont: HTMLElement) {
     const fila = el('div', 'grid grid-cols-2 gap-3');
     const botones = [true, false].map((valor) => {
-      const b = el('button', 'respuesta vf', valor ? 'Verdadero' : 'Falso');
+      const b = el('button', 'respuesta vf');
       b.type = 'button';
+      b.append(el('span', '', valor ? 'Verdadero' : 'Falso'));
       b.addEventListener('click', () => {
         botones.forEach((x) => (x.disabled = true));
         const bien = valor === p.correcta;
-        botones[p.correcta ? 0 : 1].classList.add('correcta');
-        if (!bien) b.classList.add('incorrecta');
-        devolver(bien, p, `Es ${p.correcta ? 'verdadero' : 'falso'}.`);
+        marcar(botones[p.correcta ? 0 : 1], true);
+        if (!bien) marcar(b, false);
+        devolver(bien, p, bien ? '¡Bien!' : `Era ${p.correcta ? 'verdadero' : 'falso'}.`);
       });
       fila.append(b);
       return b;
@@ -526,12 +797,17 @@ const banco = Object.values(archivos)
   function unir(p: Pregunta, cont: HTMLElement) {
     const pares = mezclar(p.pares!);
     const respuestas = mezclar(p.pares!.map((x) => x.b));
+    const todas = pares.length === 4 ? 'las cuatro' : `las ${pares.length}`;
+    const ayuda = $('[data-ayuda]');
+    ayuda.textContent = `Elegí la pareja de cada uno. Cuenta solo si acertás ${todas}.`;
+    ayuda.classList.remove('hidden');
     const lista = el('div', 'flex flex-col gap-3');
     const selects = pares.map((par, k) => {
       const caja = el('div', 'par');
       const id = `unir-${p.id}-${k}`;
-      const label = el('label', '', par.a);
+      const label = el('label');
       label.htmlFor = id;
+      label.append(el('span', 'min-w-0', par.a));
       const s = el('select');
       s.id = id;
       s.append(new Option('Elegí…', ''), ...respuestas.map((r) => new Option(r, r)));
@@ -539,34 +815,69 @@ const banco = Object.values(archivos)
       lista.append(caja);
       return s;
     });
-    const comprobar = el('button', 'boton boton-secundario mt-4 w-full', 'Comprobar');
+    // Las respuestas ya elegidas en otro renglón se ven atenuadas y avisan "(ya elegida)".
+    const pintarUsadas = () => {
+      const usadas = selects.map((s) => s.value);
+      selects.forEach((s) =>
+        [...s.options].forEach((o) => {
+          if (!o.value) return;
+          const usada = s.value !== o.value && usadas.includes(o.value);
+          o.textContent = usada ? `${o.value} (ya elegida)` : o.value;
+          o.classList.toggle('usada', usada);
+        }),
+      );
+    };
+    const falta = el('p', 'mt-3 hidden text-[0.95rem] font-semibold text-peligro');
+    falta.setAttribute('role', 'alert');
+    const comprobar = el('button', 'boton boton-principal comprobar mt-4 w-full', 'Comprobar');
     comprobar.type = 'button';
-    comprobar.disabled = true;
-    selects.forEach((s) => s.addEventListener('change', () => (comprobar.disabled = selects.some((x) => !x.value))));
+    selects.forEach((s) =>
+      s.addEventListener('change', () => {
+        pintarUsadas();
+        falta.classList.add('hidden');
+      }),
+    );
     comprobar.addEventListener('click', () => {
-      let todas = true;
+      const vacios = selects.filter((s) => !s.value);
+      if (vacios.length) {
+        falta.textContent = vacios.length === 1 ? 'Te falta 1 por elegir.' : `Te faltan ${vacios.length} por elegir.`;
+        falta.classList.remove('hidden');
+        vacios[0].focus();
+        return;
+      }
+      let bien = 0;
       selects.forEach((s, k) => {
         s.disabled = true;
         const ok = s.value === pares[k].b;
-        todas &&= ok;
+        if (ok) bien++;
         const caja = s.parentElement!;
         caja.classList.add(ok ? 'correcta' : 'incorrecta');
+        caja.querySelector('label')!.prepend(icono(ok ? 'bien' : 'mal', 'marca size-6 shrink-0'));
+        caja.querySelector('label')!.append(el('span', 'sr-only', ok ? ' (bien)' : ' (mal)'));
         if (!ok) caja.append(el('p', 'solucion', `Era: ${pares[k].b}`));
       });
       comprobar.remove();
-      devolver(todas, p, 'Para que cuente, tienen que estar bien las cuatro.');
+      falta.remove();
+      const ok = bien === pares.length;
+      const titulo = ok
+        ? '¡Bien!'
+        : `${bien * 2 >= pares.length ? 'Casi' : 'Todavía no'}: acertaste ${bien} de ${pares.length}. Para que cuente, tienen que estar bien ${todas}.`;
+      devolver(ok, p, titulo);
     });
-    cont.append(lista, comprobar);
+    cont.append(lista, falta, comprobar);
   }
 
   function pintarPregunta() {
     const p = examen[i];
-    $('[data-contador]').textContent = `${practica ? 'Repaso' : `Nivel ${nivel} · ${datosNivel(nivel).nombre}`} · Pregunta ${i + 1} de ${examen.length}`;
+    $('[data-contador-nivel]').textContent = practica ? `Repaso de errores · ${datosNivel(nivel).nombre}` : `Nivel ${nivel} · ${datosNivel(nivel).nombre}`;
+    $('[data-contador]').textContent = `Pregunta ${i + 1} de ${examen.length}`;
     $('[data-barra]').style.width = `${(i / examen.length) * 100}%`;
     $('[data-formato]').textContent = FORMATOS[p.tipo];
+    $('[data-chip-clave]').classList.toggle('hidden', !claves.has(p.id));
     $('[data-tema]').textContent = p.tema;
     $('[data-enunciado]').textContent = p.pregunta;
-    $('[data-devolucion]').classList.add('hidden');
+    $('[data-ayuda]').classList.add('hidden');
+    $('[data-devolucion]').className = 'mt-4 hidden';
     $('[data-siguiente]').classList.add('hidden');
     const cont = $('[data-respuestas]');
     cont.replaceChildren();
@@ -575,139 +886,242 @@ const banco = Object.values(archivos)
     else opciones(p, cont);
   }
 
+  function arrancar() {
+    pintarPregunta();
+    mostrar('pregunta');
+    enfocar($('[data-enunciado]'));
+  }
+
   function empezar(n: Nivel, soloErrores = false) {
     nivel = n;
     practica = soloErrores;
     if (soloErrores) {
       const ids = new Set(app.nivel(n).errores);
       examen = mezclar(banco.filter((p) => ids.has(p.id)));
+      claves = new Set();
+      if (!examen.length) {
+        avisar('No hay preguntas para repasar. Hacé otro examen.');
+        return;
+      }
     } else {
-      examen = armarExamen(n);
+      const armado = armarExamen(n);
+      examen = armado.preguntas;
+      claves = armado.claves;
     }
     if (!examen.length) return;
     i = 0;
     resultados = [];
-    pintarPregunta();
-    mostrar('pregunta');
+    guardarAvance();
+    arrancar();
+  }
+
+  /** Si había un examen a medias en esta pestaña, sigue donde quedó. */
+  function retomar() {
+    let a: { nivel: Nivel; practica: boolean; ids: string[]; claves: string[]; resultados: boolean[] } | null = null;
+    try {
+      a = JSON.parse(sessionStorage.getItem(AVANCE) ?? 'null');
+    } catch {}
+    if (!a || !Array.isArray(a.ids) || !a.ids.length || ![1, 2, 3].includes(a.nivel)) return;
+    const preguntas = a.ids.map((id) => porId.get(id));
+    if (preguntas.some((p) => !p) || !habilitado(a.nivel)) return borrarAvance();
+    nivel = a.nivel;
+    practica = !!a.practica;
+    examen = preguntas as Pregunta[];
+    claves = new Set((a.claves ?? []).filter((id) => porId.has(id)));
+    resultados = (a.resultados ?? []).slice(0, examen.length).map(Boolean);
+    i = resultados.length;
+    if (i >= examen.length) return terminar();
+    arrancar();
+    avisar(`Seguís donde habías quedado: pregunta ${i + 1} de ${examen.length}.`);
+  }
+
+  /** Muestra los botones del resultado en ese orden; el primero es el principal. */
+  function acciones(lista: string[]) {
+    const caja = $('[data-acciones-resultado]');
+    $$('[data-accion]', caja).forEach((b) => b.classList.add('hidden'));
+    lista.forEach((nombre, k) => {
+      const b = $(`[data-accion="${nombre}"]`, caja);
+      b.classList.remove('hidden');
+      b.classList.toggle('boton-principal', k === 0);
+      b.classList.toggle('boton-secundario', k > 0);
+      caja.append(b);
+    });
   }
 
   function terminar() {
+    borrarAvance();
     const total = examen.length;
     const bien = resultados.filter(Boolean).length;
-    const nota = Math.round((bien / total) * 100);
-    const aprobado = !practica && nota >= APRUEBA;
+    const nota = Math.floor((bien / total) * 100);
+    const minimo = Math.ceil((total * APRUEBA) / 100);
+    const faltan = Math.max(0, minimo - bien);
+    const clavesFalladas = practica ? [] : examen.filter((p, k) => claves.has(p.id) && !resultados[k]);
+    const aprobado = !practica && faltan === 0 && !clavesFalladas.length;
     const conf = datosNivel(nivel);
+    const errores = examen.filter((_, k) => !resultados[k]);
     const v = practica
       ? app.nivel(nivel)
-      : app.registrarIntento(nivel, {
-          nota,
-          aprobado,
-          ids: examen.map((p) => p.id),
-          errores: examen.filter((_, k) => !resultados[k]).map((p) => p.id),
-        });
+      : app.registrarIntento(nivel, { nota, aprobado, ids: examen.map((p) => p.id), errores: errores.map((p) => p.id) });
 
+    // Sello y frase
     $('[data-resultado-nivel]').textContent = practica ? `Repaso de errores · ${conf.nombre}` : `Nivel ${nivel} · ${conf.nombre}`;
     $('[data-resultado-nota]').textContent = `${nota}%`;
     const sello = $('[data-resultado-sello]');
     const caja = $('[data-sello]');
+    const base = 'mt-2 inline-block rounded-full px-4 py-1.5 text-sm font-extrabold tracking-wide';
+    let detalle: string;
     if (practica) {
       caja.className = 'rounded-3xl bg-white p-6 text-center text-profundo ring-1 ring-profundo/10';
-      sello.className = 'mt-2 inline-block rounded-full bg-menta-suave px-4 py-1.5 text-sm font-extrabold tracking-wide text-profundo';
+      sello.className = `${base} bg-menta-suave text-profundo`;
       sello.textContent = 'PRÁCTICA, NO CUENTA PARA LA NOTA';
+      detalle = `Repaso listo: acertaste ${bien} de ${total}. Esto no cambia tu nota.`;
     } else if (aprobado) {
       caja.className = 'rounded-3xl bg-profundo p-6 text-center text-white';
-      sello.className = 'mt-2 inline-block rounded-full bg-menta px-4 py-1.5 text-sm font-extrabold tracking-wide text-profundo';
+      sello.className = `${base} bg-menta text-profundo`;
       sello.textContent = 'APROBADO';
+      detalle = `¡Aprobaste! ${bien} de ${total} bien. Podés ver tu certificado${nivel < 3 ? ' o seguir con el próximo nivel' : ''}.`;
     } else {
       caja.className = 'rounded-3xl bg-white p-6 text-center text-profundo ring-1 ring-profundo/10';
-      sello.className = 'mt-2 inline-block rounded-full bg-peligro-suave px-4 py-1.5 text-sm font-extrabold tracking-wide text-peligro';
-      sello.textContent = 'NO APROBADO';
+      sello.className = `${base} bg-ambar-suave text-ambar`;
+      sello.textContent = 'TODAVÍA NO';
+      const faltaron = plural(faltan, 'te faltó 1', `te faltaron ${faltan}`);
+      const clave = plural(clavesFalladas.length, 'una pregunta clave', `${clavesFalladas.length} preguntas clave`);
+      if (faltan && clavesFalladas.length) detalle = `Sacaste ${bien} de ${total}: ${faltaron} para aprobar, y además fallaste ${clave}. Podés intentarlo las veces que quieras.`;
+      else if (faltan) detalle = `Sacaste ${bien} de ${total}: ${faltaron} para aprobar (necesitás ${minimo}). Abajo ves qué repasar. Podés intentarlo las veces que quieras.`;
+      else detalle = `Sacaste ${bien} de ${total}, ¡muy buena nota! Pero no aprobaste porque fallaste ${clave}.`;
     }
-    $('[data-resultado-detalle]').textContent = `${bien} de ${total} bien.${practica ? '' : ` Se aprueba con ${APRUEBA}%.`}`;
+    $('[data-resultado-detalle]').textContent = detalle;
 
-
-    // Por tema
-    $('[data-por-tema]').replaceChildren(
-      ...temas
-        .map((t) => {
-          const idx = examen.map((p, k) => (p.tema === t ? k : -1)).filter((k) => k >= 0);
-          return { t, n: idx.length, b: idx.filter((k) => resultados[k]).length };
-        })
-        .filter((x) => x.n)
-        .map(({ t, n, b }) => {
-          const pct = Math.round((b / n) * 100);
-          const li = el('li', 'rounded-2xl bg-white p-3 ring-1 ring-profundo/10');
-          const fila = el('div', 'flex items-center justify-between gap-3 text-sm');
-          fila.append(el('span', 'font-semibold text-profundo', t), el('span', `font-bold tabular-nums ${pct === 100 ? 'text-marca-texto' : 'text-texto-2'}`, `${pct}%`));
-          const barra = el('div', 'mt-2 h-1.5 overflow-hidden rounded-full bg-menta-suave');
-          const relleno = el('div', `h-full rounded-full ${pct >= APRUEBA ? 'bg-marca' : 'bg-ambar'}`);
-          relleno.style.width = `${pct}%`;
-          barra.append(relleno);
-          li.append(fila, barra);
-          return li;
-        }),
-    );
-
-    // Errores con enlace a la guía
-    const errores = examen.filter((_, k) => !resultados[k]);
-    $('[data-errores-bloque]').classList.toggle('hidden', !errores.length);
-    $('[data-errores]').replaceChildren(
-      ...errores.map((p) => {
+    // Preguntas clave falladas: cuál, la respuesta y por qué importa.
+    $('[data-clave-bloque]').classList.toggle('hidden', !clavesFalladas.length);
+    $('[data-clave-titulo]').textContent = clavesFalladas.length === 1 ? 'La pregunta clave que fallaste' : `Las ${clavesFalladas.length} preguntas clave que fallaste`;
+    $('[data-claves-falladas]').replaceChildren(
+      ...clavesFalladas.map((p) => {
         const li = el('li', 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10');
-        li.append(el('span', 'block text-xs font-bold tracking-wide text-marca-texto uppercase', p.tema), el('span', 'mt-1 block font-semibold text-profundo', p.pregunta));
-        let respuesta = '';
-        if (p.tipo === 'vf') respuesta = p.correcta ? 'Verdadero.' : 'Falso.';
-        else if (p.tipo === 'unir') respuesta = p.pares!.map((x) => `${x.a}: ${x.b}`).join(' · ');
-        else respuesta = p.opciones![p.correcta as number];
-        li.append(el('span', 'mt-2 block text-sm text-texto', `Respuesta: ${respuesta}`), el('span', 'mt-1 block text-sm text-texto-2', p.explicacion));
-        if (p.gondola) {
-          const a = el('a', 'mt-2 inline-block text-sm font-semibold text-profundo underline underline-offset-4', 'Repasar en la guía');
-          a.href = url(`/guia/${p.gondola}`);
-          li.append(a);
-        }
+        li.append(
+          el('span', 'block text-xs font-bold tracking-wide text-marca-texto uppercase', p.tema),
+          el('span', 'mt-1 block font-semibold text-profundo', p.pregunta),
+          el('span', 'mt-2 block text-[0.95rem] text-texto', `La respuesta: ${respuestaCorrecta(p)}`),
+          el('span', 'mt-1 block text-[0.95rem] text-texto-2', p.explicacion),
+          el('span', 'mt-2 block text-[0.95rem] text-texto', `Por qué importa: ${porQue(p)}`),
+        );
+        const a = enlaceGuia(p);
+        if (a) li.append(a);
         return li;
       }),
     );
+    $('[data-clave-cierre]').textContent = `${plural(clavesFalladas.length, 'Repasala', 'Repasalas')} y volvé a intentar: es para cuidar al cliente, no un reto.`;
 
-    $('[data-mejor]').textContent = practica ? '' : `Tu mejor nota en este nivel: ${v.mejor}% · Intentos: ${v.intentos}`;
-    $('[data-siguiente-nivel]').classList.toggle('hidden', practica || !v.aprobadoEl || nivel === 3);
-    $('[data-certificado-resultado]').classList.toggle('hidden', practica || !v.aprobadoEl);
-    $('[data-repasar]').classList.toggle('hidden', practica || !errores.length);
+    // Acciones, justo debajo del sello (la principal primero).
+    $('[data-otra-texto]').textContent = practica ? (v.aprobadoEl ? 'Hacer el examen de nuevo' : 'Volver a intentar el examen') : 'Volver a intentar';
+    if (practica) acciones(['otra', 'niveles']);
+    else if (aprobado) acciones([...(nivel < 3 ? ['siguiente-nivel'] : []), 'certificado', ...(errores.length ? ['repasar'] : []), 'niveles']);
+    else acciones([...(errores.length ? ['repasar'] : []), 'otra', 'niveles']);
+    $('[data-mejor]').textContent = practica ? '' : `Tu mejor nota: ${v.mejor}%. Intentos: ${v.intentos}.`;
+
+    // Por tema: los 3 peores arriba y la lista completa plegada.
+    const porTema = temas
+      .map((t) => {
+        const idx = examen.map((p, k) => (p.tema === t ? k : -1)).filter((k) => k >= 0);
+        return { t, n: idx.length, b: idx.filter((k) => resultados[k]).length, mal: idx.filter((k) => !resultados[k]).map((k) => examen[k]) };
+      })
+      .filter((x) => x.n);
+    const filaTema = ({ t, n, b }: { t: string; n: number; b: number }) => {
+      const li = el('li', 'rounded-2xl bg-white p-3 ring-1 ring-profundo/10');
+      const fila = el('div', 'flex items-center justify-between gap-3 text-[0.95rem]');
+      fila.append(el('span', 'font-semibold text-profundo', t), el('span', `shrink-0 font-bold tabular-nums ${b === n ? 'text-marca-texto' : 'text-ambar'}`, `${b} de ${n} bien`));
+      const barra = el('div', 'mt-2 h-1.5 overflow-hidden rounded-full bg-menta-suave');
+      const relleno = el('div', `h-full rounded-full ${b === n ? 'bg-marca' : 'bg-ambar'}`);
+      relleno.style.width = `${(b / n) * 100}%`;
+      barra.append(relleno);
+      li.append(fila, barra);
+      return li;
+    };
+    const flojos = porTema
+      .filter((x) => x.b < x.n)
+      .sort((a, z) => a.b / a.n - z.b / z.n || z.n - z.b - (a.n - a.b))
+      .slice(0, 3);
+    $('[data-reforzar-bloque]').classList.toggle('hidden', !flojos.length);
+    $('[data-reforzar]').replaceChildren(
+      ...flojos.map((x) => {
+        const li = filaTema(x);
+        const a = x.mal.map(enlaceGuia).find(Boolean);
+        if (a) li.append(a);
+        return li;
+      }),
+    );
+    $('[data-temas-cuenta]').textContent = `(${porTema.length})`;
+    $('[data-por-tema]').replaceChildren(...porTema.map(filaTema));
+
+    // Errores con la respuesta y el enlace a la guía, plegados.
+    const bloqueErrores = $<HTMLDetailsElement>('[data-errores-bloque]');
+    bloqueErrores.classList.toggle('hidden', !errores.length);
+    bloqueErrores.open = false;
+    $('[data-errores-cuenta]').textContent = `(${errores.length})`;
+    $('[data-errores]').replaceChildren(
+      ...errores.map((p) => {
+        const li = el('li', 'rounded-2xl bg-crema p-4 ring-1 ring-profundo/10');
+        const cabeza = el('span', 'flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide uppercase');
+        cabeza.append(el('span', 'text-marca-texto', p.tema));
+        if (claves.has(p.id)) {
+          const chip = el('span', 'inline-flex items-center gap-1 rounded-full bg-ambar-suave px-2 py-0.5 text-ambar');
+          chip.append(icono('clave', 'size-4'), 'Clave');
+          cabeza.append(chip);
+        }
+        li.append(
+          cabeza,
+          el('span', 'mt-1 block font-semibold text-profundo', p.pregunta),
+          el('span', 'mt-2 block text-[0.95rem] text-texto', `Respuesta: ${respuestaCorrecta(p)}`),
+          el('span', 'mt-1 block text-[0.95rem] text-texto-2', p.explicacion),
+        );
+        const a = enlaceGuia(p);
+        if (a) li.append(a);
+        return li;
+      }),
+    );
+    $$<HTMLDetailsElement>('[data-pantalla="resultado"] details').forEach((d) => (d.open = false));
+
     mostrar('resultado');
+    enfocar($('[data-resultado-nivel]'));
   }
 
   // ---------- Certificado ----------
   let reloj: number | undefined;
+  const nombreGuardado = () => app.estado().nombre || accesoGuardado()?.nombre?.trim() || '';
+
+  function pedirNombre(valor: string) {
+    const input = $<HTMLInputElement>('#nombre');
+    input.value = valor;
+    $('[data-pedir-nombre]').classList.remove('hidden');
+    $('[data-certificado]').classList.add('hidden');
+    $('[data-cert-acciones]').classList.add('hidden');
+    input.focus();
+  }
+
   function verCertificado(n: Nivel) {
     nivel = n;
-    const { nombre } = app.estado();
+    const nombre = nombreGuardado();
     const v = app.nivel(n);
-    const pedir = $('[data-pedir-nombre]');
-    const cert = $('[data-certificado]');
-    const acciones = $('[data-cert-acciones]');
     mostrar('certificado');
-    if (!nombre) {
-      pedir.classList.remove('hidden');
-      cert.classList.add('hidden');
-      acciones.classList.add('hidden');
-      $<HTMLInputElement>('#nombre').focus();
-      return;
-    }
-    pedir.classList.add('hidden');
-    cert.classList.remove('hidden');
-    acciones.classList.remove('hidden');
+    if (!nombre) return pedirNombre('');
+    $('[data-pedir-nombre]').classList.add('hidden');
+    $('[data-certificado]').classList.remove('hidden');
+    $('[data-cert-acciones]').classList.remove('hidden');
     const conf = datosNivel(n);
     $('[data-cert-nombre]').textContent = nombre;
     $('[data-cert-nivel]').textContent = `Nivel ${n} · ${conf.nombre}`;
     $('[data-cert-nota]').textContent = `${v.notaAprobado}%`;
     $('[data-cert-fecha]').textContent = v.aprobadoEl ? fecha(v.aprobadoEl) : '';
     $('[data-cert-intentos]').textContent = String(v.intentos);
-    const texto = `${nombre} aprobó el Nivel ${n} ${conf.nombre} del examen de La Almacén de Lola con ${v.notaAprobado}% el ${v.aprobadoEl ? fecha(v.aprobadoEl) : ''}.`;
+    const hora = v.aprobadoEl ? new Date(v.aprobadoEl).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }) : '';
+    const cuando = v.aprobadoEl ? ` el ${fecha(v.aprobadoEl)} a las ${hora}` : '';
+    const texto = `${nombre} aprobó el Nivel ${n} ${conf.nombre} del examen de La Almacén de Lola con ${v.notaAprobado}%${cuando} (${v.intentos} ${plural(v.intentos, 'intento', 'intentos')}).`;
     $<HTMLAnchorElement>('[data-cert-whatsapp]').href = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-    const hora = () => ($('[data-cert-hora]').textContent = new Date().toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'medium' }));
+    const ahora = () => ($('[data-cert-hora]').textContent = new Date().toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'medium' }));
     clearInterval(reloj);
-    hora();
-    reloj = window.setInterval(hora, 1000);
+    ahora();
+    reloj = window.setInterval(ahora, 1000);
+    enfocar($('[data-cert-nombre]'));
   }
 
   // ---------- Eventos ----------
@@ -717,31 +1131,41 @@ const banco = Object.values(archivos)
     i++;
     if (i < examen.length) {
       pintarPregunta();
-      scrollTo({ top: 0, behavior: 'smooth' });
+      scrollTo({ top: 0, behavior: suave() });
+      enfocar($('[data-enunciado]'));
     } else terminar();
   });
   const volver = () => {
     clearInterval(reloj);
     pintarNiveles();
     mostrar('inicio');
+    enfocar($('[data-titulo-inicio]'));
   };
-  $('[data-abandonar]').addEventListener('click', volver);
+  const dialogo = $<HTMLDialogElement>('[data-dialogo-salir]');
+  $('[data-abandonar]').addEventListener('click', () => dialogo.showModal());
+  $('[data-seguir]').addEventListener('click', () => dialogo.close());
+  dialogo.addEventListener('click', (e) => {
+    if (e.target === dialogo) dialogo.close(); // toque fuera de la caja = seguir
+  });
+  $('[data-confirmar-salir]').addEventListener('click', () => {
+    dialogo.close();
+    borrarAvance();
+    volver();
+  });
   $$('[data-volver-niveles]').forEach((b) => b.addEventListener('click', volver));
-  $('[data-otra]').addEventListener('click', () => empezar(nivel));
-  $('[data-repasar]').addEventListener('click', () => empezar(nivel, true));
-  $('[data-siguiente-nivel]').addEventListener('click', () => empezar((nivel + 1) as Nivel));
-  $('[data-certificado-resultado]').addEventListener('click', () => verCertificado(nivel));
-  $('[data-guardar-nombre]').addEventListener('click', () => {
+  $('[data-accion="niveles"]').addEventListener('click', volver);
+  $('[data-accion="otra"]').addEventListener('click', () => empezar(nivel));
+  $('[data-accion="repasar"]').addEventListener('click', () => empezar(nivel, true));
+  $('[data-accion="siguiente-nivel"]').addEventListener('click', () => empezar((nivel + 1) as Nivel));
+  $('[data-accion="certificado"]').addEventListener('click', () => verCertificado(nivel));
+  $('[data-pedir-nombre]').addEventListener('submit', (e) => {
+    e.preventDefault();
     const valor = $<HTMLInputElement>('#nombre').value.trim();
-    if (!valor) return;
+    if (!valor) return $<HTMLInputElement>('#nombre').focus();
     app.guardarNombre(valor);
     verCertificado(nivel);
   });
-  $('[data-cambiar-nombre]').addEventListener('click', () => {
-    $<HTMLInputElement>('#nombre').value = app.estado().nombre ?? '';
-    $('[data-pedir-nombre]').classList.remove('hidden');
-    $('[data-certificado]').classList.add('hidden');
-    $('[data-cert-acciones]').classList.add('hidden');
-  });
+  $('[data-cambiar-nombre]').addEventListener('click', () => pedirNombre(nombreGuardado()));
   pintarNiveles();
+  retomar();
 </script>
