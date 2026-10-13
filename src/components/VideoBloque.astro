@@ -3,7 +3,12 @@
 // se ve la imagen con un botón grande de play en el medio; al tocarlo arranca con sonido y el botón
 // desaparece; tocando el video se pausa (y el botón vuelve). Se reproduce de a uno y se pausa al salir de
 // pantalla. Abajo, una barra con el tiempo para ir a cualquier punto. Siempre con sonido.
-// Archivos en public/video/: <nombre>.mp4 y <nombre>.jpg (poster).
+// Archivos en public/video/: <nombre>.mp4 y <nombre>.jpg (póster).
+//
+// El póster tiene que dejar libre el centro (ahí va el botón) y no mostrar subtítulos a medias: si cambiás un
+// video, sacá el cuadro con ffmpeg (por ejemplo: ffmpeg -ss 6 -i nombre.mp4 -frames:v 1 nombre.png) y pasalo a jpg 720x900.
+import { closeSync, existsSync, fstatSync, openSync, readSync } from 'node:fs';
+import path from 'node:path';
 import { url } from '../lib/url';
 import Icon from './Icon.astro';
 
@@ -14,33 +19,107 @@ interface Props {
 }
 
 const { nombre, titulo, class: clase } = Astro.props;
+
+// Duración real del mp4, leída al construir el sitio desde el átomo "mvhd" (sin bajar ni decodificar el video):
+// así la barra muestra el tiempo verdadero desde el primer momento y no hace falta precargar nada.
+const duracionMp4 = (archivo: string): number | undefined => {
+  if (!existsSync(archivo)) return undefined;
+  const fd = openSync(archivo, 'r');
+  try {
+    const tamano = fstatSync(fd).size;
+    const cab = Buffer.alloc(16);
+    for (let pos = 0; pos + 8 <= tamano; ) {
+      readSync(fd, cab, 0, 16, pos);
+      let largo = cab.readUInt32BE(0);
+      let cabecera = 8;
+      if (largo === 1) {
+        largo = Number(cab.readBigUInt64BE(8));
+        cabecera = 16;
+      } else if (largo === 0) largo = tamano - pos;
+      if (largo < cabecera) return undefined;
+      if (cab.toString('latin1', 4, 8) === 'moov') {
+        const hijos = Buffer.alloc(Math.min(largo - cabecera, 4096));
+        readSync(fd, hijos, 0, hijos.length, pos + cabecera);
+        for (let o = 0; o + 8 <= hijos.length; ) {
+          const hijo = hijos.readUInt32BE(o);
+          if (hijos.toString('latin1', o + 4, o + 8) === 'mvhd') {
+            const v1 = hijos[o + 8] === 1;
+            const escala = hijos.readUInt32BE(o + (v1 ? 28 : 20));
+            const duracion = v1 ? Number(hijos.readBigUInt64BE(o + 32)) : hijos.readUInt32BE(o + 24);
+            return escala > 0 && duracion > 0 ? duracion / escala : undefined;
+          }
+          if (hijo < 8) break;
+          o += hijo;
+        }
+        return undefined;
+      }
+      pos += largo;
+    }
+  } catch {
+    // si no se puede leer, el video carga los metadatos él mismo (preload="metadata")
+  } finally {
+    closeSync(fd);
+  }
+  return undefined;
+};
+
+const duracion = duracionMp4(path.join(process.cwd(), 'public', 'video', `${nombre}.mp4`));
+const reloj = (s: number) => {
+  const t = Math.max(0, Math.round(s));
+  return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+};
 ---
 
-<figure class:list={['video-bloque mt-4 w-full max-w-sm', clase]} data-video-bloque>
-  <div class="video-bloque-marco">
+<figure class:list={['video-bloque mt-4 w-full max-w-sm', clase]} data-video-bloque data-titulo={titulo}>
+  <div class="video-bloque-marco" data-video-marco>
     <video
       src={url(`/video/${nombre}.mp4`)}
-      poster={url(`/video/${nombre}.jpg`)}
       width="720"
       height="900"
       playsinline
-      preload="none"
+      preload={duracion ? 'none' : 'metadata'}
       aria-label={titulo}
       data-video
     ></video>
-    <button type="button" class="vb-grande" aria-label="Reproducir el video" data-video-grande>
+    {/* Póster propio (en vez del atributo poster): al arrancar se desvanece y el video aparece sin salto. */}
+    <img
+      class="vb-poster"
+      src={url(`/video/${nombre}.jpg`)}
+      alt=""
+      width="720"
+      height="900"
+      loading="lazy"
+      decoding="async"
+      data-video-poster
+    />
+    {/* Mientras anda: toda la imagen es un botón para pausar (también con Espacio, Enter o K). */}
+    <button type="button" class="vb-pausa" aria-label="Pausar el video" inert data-video-pausa></button>
+    <button type="button" class="vb-grande" aria-label={`Ver video. ${titulo}`} data-video-grande>
       <span class="vb-grande-circulo">
         <span data-grande-play><Icon name="play" class="size-10" /></span>
         <span data-grande-otra hidden><Icon name="arrow-counter-clockwise" class="size-9" /></span>
       </span>
-      <span class="vb-grande-texto" data-grande-texto>Ver video</span>
+      <span class="vb-grande-texto" data-grande-texto hidden>Seguir viendo</span>
     </button>
+    <div class="vb-error" role="alert" hidden data-video-error>
+      <span class="vb-error-icono"><Icon name="wifi-slash" class="size-10" /></span>
+      <p>Necesitás internet para ver el video</p>
+      <button type="button" data-video-reintentar>Probar de nuevo</button>
+    </div>
   </div>
 
   <div class="video-bloque-barra">
     <span class="tabular-nums" data-video-actual>0:00</span>
-    <input type="range" min="0" max="30" step="0.1" value="0" aria-label="Posición del video" data-video-posicion />
-    <span class="tabular-nums" data-video-total>0:30</span>
+    <input
+      type="range"
+      min="0"
+      max={duracion ?? 30}
+      step="0.1"
+      value="0"
+      aria-label="Posición del video"
+      data-video-posicion
+    />
+    <span class="tabular-nums" data-video-total>{duracion ? reloj(duracion) : '--:--'}</span>
   </div>
   <figcaption class="sr-only">{titulo}. Video con voz y subtítulos.</figcaption>
 </figure>
@@ -57,23 +136,39 @@ const { nombre, titulo, class: clase } = Astro.props;
     border-radius: 28px;
     background: var(--color-menta-suave);
     box-shadow: 0 0 0 1px rgb(33 76 59 / 0.1), 0 30px 60px -36px rgb(33 76 59 / 0.55);
+  }
+  .vb-poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 28px;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .vb-poster-fuera {
+    opacity: 0;
+  }
+  /* Botón de pausa: invisible, cubre toda la imagen mientras el video anda */
+  .vb-pausa {
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    background: transparent;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
   /* Botón grande en el medio del video (como un video de YouTube) */
   .vb-grande {
     position: absolute;
     inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+    display: grid;
+    place-items: center;
     border-radius: 28px;
-    background: rgb(33 76 59 / 0.18);
     transition: opacity 0.2s ease;
   }
-  .vb-grande[hidden] {
-    display: flex;
+  .vb-fuera {
     opacity: 0;
     pointer-events: none;
   }
@@ -99,7 +194,13 @@ const { nombre, titulo, class: clase } = Astro.props;
   [data-grande-otra] :global(svg) {
     margin-left: 0;
   }
+  /* "Seguir viendo" / "Ver de nuevo": debajo del círculo, que siempre queda en el centro exacto */
   .vb-grande-texto {
+    position: absolute;
+    left: 50%;
+    top: calc(50% + 66px);
+    transform: translateX(-50%);
+    white-space: nowrap;
     border-radius: 9999px;
     background: rgb(255 255 255 / 0.92);
     padding: 6px 14px;
@@ -107,8 +208,60 @@ const { nombre, titulo, class: clase } = Astro.props;
     font-weight: 800;
     color: var(--color-profundo);
   }
+  /* Cargando: entre el toque y el primer cuadro, o cuando se corta para bajar más video */
+  .video-bloque-marco[data-cargando]::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    margin: -26px 0 0 -26px;
+    box-sizing: border-box;
+    border-radius: 9999px;
+    border: 5px solid rgb(33 76 59 / 0.2);
+    border-top-color: var(--color-profundo);
+    box-shadow: 0 0 0 8px rgb(255 255 255 / 0.85);
+    pointer-events: none;
+    animation: vb-giro 0.8s linear infinite;
+  }
+  @keyframes vb-giro {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  /* Sin internet / el video no carga */
+  .vb-error {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    border-radius: 28px;
+    background: rgb(251 248 242 / 0.97);
+    padding: 24px;
+    text-align: center;
+    color: var(--color-profundo);
+  }
+  .vb-error p {
+    max-width: 16rem;
+    font-size: 1.125rem;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+  .vb-error button {
+    min-height: 44px;
+    border-radius: 9999px;
+    background: var(--color-profundo);
+    padding: 0 22px;
+    font-weight: 800;
+    color: #fff;
+  }
   .video-bloque-barra {
-    margin-top: 12px;
+    margin-top: 4px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -119,7 +272,8 @@ const { nombre, titulo, class: clase } = Astro.props;
   .video-bloque-barra input {
     flex: 1;
     min-width: 0;
-    height: 28px; /* más fácil de agarrar con el dedo */
+    height: 44px; /* área de toque cómoda; la barra se ve igual de finita */
+    margin: 0;
     accent-color: var(--color-marca);
     cursor: pointer;
   }
@@ -128,8 +282,18 @@ const { nombre, titulo, class: clase } = Astro.props;
     outline: 2px solid var(--color-marca);
     outline-offset: 2px;
   }
-  .video-bloque [hidden]:not(.vb-grande) {
+  .video-bloque [hidden] {
     display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vb-poster,
+    .vb-grande,
+    .vb-grande-circulo {
+      transition: none;
+    }
+    .video-bloque-marco[data-cargando]::after {
+      animation: none;
+    }
   }
 </style>
 
@@ -150,37 +314,82 @@ const { nombre, titulo, class: clase } = Astro.props;
     const video = $<HTMLVideoElement>('[data-video]');
     if (!video) return;
     videos.push(video);
+    const titulo = caja.dataset.titulo ?? '';
+    const marco = $<HTMLElement>('[data-video-marco]');
+    const poster = $<HTMLElement>('[data-video-poster]');
+    const pausa = $<HTMLButtonElement>('[data-video-pausa]');
     const grande = $<HTMLButtonElement>('[data-video-grande]');
+    const textoGrande = $<HTMLElement>('[data-grande-texto]');
+    const iconoPlay = $<HTMLElement>('[data-grande-play]');
+    const iconoOtra = $<HTMLElement>('[data-grande-otra]');
+    const error = $<HTMLElement>('[data-video-error]');
+    const reintentar = $<HTMLButtonElement>('[data-video-reintentar]');
     const posicion = $<HTMLInputElement>('[data-video-posicion]');
     const actual = $<HTMLElement>('[data-video-actual]');
     const total = $<HTMLElement>('[data-video-total]');
     let arrastrando = false;
+    let hayError = false;
 
     const pintar = () => {
       const andando = !video.paused && !video.ended;
-      grande.hidden = andando;
-      $<HTMLElement>('[data-grande-play]').hidden = video.ended;
-      $<HTMLElement>('[data-grande-otra]').hidden = !video.ended;
-      $<HTMLElement>('[data-grande-texto]').textContent = video.ended ? 'Ver de nuevo' : video.currentTime > 0 ? 'Seguir viendo' : 'Ver video';
-      grande.setAttribute('aria-label', video.ended ? 'Ver el video de nuevo' : 'Reproducir el video');
+      const empezado = video.currentTime > 0;
+      const texto = video.ended ? 'Ver de nuevo' : empezado ? 'Seguir viendo' : 'Ver video';
+      // Solo uno de los dos botones (o el aviso de error) queda activo; el otro no se puede enfocar ni tocar.
+      const quedaGrande = !hayError && !andando;
+      const quedaPausa = !hayError && andando;
+      // Si el foco estaba en el botón que se apaga, pasa al que queda, para no perderlo.
+      const foco = document.activeElement;
+      const sigue = quedaGrande ? grande : quedaPausa ? pausa : reintentar;
+      if (sigue === grande) grande.inert = false;
+      if (sigue === pausa) pausa.inert = false;
+      if ((foco === grande || foco === pausa) && foco !== sigue) sigue.focus({ preventScroll: true });
+      grande.inert = !quedaGrande;
+      pausa.inert = !quedaPausa;
+      grande.classList.toggle('vb-fuera', !quedaGrande);
+
+      iconoPlay.hidden = video.ended;
+      iconoOtra.hidden = !video.ended;
+      // Al principio solo el círculo (el texto taparía el póster); el texto aparece al pausar o terminar.
+      textoGrande.hidden = !video.ended && !empezado;
+      textoGrande.textContent = texto;
+      grande.setAttribute('aria-label', `${texto}. ${titulo}`);
     };
     const pintarTiempo = () => {
       if (Number.isFinite(video.duration)) {
         posicion.max = String(video.duration);
         total.textContent = reloj(video.duration);
       }
-      if (!arrastrando) posicion.value = String(video.currentTime);
-      actual.textContent = reloj(video.currentTime);
+      if (!arrastrando) {
+        posicion.value = String(video.currentTime);
+        actual.textContent = reloj(video.currentTime);
+      }
+      posicion.setAttribute('aria-valuetext', `${actual.textContent} de ${total.textContent}`);
     };
+    const cargando = (si: boolean) => marco.toggleAttribute('data-cargando', si);
 
+    // Sin internet (o el archivo no carga): aviso en el mismo video, con botón para probar de nuevo.
+    const mostrarError = () => {
+      if (hayError) return;
+      hayError = true;
+      cargando(false);
+      video.pause();
+      error.hidden = false;
+      pintar();
+    };
     const arrancar = () => {
       if (video.ended) video.currentTime = 0;
-      void reproducirConSonido(video);
+      reproducirConSonido(video)?.catch(mostrarError);
     };
     const alternar = () => (video.paused || video.ended ? arrancar() : video.pause());
 
     grande.addEventListener('click', arrancar);
-    video.addEventListener('click', alternar);
+    pausa.addEventListener('click', () => video.pause());
+    // Teclado: Espacio y Enter funcionan solos en los botones; la K pausa y sigue, como en YouTube.
+    marco.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() !== 'k' || e.ctrlKey || e.metaKey || e.altKey || hayError) return;
+      e.preventDefault();
+      alternar();
+    });
     posicion.addEventListener('input', () => {
       arrastrando = true;
       actual.textContent = reloj(Number(posicion.value));
@@ -191,12 +400,43 @@ const { nombre, titulo, class: clase } = Astro.props;
       pintarTiempo();
     });
 
+    video.addEventListener('error', mostrarError);
+    reintentar.addEventListener('click', () => {
+      const desde = video.currentTime;
+      hayError = false;
+      error.hidden = true;
+      video.load();
+      if (desde > 0) video.currentTime = desde;
+      pintar();
+      grande.focus({ preventScroll: true }); // el aviso se fue: el foco pasa al botón (y de ahí al de pausa)
+      arrancar();
+    });
+
     // De a uno: cuando arranca este, se pausan los demás.
     video.addEventListener('play', () => {
       videos.forEach((v) => v !== video && !v.paused && v.pause());
+      if (video.readyState < 3) cargando(true);
       pintar();
     });
+    // El póster se desvanece recién cuando el video ya muestra su primer cuadro (así no hay salto).
+    let posterFuera = false;
+    const sacarPoster = () => {
+      posterFuera = true;
+      poster.classList.add('vb-poster-fuera');
+    };
+    video.addEventListener('playing', () => {
+      cargando(false);
+      if (posterFuera) return;
+      if ('requestVideoFrameCallback' in video) {
+        (video as HTMLVideoElement & { requestVideoFrameCallback: (fn: () => void) => number }).requestVideoFrameCallback(sacarPoster);
+      } else sacarPoster();
+    });
+    video.addEventListener('waiting', () => {
+      cargando(true);
+      if (!navigator.onLine) mostrarError();
+    });
     ['pause', 'ended', 'seeked'].forEach((ev) => video.addEventListener(ev, pintar));
+    ['pause', 'ended'].forEach((ev) => video.addEventListener(ev, () => cargando(false)));
     ['timeupdate', 'loadedmetadata', 'durationchange', 'seeked'].forEach((ev) => video.addEventListener(ev, pintarTiempo));
 
     // Si se va de la pantalla mientras anda, se pausa (y queda el botón para seguir).
