@@ -9,7 +9,7 @@ export interface Item {
 }
 
 export const atencion = {
-  objetivo: 'Brindar una experiencia de compra amable, personalizada y eficiente.',
+  objetivo: 'Que cada cliente se vaya bien atendido: con amabilidad, a su medida y sin demoras.',
   pasos: [
     { icono: 'smiley', titulo: 'Saludá', texto: 'Con “¡Buen día!” o “¡Buenas tardes!” y una sonrisa.' },
     { icono: 'question', titulo: 'Ofrecé ayuda', texto: 'Preguntá: “¿Te puedo ayudar en algo?”' },
@@ -20,7 +20,7 @@ export const atencion = {
 };
 
 export const tareasGenerales = {
-  objetivo: 'Mantener la tienda en condiciones óptimas de limpieza, orden y abastecimiento.',
+  objetivo: 'Dejar el local limpio, ordenado y con todo lo necesario.',
   grupos: [
     {
       titulo: 'Control y organización',
@@ -116,53 +116,53 @@ export const roles = [
 export const cierre = {
   objetivo: 'Dejar el local listo para el día siguiente.',
   pasos: [
-    { icono: 'basket', titulo: 'Frenteo de productos', texto: 'Ordenar y acomodar todos los productos hacia el frente de las góndolas.' },
-    { icono: 'fork-knife', titulo: 'Limpieza de utensilios', texto: 'Lavar y guardar todos los utensilios usados durante el día.' },
-    { icono: 'power', titulo: 'Desenchufar y apagar equipos', texto: 'Verificar que todos los equipos electrónicos estén apagados.' },
-    { icono: 'broom', titulo: 'Barrer y pasar trapo', texto: 'Limpiar el piso de todo el local para dejarlo impecable.' },
-    { icono: 'bicycle', titulo: 'Guardar plantas y bicicletas', texto: 'Entrar lo que está en la entrada del local.' },
-    { icono: 'lock-key', titulo: 'Bajar persianas y cerrar la puerta', texto: 'Asegurar bien el local al terminar.' },
+    { icono: 'basket', titulo: 'Frenteá los productos', texto: 'Acomodá todos los productos hacia el frente de las góndolas.' },
+    { icono: 'fork-knife', titulo: 'Lavá los utensilios', texto: 'Lavá y guardá todo lo que se usó durante el día.' },
+    { icono: 'power', titulo: 'Desenchufá y apagá los equipos', texto: 'Fijate que no quede ningún equipo eléctrico prendido.' },
+    { icono: 'broom', titulo: 'Barré y pasá el trapo', texto: 'Todo el piso del local, para que quede impecable.' },
+    { icono: 'bicycle', titulo: 'Entrá las plantas y las bicis', texto: 'Todo lo que está en la entrada del local.' },
+    { icono: 'lock-key', titulo: 'Bajá las persianas y cerrá la puerta', texto: 'Asegurate de que el local quede bien cerrado.' },
   ] satisfies Item[],
-  responsable: 'Quien esté a cargo verifica que todo esté hecho antes de retirarse.',
+  responsable: 'Quien esté a cargo revisa que esté todo hecho antes de irse.',
 };
 
 export const imagen = {
-  objetivo: 'Mantener una imagen profesional y el uniforme para todo el personal.',
+  objetivo: 'Todas venimos con el uniforme y una presentación prolija.',
   items: [
     { icono: 't-shirt', titulo: 'Pantalón', texto: 'Negro o jean. Es la base del uniforme diario.' },
-    { icono: 't-shirt', titulo: 'Remera y delantal', texto: 'Limpios y sin manchas. El uniforme es obligatorio.' },
+    { icono: 't-shirt', titulo: 'Remera y delantal', texto: 'Limpios y sin manchas. El uniforme se usa siempre.' },
     { icono: 'user-circle', titulo: 'Cabello', texto: 'Recogido, por higiene y presentación.' },
     { icono: 'hand-heart', titulo: 'Uñas', texto: 'Cortas y limpias, por higiene al manipular alimentos.' },
     { icono: 'sparkle', titulo: 'Maquillaje', texto: 'Suave y natural, con apariencia profesional.' },
     { icono: 'sneaker', titulo: 'Calzado', texto: 'Cómodo y adecuado para jornadas largas.' },
   ] satisfies Item[],
-  nota: 'La imagen personal refleja la identidad de nuestra dietética.',
+  nota: 'Cómo nos ven también es parte de cómo atendemos.',
 };
 
 export const horarios = {
-  objetivo: 'Organizar los tiempos para un ambiente de trabajo eficiente y armonioso.',
+  objetivo: 'Los horarios de entrada y de descanso, para organizarnos entre todas.',
   momentos: [
     { icono: 'door', titulo: 'Ingreso', valor: '10 minutos antes', texto: 'Para preparar todo antes de abrir.' },
     { icono: 'fork-knife', titulo: 'Almuerzo', valor: '13:30 a 14:30', texto: 'En turnos coordinados entre compañeras.' },
     { icono: 'coffee', titulo: 'Merienda', valor: '16:00 a 17:00', texto: 'En turnos coordinados entre compañeras.' },
     { icono: 'timer', titulo: 'Descanso', valor: '20 minutos', texto: 'Cada 8 horas de trabajo.' },
   ],
-  nota: 'Mantené el orden en el uso de los utensilios comunes durante los descansos.',
+  nota: 'En los descansos, dejá los utensilios comunes limpios y en su lugar.',
 };
 
 export const celular = {
-  objetivo: 'Uso responsable del celular durante el horario de trabajo.',
-  principal: 'Los celulares se guardan en la caja designada durante todo el horario laboral.',
+  objetivo: 'Mientras trabajás, el celular queda guardado.',
+  principal: 'Durante todo tu horario, el celular va en la caja que tenemos para eso.',
   reglas: [
-    { icono: 'instagram-logo', titulo: 'Redes sociales', texto: 'No se pueden usar durante el horario de trabajo.', permitido: false },
-    { icono: 'warning', titulo: 'Urgencias', texto: 'Uso excepcional para situaciones de emergencia.', permitido: true },
-    { icono: 'briefcase', titulo: 'Temas laborales', texto: 'Solo para cosas relacionadas con el trabajo.', permitido: true },
+    { icono: 'instagram-logo', titulo: 'Redes sociales', texto: 'Mientras trabajás, nada de redes.', permitido: false },
+    { icono: 'warning', titulo: 'Urgencias', texto: 'Si surge una emergencia, lo podés usar.', permitido: true },
+    { icono: 'briefcase', titulo: 'Temas laborales', texto: 'Sí, si es algo del trabajo.', permitido: true },
   ],
-  nota: 'Cumplir estas normas ayuda a trabajar mejor y a atender con profesionalismo.',
+  nota: 'Con el celular guardado estamos más atentas a cada cliente.',
 };
 
 export const musica = {
-  objetivo: 'Preferentemente en inglés y a volumen bajo, para un ambiente relajado y agradable.',
+  objetivo: 'Mejor en inglés y a volumen bajo, para que el local tenga un ambiente tranquilo.',
   estilos: [
     { icono: 'guitar', titulo: 'Indie pop', texto: 'Alegre y relajado' },
     { icono: 'headphones', titulo: 'Lo-fi chill', texto: 'Para un ambiente tranquilo' },
@@ -173,8 +173,7 @@ export const musica = {
   artistas: ['Jack Johnson', 'Norah Jones', 'Zero 7', 'Kings of Convenience', 'Ben Howard', 'Angus & Julia Stone'],
 };
 
-export const cierreManual =
-  'Cumplir este manual es fundamental para mantener un ambiente profesional, ordenado y armónico para todo el equipo.';
+export const cierreManual = 'Cuidar estos acuerdos nos ayuda a trabajar tranquilas y a atender mejor.';
 
 /** Los temas de la página, agrupados en tres bloques. */
 export const grupos = [

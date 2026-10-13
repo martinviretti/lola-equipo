@@ -1,6 +1,6 @@
 ---
-// Un tema de la Bienvenida: tarjeta que se abre y se cierra (acordeón). Al abrirla se marca
-// como leída (lo maneja el script de bienvenida.astro).
+// Un tema de la Bienvenida: tarjeta que se abre y se cierra (acordeón). Cuenta como leído cuando
+// la persona toca "Listo, lo leí" al final (lo maneja el script de bienvenida.astro).
 import Icon from './Icon.astro';
 
 interface Props {
@@ -22,20 +22,28 @@ const { id, numero, icono, titulo, resumen } = Astro.props;
       <span class="tema-titulo">{titulo}</span>
       <span class="tema-resumen">{resumen}</span>
     </span>
-    <span class="tema-leido" data-leido aria-label="Leído" hidden><Icon name="check" class="size-4" /></span>
+    <span class="tema-leido" data-leido hidden><Icon name="check" class="size-4" /><span class="sr-only">Leído</span></span>
     <span class="tema-flecha"><Icon name="caret-down" class="size-5" /></span>
   </summary>
   <div class="tema-cuerpo">
     <slot />
+    <div class="tema-pie">
+      <button type="button" class="boton boton-principal" data-tema-listo>
+        <Icon name="check" class="size-5" /> Listo, lo leí
+      </button>
+      <p class="tema-hecho" data-tema-hecho hidden>
+        <Icon name="check-circle" class="size-5" /> Ya lo leíste
+      </p>
+    </div>
   </div>
 </details>
 
 <style>
   .tema {
     scroll-margin-top: 80px;
-    border-radius: 24px;
+    border-radius: var(--radius-tarjeta);
     background: #fff;
-    box-shadow: 0 0 0 1px rgb(33 76 59 / 0.08), 0 18px 36px -30px rgb(33 76 59 / 0.45);
+    box-shadow: var(--shadow-reposo);
   }
   summary {
     display: flex;
@@ -44,13 +52,13 @@ const { id, numero, icono, titulo, resumen } = Astro.props;
     align-items: center;
     gap: 14px;
     padding: 16px;
-    border-radius: 24px;
+    border-radius: var(--radius-tarjeta);
   }
   summary::-webkit-details-marker {
     display: none;
   }
   summary:focus-visible {
-    outline: 2px solid var(--color-marca);
+    outline: 2px solid var(--color-profundo);
     outline-offset: 2px;
   }
   .tema-icono {
@@ -66,9 +74,9 @@ const { id, numero, icono, titulo, resumen } = Astro.props;
   }
   .tema-numero {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   .tema-titulo {
     display: block;
@@ -92,7 +100,7 @@ const { id, numero, icono, titulo, resumen } = Astro.props;
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
-    background: var(--color-marca);
+    background: var(--color-marca-texto);
     color: #fff;
   }
   .tema-leido[hidden] {
@@ -100,7 +108,7 @@ const { id, numero, icono, titulo, resumen } = Astro.props;
   }
   .tema-flecha {
     flex: none;
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
     transition: transform 250ms var(--ease-fluid);
   }
   .tema[open] .tema-flecha {
@@ -108,10 +116,35 @@ const { id, numero, icono, titulo, resumen } = Astro.props;
   }
   .tema[open] summary {
     border-bottom: 1px solid rgb(33 76 59 / 0.08);
-    border-radius: 24px 24px 0 0;
+    border-radius: var(--radius-tarjeta) var(--radius-tarjeta) 0 0;
   }
   .tema-cuerpo {
     padding: 4px 16px 20px;
+  }
+  /* Cierre del tema: "Listo, lo leí" (o "Ya lo leíste" si ya estaba marcado) */
+  .tema-pie {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid rgb(33 76 59 / 0.08);
+    padding-top: 16px;
+  }
+  .tema-pie .boton {
+    width: 100%;
+  }
+  .tema-pie .boton[hidden] {
+    display: none;
+  }
+  .tema-hecho {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--color-marca-texto);
+  }
+  .tema-hecho[hidden] {
+    display: none;
   }
   @media (min-width: 640px) {
     summary {
@@ -120,11 +153,17 @@ const { id, numero, icono, titulo, resumen } = Astro.props;
     .tema-cuerpo {
       padding: 4px 22px 24px;
     }
+    .tema-pie .boton {
+      width: auto;
+    }
   }
   @media print {
     .tema {
       box-shadow: none;
       border: 0.75pt solid #d5ddd8;
+    }
+    .tema-pie {
+      display: none;
     }
   }
 </style>

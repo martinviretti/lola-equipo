@@ -11,7 +11,7 @@ import logo from '../assets/logo-lola-circulo.png';
   <main id="contenido" class="fondo-hojas flex min-h-svh items-center justify-center px-5 py-10">
     <div class="w-full max-w-[420px] rounded-[32px] bg-white p-7 text-center shadow-[0_30px_80px_-40px_rgb(33_76_59/0.55)] ring-1 ring-profundo/8">
       <Image src={logo} alt="Logo de Lola" width={112} height={112} class="mx-auto size-24 rounded-full shadow-[0_8px_32px_rgb(33_76_59/0.15)]" loading="eager" />
-      <p class="mt-5 text-sm font-semibold text-marca">La Almacén de Lola</p>
+      <p class="mt-5 text-sm font-semibold text-marca-texto">La Almacén de Lola</p>
       <h1 class="titulo-degrade mt-1 text-3xl font-bold tracking-tight">Intranet del equipo</h1>
 
       <!-- Entrar -->
@@ -27,7 +27,7 @@ import logo from '../assets/logo-lola-circulo.png';
           Entrar con Google
         </button>
         <p class="mt-4 text-xs text-texto-2">Solo pueden entrar las personas del equipo que la encargada haya agregado.</p>
-        <a href={url('/instalar')} class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-marca underline underline-offset-4">
+        <a href={url('/instalar')} class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-marca-texto underline underline-offset-4">
           <Icon name="download-simple" class="size-4" /> Instalá la app en tu celular
         </a>
       </div>
@@ -77,17 +77,31 @@ import logo from '../assets/logo-lola-circulo.png';
   const estados = [...document.querySelectorAll<HTMLElement>('[data-estado]')];
   const ver = (e: string) => estados.forEach((x) => x.classList.toggle('hidden', x.dataset.estado !== e));
 
-  const params = new URLSearchParams(location.search);
+  // Si el navegador bloquea el almacenamiento (modo privado estricto), se entra igual: solo se pierde la vuelta.
+  const guardarVolver = (v: string) => {
+    try {
+      sessionStorage.setItem(VOLVER, v);
+    } catch {}
+  };
+  const sacarVolver = () => {
+    try {
+      const v = sessionStorage.getItem(VOLVER);
+      sessionStorage.removeItem(VOLVER);
+      return v;
+    } catch {
+      return null;
+    }
+  };
+
   // Solo se vuelve a una página de la propia app.
-  const volverParam = params.get('volver');
-  if (volverParam && volverParam.startsWith(url('/')) && !volverParam.startsWith('//')) sessionStorage.setItem(VOLVER, volverParam);
+  const volverParam = new URLSearchParams(location.search).get('volver');
+  if (volverParam && volverParam.startsWith(url('/')) && !volverParam.startsWith('//')) guardarVolver(volverParam);
 
   async function entrarALaApp() {
     ver('verificando');
     const a = await verificar();
     if (a) {
-      const volver = sessionStorage.getItem(VOLVER);
-      sessionStorage.removeItem(VOLVER);
+      const volver = sacarVolver();
       location.replace(volver && !volver.includes('/entrar') ? volver : url('/'));
     } else if (a === null) {
       const { data } = await supabase!.auth.getSession();
@@ -100,9 +114,16 @@ import logo from '../assets/logo-lola-circulo.png';
 
   async function iniciar() {
     if (!configurado) return ver('sin-configurar');
+    const params = new URLSearchParams(location.search);
     if (params.get('error') === 'no-autorizado') ver('no-autorizado');
-    if (params.get('error_description')) {
-      document.querySelector('[data-error-texto]')!.textContent = params.get('error_description')!;
+    // Google o Supabase devolvieron un error (por ejemplo, si se canceló el ingreso). El texto que viene en la
+    // dirección no se muestra (cualquiera puede armar un link con otro texto): el detalle queda en la consola.
+    const detalle = params.get('error_description');
+    if (detalle) {
+      console.warn('Ingreso con Google:', detalle);
+      document.querySelector('[data-error-texto]')!.textContent = 'No se pudo completar el ingreso con Google. Probá de nuevo.';
+      // Que "Probar de nuevo" no vuelva a encontrar el mismo error en la dirección.
+      history.replaceState(null, '', url('/entrar'));
       return ver('error');
     }
     // Si vuelve de Google, supabase-js canjea el código acá mismo.

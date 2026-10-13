@@ -1,5 +1,5 @@
 import { nube } from './nube';
-// Temas de la Bienvenida que la persona ya abrió, guardados en el celular (localStorage).
+// Temas de la Bienvenida que la persona ya marcó como leídos ("Listo, lo leí"), guardados en el celular (localStorage).
 const CLAVE = 'lola-bienvenida:v1';
 
 export function leidas(): string[] {

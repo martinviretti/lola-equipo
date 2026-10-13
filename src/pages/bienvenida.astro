@@ -1,6 +1,7 @@
 ---
-// Bienvenida: cómo trabajamos en Lola. El manual de manejo y orientación del local, en tres
-// bloques (Atender, El día a día, Nuestros acuerdos) con temas que se abren y se marcan leídos.
+// Bienvenida: cómo trabajamos en la almacén. El manual de manejo y orientación del local, en tres
+// bloques (Atender, El día a día, Nuestros acuerdos) con temas que se abren y, al final de cada uno,
+// "Listo, lo leí" para marcarlo como leído.
 import { url } from '../lib/url';
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
@@ -21,19 +22,19 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
     <!-- Portada -->
     <section class="fondo-hojas px-5 pt-8 pb-8 lg:px-8 lg:pt-12">
       <div class="mx-auto max-w-[720px]">
-        <p class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-marca uppercase ring-1 ring-profundo/10">
+        <p class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-bold tracking-wide text-marca-texto uppercase ring-1 ring-profundo/10">
           <Icon name="hand-waving" class="size-4" /> Paso 1 · Bienvenida
         </p>
-        <h1 class="titulo-degrade mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Cómo trabajamos en Lola</h1>
+        <h1 class="titulo-degrade mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Cómo trabajamos en la almacén</h1>
         <p class="mt-3 text-lg text-texto-2">
           Lo que tenés que saber del local antes de atender: cómo recibimos a cada cliente, qué hace cada una y los acuerdos de
-          todos los días. Tocá cada tema para abrirlo.
+          todos los días. Tocá cada tema para abrirlo y, cuando lo termines, tocá «Listo, lo leí».
         </p>
 
         <div class="mt-6 rounded-2xl bg-white p-4 ring-1 ring-profundo/10">
           <div class="flex items-center justify-between gap-3 text-sm">
             <span class="font-semibold text-profundo">Leíste <span data-leidas-cuenta>0</span> de {secciones.length} temas</span>
-            <span class="font-bold text-marca tabular-nums" data-leidas-porcentaje>0%</span>
+            <span class="font-bold text-marca-texto tabular-nums" data-leidas-porcentaje>0%</span>
           </div>
           <div class="mt-2 h-2 overflow-hidden rounded-full bg-menta-suave">
             <div class="h-full w-0 rounded-full bg-marca transition-[width] duration-500 ease-fluid" data-leidas-barra></div>
@@ -42,7 +43,8 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
       </div>
     </section>
 
-    <div class="mx-auto flex max-w-[720px] flex-col gap-10 px-5 pt-4 pb-24 lg:px-8">
+    <div class="px-5 pt-4 pb-24 lg:px-8">
+    <div class="mx-auto flex max-w-[720px] flex-col gap-10">
       <!-- Bloque 1: Atender -->
       <section aria-labelledby="g-atender">
         <p class="bloque-numero">Bloque 1</p>
@@ -104,13 +106,13 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
                 tareasGenerales.grupos.map((g) => (
                   <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
                     <p class="flex items-center gap-2 font-bold text-profundo">
-                      <Icon name={g.icono} class="size-5 text-marca" />
+                      <Icon name={g.icono} class="size-5 text-marca-texto" />
                       {g.titulo}
                     </p>
                     <ul class="mt-3 flex flex-col gap-2">
                       {g.items.map((it) => (
                         <li class="flex items-center gap-3 rounded-xl bg-white px-3 py-2.5 text-[0.95rem]">
-                          <Icon name={it.icono} class="size-5 shrink-0 text-marca" />
+                          <Icon name={it.icono} class="size-5 shrink-0 text-marca-texto" />
                           {it.titulo}
                         </li>
                       ))}
@@ -127,7 +129,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
                 roles.map((r) => (
                   <div class="overflow-hidden rounded-2xl ring-1 ring-profundo/10">
                     <p class="flex items-center gap-2.5 bg-arena-suave px-4 py-3 font-bold text-profundo">
-                      <span class="flex size-8 items-center justify-center rounded-full bg-white text-marca">
+                      <span class="flex size-8 items-center justify-center rounded-full bg-white text-marca-texto">
                         <Icon name={r.icono} class="size-5" />
                       </span>
                       {r.titulo}
@@ -174,7 +176,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
             </ul>
             <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-arena-suave px-4 py-3">
               <p class="text-sm text-profundo"><strong>Responsable:</strong> {cierre.responsable}</p>
-              <button type="button" class="text-sm font-semibold text-marca underline underline-offset-4" data-cierre-reiniciar>Empezar de nuevo</button>
+              <button type="button" class="-my-2 inline-flex min-h-11 items-center px-1 text-sm font-semibold text-marca-texto underline underline-offset-4" data-cierre-reiniciar>Empezar de nuevo</button>
             </div>
           </Tema>
         </div>
@@ -215,7 +217,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
                       <Icon name={m.icono} class="size-5" />
                     </span>
                     <span class="min-w-0">
-                      <span class="block text-sm font-bold text-marca uppercase">{m.titulo}</span>
+                      <span class="block text-sm font-bold text-marca-texto uppercase">{m.titulo}</span>
                       <span class="block text-xl font-bold text-profundo">{m.valor}</span>
                       <span class="block text-sm text-texto-2">{m.texto}</span>
                     </span>
@@ -239,7 +241,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
                 celular.reglas.map((r) => (
                   <li class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
                     <span class="flex items-center justify-between">
-                      <Icon name={r.icono} class={`size-7 ${r.permitido ? 'text-marca' : 'text-peligro'}`} />
+                      <Icon name={r.icono} class={`size-7 ${r.permitido ? 'text-marca-texto' : 'text-peligro'}`} />
                       <span class={`rounded-full px-2.5 py-1 text-xs font-bold uppercase ${r.permitido ? 'bg-menta text-profundo' : 'bg-peligro-suave text-peligro'}`}>
                         {r.permitido ? 'Permitido' : 'Prohibido'}
                       </span>
@@ -260,7 +262,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
               {
                 musica.estilos.map((e) => (
                   <li class="rounded-2xl bg-menta-suave p-4">
-                    <Icon name={e.icono} class="size-6 text-marca" />
+                    <Icon name={e.icono} class="size-6 text-marca-texto" />
                     <span class="mt-2 block font-bold text-profundo">{e.titulo}</span>
                     <span class="block text-sm text-texto-2">{e.texto}</span>
                   </li>
@@ -269,11 +271,11 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
             </ul>
             <div class="mt-3 grid gap-3 sm:grid-cols-2">
               <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
-                <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="spotify-logo" class="size-5 text-marca" /> Playlists recomendadas</p>
+                <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="spotify-logo" class="size-5 text-marca-texto" /> Playlists recomendadas</p>
                 <ul class="mt-2 flex flex-col gap-1 text-[0.95rem]">{musica.playlists.map((p) => <li>{p}</li>)}</ul>
               </div>
               <div class="rounded-2xl bg-crema p-4 ring-1 ring-profundo/8">
-                <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="headphones" class="size-5 text-marca" /> Artistas sugeridos</p>
+                <p class="flex items-center gap-2 font-bold text-profundo"><Icon name="headphones" class="size-5 text-marca-texto" /> Artistas sugeridos</p>
                 <p class="mt-2 text-[0.95rem]">{musica.artistas.join(', ')}.</p>
               </div>
             </div>
@@ -283,10 +285,10 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
 
       <!-- Cierre y siguiente paso -->
       <section class="rounded-3xl bg-arena-suave p-6 text-center">
-        <Icon name="handshake" class="mx-auto size-10 text-marca" />
-        <p class="mt-3 text-lg font-bold text-profundo">Reglamento general</p>
+        <Icon name="handshake" class="mx-auto size-10 text-marca-texto" />
+        <p class="mt-3 text-lg font-bold text-profundo">Entre todas</p>
         <p class="mx-auto mt-1 max-w-[520px] text-texto-2">{cierreManual}</p>
-        <p class="mt-3 font-semibold text-marca">¡Gracias por tu colaboración y compromiso!</p>
+        <p class="mt-3 font-semibold text-marca-texto">¡Gracias por sumarte!</p>
       </section>
 
       <section aria-labelledby="titulo-siguiente">
@@ -297,19 +299,20 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
             <span>
               <span class="block text-xs font-bold tracking-wide text-menta uppercase">Paso 2</span>
               <span class="block text-lg font-semibold">Conocé los productos</span>
-              <span class="block text-sm text-white/75">Las góndolas de la dietética, una por una.</span>
+              <span class="block text-sm text-white/75">Las góndolas del local, una por una.</span>
             </span>
           </a>
           <a href={url('/examen')} class="flex items-center gap-4 rounded-3xl bg-white p-5 ring-1 ring-profundo/10 hover:bg-menta-suave">
             <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-menta text-profundo"><Icon name="exam" class="size-6" /></span>
             <span>
-              <span class="block text-xs font-bold tracking-wide text-marca uppercase">Paso 3</span>
+              <span class="block text-xs font-bold tracking-wide text-marca-texto uppercase">Paso 3</span>
               <span class="block text-lg font-semibold text-profundo">Examinarme</span>
               <span class="block text-sm text-texto-2">Comprobá lo que aprendiste.</span>
             </span>
           </a>
         </div>
       </section>
+    </div>
     </div>
   </main>
 </Manual>
@@ -320,7 +323,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   .bloque-titulo {
     margin-top: 2px;
@@ -338,7 +341,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
     margin-top: 14px;
     display: flex;
     gap: 10px;
-    border-radius: 16px;
+    border-radius: var(--radius-chico);
     background: var(--color-menta-suave);
     padding: 12px 14px;
     color: var(--color-profundo);
@@ -371,7 +374,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    border-radius: 18px;
+    border-radius: var(--radius-chico);
     background: var(--color-crema);
     padding: 12px 14px;
     line-height: 1.45;
@@ -401,15 +404,16 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
     justify-content: center;
     border-radius: 12px;
     background: #fff;
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   /* Lista de cierre */
   .tarea-cierre {
     display: flex;
+    min-height: 44px;
     cursor: pointer;
     align-items: center;
     gap: 12px;
-    border-radius: 18px;
+    border-radius: var(--radius-chico);
     background: var(--color-crema);
     padding: 12px 14px;
     line-height: 1.4;
@@ -442,7 +446,7 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
     text-decoration: line-through;
   }
   .tarea-cierre:has(input:focus-visible) {
-    outline: 2px solid var(--color-marca);
+    outline: 2px solid var(--color-profundo);
     outline-offset: 2px;
   }
   /* Línea de tiempo de horarios */
@@ -490,18 +494,26 @@ const grupo = (id: string) => grupos.find((g) => g.id === id)!;
   function pintar(lista: string[]) {
     const n = temas.filter((t) => lista.includes(t.dataset.tema!)).length;
     temas.forEach((t) => {
+      const leido = lista.includes(t.dataset.tema!);
       const check = t.querySelector<HTMLElement>('[data-leido]');
-      if (check) check.hidden = !lista.includes(t.dataset.tema!);
+      if (check) check.hidden = !leido;
+      t.querySelector<HTMLElement>('[data-tema-listo]')!.hidden = leido;
+      t.querySelector<HTMLElement>('[data-tema-hecho]')!.hidden = !leido;
     });
     document.querySelector('[data-leidas-cuenta]')!.textContent = String(n);
     document.querySelector('[data-leidas-porcentaje]')!.textContent = `${Math.round((n / total) * 100)}%`;
     document.querySelector<HTMLElement>('[data-leidas-barra]')!.style.width = `${(n / total) * 100}%`;
   }
 
-  // Abrir un tema lo marca como leído.
+  // Un tema cuenta como leído cuando se toca "Listo, lo leí" al final (abrirlo solo no alcanza).
+  // Después se cierra y queda a la vista, con el siguiente tema justo abajo.
   temas.forEach((t) =>
-    t.addEventListener('toggle', () => {
-      if (t.open) pintar(marcarLeida(t.dataset.tema!));
+    t.querySelector('[data-tema-listo]')!.addEventListener('click', () => {
+      pintar(marcarLeida(t.dataset.tema!));
+      t.open = false;
+      const resumen = t.querySelector<HTMLElement>('summary')!;
+      resumen.focus({ preventScroll: true });
+      t.scrollIntoView({ block: 'nearest' });
     }),
   );
 

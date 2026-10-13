@@ -23,7 +23,8 @@ const impresion = soloContenido || publica;
 const pideLogin = configurado && !publica;
 const titulo0 = title;
 
-const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | La Almacén de Lola';
+// Nombre: "La Almacén de Lola" (el local) + "Intranet del equipo" (la app); "Lola" es el nombre corto del ícono.
+const titulo = titulo0 ? `${titulo0} | La Almacén de Lola` : 'Intranet del equipo | La Almacén de Lola';
 ---
 
 <!doctype html>
@@ -32,6 +33,7 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="same-origin" />
     <title>{titulo}</title>
     <meta name="theme-color" content="#FBF8F2" />
     <link rel="icon" type="image/png" href={url('/favicon.png')} />
@@ -45,9 +47,9 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
     {
       pideLogin && (
         <>
-          <style is:inline>html.verificando body{visibility:hidden}</style>
+          <style is:inline>html.verificando body{visibility:hidden}.verificando-pantalla{display:none}html.verificando .verificando-pantalla{visibility:visible;position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#fbf8f2}</style>
           <script is:inline>
-            // Hasta confirmar la sesión no se muestra nada (si ya entró antes en este celular, se ve enseguida).
+            // Primera visita: hasta confirmar la sesión se ve solo el logo con la ruedita (si ya entró antes en este celular, se ve enseguida).
             try { if (!localStorage.getItem('lola-acceso:v1')) document.documentElement.classList.add('verificando'); } catch (e) {}
           </script>
         </>
@@ -65,6 +67,15 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
   </head>
   <body class:list={['min-h-svh bg-crema font-sans text-texto', !impresion && 'con-barra-app']}>
     {
+      pideLogin && (
+        <div class="verificando-pantalla" role="status">
+          <Image src={logo} alt="" width={88} height={88} class="size-22 rounded-full shadow-[0_10px_30px_rgb(33_76_59/0.18)]" loading="eager" />
+          <span class="verificando-spinner" aria-hidden="true" />
+          <span class="text-sm font-semibold text-texto-2">Entrando a la intranet…</span>
+        </div>
+      )
+    }
+    {
       !impresion && (
         <>
           <a
@@ -74,7 +85,7 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
             Saltar al contenido
           </a>
           <header class="no-print sticky top-0 z-40 border-b border-profundo/8 bg-crema/85 backdrop-blur-xl">
-            <div class="flex h-16 items-center gap-2 px-3 lg:px-6">
+            <div class="flex h-16 items-center gap-1 px-2 min-[400px]:gap-2 min-[400px]:px-3 lg:px-6">
               <button
                 type="button"
                 class="flex size-11 shrink-0 items-center justify-center rounded-full text-profundo hover:bg-menta-suave lg:hidden"
@@ -85,11 +96,11 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
               >
                 <Icon name="list" class="size-7" />
               </button>
-              <a href={url('/')} class="flex min-w-0 items-center gap-2.5 rounded-full pr-1" aria-label="Intranet del equipo, inicio">
-                <Image src={logo} alt="" width={40} height={40} class="size-10 shrink-0 rounded-full" loading="eager" />
+              <a href={url('/')} class="flex min-h-11 min-w-0 items-center gap-2 rounded-full pr-1 min-[400px]:gap-2.5">
+                <Image src={logo} alt="" width={40} height={40} class="size-9 shrink-0 rounded-full min-[400px]:size-10" loading="eager" />
                 <span class="min-w-0 leading-tight">
                   <span class="block truncate text-[0.95rem] font-bold text-profundo">La Almacén de Lola</span>
-                  <span class="block text-xs font-medium text-texto-2">Intranet del equipo</span>
+                  <span class="block truncate text-xs font-medium text-texto-2">Intranet del equipo<span class="sr-only">, ir al inicio</span></span>
                 </span>
               </a>
               <a
@@ -102,20 +113,28 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
               {
                 pideLogin && (
                   <details class="usuario relative hidden" data-usuario>
-                    <summary
-                      class="flex size-11 cursor-pointer list-none items-center justify-center rounded-full [&::-webkit-details-marker]:hidden"
-                      aria-label="Tu cuenta"
-                    >
-                      <span class="flex size-9 items-center justify-center rounded-full bg-profundo text-sm font-bold text-white" data-usuario-avatar></span>
+                    <summary class="relative flex size-11 cursor-pointer list-none items-center justify-center rounded-full [&::-webkit-details-marker]:hidden">
+                      <span class="sr-only" data-usuario-etiqueta>Tu cuenta</span>
+                      <span class="flex size-9 items-center justify-center rounded-full bg-profundo text-sm font-bold text-white" aria-hidden="true" data-usuario-avatar></span>
+                      <span class="absolute top-1 right-1 size-3 rounded-full bg-ambar ring-2 ring-crema" aria-hidden="true" data-usuario-punto hidden />
                     </summary>
-                    <div class="absolute top-12 right-0 z-50 w-64 rounded-2xl bg-white p-2 shadow-[0_20px_50px_-20px_rgb(33_76_59/0.45)] ring-1 ring-profundo/10">
-                      <p class="px-3 pt-2 pb-1 font-semibold text-profundo" data-usuario-nombre></p>
-                      <p class="truncate px-3 pb-2 text-sm text-texto-2" data-usuario-email></p>
-                      <a href={url('/admin')} class="hidden items-center gap-2 rounded-xl px-3 py-2.5 font-semibold text-profundo hover:bg-menta-suave [&:not(.hidden)]:flex" data-usuario-admin>
-                        <Icon name="users-three" class="size-5 text-marca" /> Panel de admin
+                    <div class="absolute top-12 right-0 z-50 w-72 max-w-[calc(100vw-16px)] rounded-tarjeta bg-white p-2 shadow-[0_20px_50px_-20px_rgb(33_76_59/0.45)] ring-1 ring-profundo/10">
+                      <div class="px-3 pt-2 pb-3">
+                        <p class="truncate font-semibold text-profundo" data-usuario-nombre></p>
+                        <p class="truncate text-sm text-texto-2" data-usuario-email></p>
+                      </div>
+                      <p class="mb-1 hidden items-start gap-2 rounded-chico bg-ambar-suave px-3 py-2 text-sm font-semibold text-ambar [&:not(.hidden)]:flex" data-usuario-pendientes>
+                        <Icon name="cloud-arrow-up" class="mt-0.5 size-5 shrink-0" />
+                        <span>
+                          <span class="block" data-pendientes-texto></span>
+                          <span class="block font-medium">Se mandan solas cuando vuelva la señal.</span>
+                        </span>
+                      </p>
+                      <a href={url('/admin')} class="hidden min-h-11 items-center gap-2 rounded-chico px-3 py-2.5 font-semibold text-profundo hover:bg-menta-suave [&:not(.hidden)]:flex" data-usuario-admin>
+                        <Icon name="users-three" class="size-5 text-marca-texto" /> Panel de admin
                       </a>
-                      <button type="button" class="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left font-semibold text-profundo hover:bg-menta-suave" data-salir>
-                        <Icon name="arrow-left" class="size-5 text-marca" /> Salir
+                      <button type="button" class="flex min-h-11 w-full items-center gap-2 rounded-chico px-3 py-2.5 text-left font-semibold text-profundo hover:bg-menta-suave" data-salir>
+                        <Icon name="sign-out" class="size-5 text-marca-texto" /> Cerrar sesión
                       </button>
                     </div>
                   </details>
@@ -124,6 +143,23 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
             </div>
             {progreso && <div class="h-0.5 origin-left scale-x-0 bg-marca" data-barra-lectura />}
           </header>
+          {
+            pideLogin && (
+              <script is:inline>
+                // Cosas del avance que todavía no llegaron a la base (lo avisa nube.ts con el evento "lola:pendientes").
+                addEventListener('lola:pendientes', function (e) {
+                  var n = Number((e.detail && e.detail.cantidad) || 0);
+                  var caja = document.querySelector('[data-usuario-pendientes]');
+                  if (caja) {
+                    caja.classList.toggle('hidden', !(n > 0));
+                    caja.querySelector('[data-pendientes-texto]').textContent = n === 1 ? '1 cosa sin sincronizar' : n + ' cosas sin sincronizar';
+                  }
+                  var punto = document.querySelector('[data-usuario-punto]');
+                  if (punto) punto.hidden = !(n > 0);
+                });
+              </script>
+            )
+          }
         </>
       )
     }
@@ -143,8 +179,13 @@ const titulo = titulo0 ? `${titulo0} | Lola · Equipo` : 'Intranet del equipo | 
     {
       pideLogin && (
         <script>
-          import { controlarAcceso } from '../scripts/sesion';
+          import { controlarAcceso, sesionLista } from '../scripts/sesion';
           void controlarAcceso();
+          // Nombre accesible del botón de la cuenta (las iniciales del avatar las pinta sesion.ts y quedan ocultas al lector).
+          void sesionLista.then((a) => {
+            const etiqueta = document.querySelector('[data-usuario-etiqueta]');
+            if (a && etiqueta) etiqueta.textContent = `Tu cuenta, ${a.nombre}`;
+          });
         </script>
       )
     }

@@ -26,6 +26,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Si la guía o el banco del examen no pasan los controles, no se publica (queda la versión anterior).
+      - name: Validar la guía y el examen
+        run: npm run validar
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,3 +1,0 @@
-# Manual interno: no indexar.
-User-agent: *
-Disallow: /

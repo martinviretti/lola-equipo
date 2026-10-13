@@ -10,9 +10,9 @@
   {
     "id": "17-2",
     "tipo": "vf",
-    "pregunta": "La leche de coco que sobra se guarda en su misma lata, en la heladera.",
-    "correcta": false,
-    "explicacion": "La lata abierta no se guarda: se pasa a un frasco tapado y va a la heladera."
+    "pregunta": "El polvillo blanco que trae el alga kombu es parte de su sabor, no moho.",
+    "correcta": true,
+    "explicacion": "No es moho ni suciedad. Se limpia apenas con un trapo húmedo, sin lavarla, para no sacarle el sabor."
   },
   {
     "id": "17-3",
@@ -26,15 +26,15 @@
     "id": "17-4",
     "tipo": "opcion",
     "pregunta": "Encontrás un frasco con la tapa abombada. ¿Qué hacés?",
-    "opciones": ["Lo dejás en la góndola", "Lo vendés más barato", "Lo separás y avisás a la encargada"],
+    "opciones": ["Lo dejás en la góndola si no está vencido", "Lo vendés más barato, avisándole al cliente", "Lo separás y avisás a la encargada"],
     "correcta": 2,
     "explicacion": "Frasco con la tapa abombada, que pierde o lata hinchada no se vende. Se aparta y se avisa."
   },
   {
     "id": "17-5",
     "tipo": "vf",
-    "pregunta": "Con problemas de tiroides o embarazo, conviene consultar al médico antes de comer algas.",
-    "correcta": true,
-    "explicacion": "Las algas tienen mucho yodo, sobre todo el kombu. Para chicos también hay que consultar."
+    "pregunta": "Como las algas son naturales, se pueden comer todos los días sin pensar en el yodo.",
+    "correcta": false,
+    "explicacion": "Las algas tienen mucho yodo, sobre todo el kombu. Con problemas de tiroides, embarazo o para chicos, que consulten antes al médico."
   }
 ]

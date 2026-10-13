@@ -29,7 +29,8 @@ const { Content, headings } = await render(categoria);
 const d = categoria.data;
 const productos = headings.filter((h) => h.depth === 3);
 const cantidadPreguntas = ((categoria.body ?? '').split(/^## Lo que más te van a preguntar/m)[1] ?? '').match(/^\*\*/gm)?.length ?? 0;
-const quizzes = import.meta.glob('../../data/quiz/*.json');
+// Eager, como en QuizGondola: el módulo ya se importa igual y así Vite no avisa en el build.
+const quizzes = import.meta.glob('../../data/quiz/*.json', { eager: true });
 const hayRepaso = `../../data/quiz/${categoria.id}.json` in quizzes;
 
 const pestanas = [
@@ -41,27 +42,51 @@ const pestanas = [
 ---
 
 <Manual title={d.titulo}>
-  <main id="contenido" class="px-4 pt-4 pb-24 sm:px-5 lg:px-8 lg:pt-8">
-    <article class="mx-auto max-w-[760px]">
-      <a href={url('/#gondolas')} class="no-print inline-flex items-center gap-1.5 text-sm font-semibold text-marca hover:underline">
+  <main id="contenido" class="px-4 pt-3 pb-24 sm:px-5 lg:px-8 lg:pt-7">
+    <article class="mx-auto max-w-[760px]" data-gondola-id={categoria.id}>
+      <a href={url('/#gondolas')} class="no-print -ml-1 inline-flex min-h-11 items-center gap-1.5 px-1 text-sm font-semibold text-marca-texto hover:underline">
         <Icon name="arrow-left" class="size-4" /> Góndolas
       </a>
 
-      <header class="mt-3 flex items-center gap-3.5">
+      <header class="mt-1 flex items-center gap-3.5">
         <span class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-menta text-profundo sm:size-14">
           <Icon name={d.icono} class="size-7 sm:size-8" />
         </span>
         <div class="min-w-0">
-          <h1 class="titulo-degrade text-3xl leading-tight font-bold tracking-tight sm:text-5xl">{d.titulo}</h1>
+          <h1 class="titulo-degrade text-4xl leading-tight font-bold tracking-tight">{d.titulo}</h1>
         </div>
       </header>
-      <p class="mt-2 text-[0.975rem] text-texto-2 sm:text-lg">{d.bajada}</p>
+      <p id="bajada-gondola" class="mt-2 line-clamp-2 text-[0.975rem] text-texto-2 sm:text-lg print:line-clamp-none" data-bajada>{d.bajada}</p>
+      <button
+        type="button"
+        class="tap-area no-print mt-0.5 text-sm font-semibold text-marca-texto hover:underline"
+        aria-controls="bajada-gondola"
+        aria-expanded="false"
+        data-bajada-mas
+      >
+        Ver más
+      </button>
 
-      <!-- Pestañas -->
-      <div class="pestanas no-print" role="tablist" aria-label={`Secciones de ${d.titulo}`} style={`--cantidad:${pestanas.length}`}>
+      <!-- Pestañas (patrón ARIA: flechas para moverse, Tab entra al panel). El prefijo -webkit- del
+           desenfoque (Safari de iOS anterior al 18) va en línea: el minificador de CSS lo borra. -->
+      <div
+        class="pestanas no-print"
+        role="tablist"
+        aria-label={`Secciones de ${d.titulo}`}
+        style={`--cantidad:${pestanas.length};-webkit-backdrop-filter:blur(16px)`}
+      >
         {
           pestanas.map((p) => (
-            <button type="button" role="tab" class="pestana" data-tab={p.id} aria-selected={p.id === 'productos' ? 'true' : 'false'}>
+            <button
+              type="button"
+              role="tab"
+              class="pestana"
+              id={`tab-${p.id}`}
+              aria-controls={`panel-${p.id}`}
+              aria-selected={p.id === 'productos' ? 'true' : 'false'}
+              tabindex={p.id === 'productos' ? 0 : -1}
+              data-tab={p.id}
+            >
               {p.label}
               {p.cuenta ? <span class="pestana-cuenta">{p.cuenta}</span> : null}
             </button>
@@ -69,60 +94,69 @@ const pestanas = [
         }
       </div>
 
-      <!-- Productos: buscador y ayuda -->
-      <div data-panel="productos" class="no-print mt-4">
-        <div class="relative">
-          <label for="filtro-gondola" class="sr-only">Buscar en {d.titulo}</label>
-          <span class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-texto-2">
-            <Icon name="magnifying-glass" class="size-5" />
-          </span>
-          <input
-            id="filtro-gondola"
-            type="search"
-            autocomplete="off"
-            placeholder={`Buscar en ${d.titulo.toLowerCase()}…`}
-            class="w-full rounded-2xl bg-white py-3 pr-4 pl-11 text-base ring-1 ring-profundo/15 outline-none placeholder:text-texto-2/70 focus:ring-2 focus:ring-marca"
-            data-filtro
-          />
-        </div>
-        <p class="mt-3 flex items-center gap-2 text-sm text-texto-2" data-filtro-estado>
-          <Icon name="info" class="size-4 shrink-0 text-marca" /> Tocá un producto para ver su ficha completa.
-        </p>
-      </div>
+      <ContenidoGuia modo="app">
+        <Content components={{ table: Tabla }} />
 
-      <!-- Lo básico: lo que tenés que saber -->
-      <section data-panel="basico" class="mt-4 rounded-3xl bg-menta-suave p-5 sm:p-6" aria-label="Lo que tenés que saber" hidden>
-        <p class="text-sm font-bold tracking-wide text-profundo uppercase">Lo que tenés que saber</p>
-        <ul class="mt-3 flex flex-col gap-3">
-          {
-            d.claves.map((c) => (
-              <li class="flex gap-3 text-base leading-relaxed">
-                <Icon name="check-circle" class="mt-0.5 size-5 shrink-0 text-marca" />
-                <span>{c}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+        <!-- Productos: buscador y ayuda, arriba de las fichas -->
+        <Fragment slot="productos-antes">
+          <div class="no-print mt-4">
+            <div class="relative">
+              <label for="filtro-gondola" class="sr-only">Buscar en {d.titulo}</label>
+              <span class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-texto-2">
+                <Icon name="magnifying-glass" class="size-5" />
+              </span>
+              <input
+                id="filtro-gondola"
+                type="search"
+                autocomplete="off"
+                placeholder="Buscar en esta góndola…"
+                class="campo-busqueda w-full rounded-2xl bg-white py-3 pr-12 pl-11 text-base ring-1 ring-profundo/15 outline-none placeholder:text-texto-2 focus:ring-2 focus:ring-marca"
+                data-filtro
+              />
+              <button type="button" class="borrar-busqueda" aria-label="Borrar lo que escribiste" data-filtro-borrar hidden>
+                <span><Icon name="x" class="size-4" /></span>
+              </button>
+            </div>
+            <p class="mt-3 flex items-center gap-2 text-sm text-texto-2" data-filtro-estado>
+              <Icon name="info" class="size-4 shrink-0 text-marca-texto" /> Tocá un producto para ver su ficha. Con la estrella la guardás en Guardados.
+            </p>
+          </div>
+        </Fragment>
+        <Fragment slot="productos-despues">
+          <p class="mt-4 hidden rounded-2xl bg-white p-4 text-center text-sm text-texto-2 ring-1 ring-profundo/10" data-filtro-vacio>
+            No hay productos con esa palabra en esta góndola. Probá con el <a href={url('/buscar')} class="font-semibold text-profundo underline">buscador general</a>.
+          </p>
+        </Fragment>
 
-      <div data-panel="preguntas" class="no-print mt-4" hidden>
-        <p class="flex items-center gap-2 text-sm text-texto-2">
-          <Icon name="info" class="size-4 shrink-0 text-marca" /> Pensá qué le dirías al cliente y tocá para ver la respuesta.
-        </p>
-      </div>
+        <!-- Lo básico: primero las ideas para recordar -->
+        <Fragment slot="basico-antes">
+          <section class="mt-4 rounded-3xl bg-menta-suave p-5 sm:p-6" aria-labelledby="para-recordar">
+            <h2 id="para-recordar" class="text-sm font-bold tracking-wide text-profundo uppercase">Para recordar</h2>
+            <ul class="mt-3 flex flex-col gap-3">
+              {
+                d.claves.map((c) => (
+                  <li class="flex gap-3 text-base leading-relaxed">
+                    <Icon name="check-circle" class="mt-0.5 size-5 shrink-0 text-marca-texto" />
+                    <span>{c}</span>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </Fragment>
 
-      <div class="prosa guia mt-4" data-gondola-id={categoria.id}>
-        <ContenidoGuia modo="app"><Content components={{ table: Tabla }} /></ContenidoGuia>
-      </div>
-
-      <p class="mt-4 hidden rounded-2xl bg-white p-4 text-center text-sm text-texto-2 ring-1 ring-profundo/10" data-filtro-vacio>
-        No hay productos con esa palabra en esta góndola. Probá con el <a href={url('/buscar')} class="font-semibold text-profundo underline">buscador general</a>.
-      </p>
+        <!-- Preguntas: la ayuda va debajo del título -->
+        <Fragment slot="preguntas-ayuda">
+          <p class="ayuda-preguntas no-print flex items-center gap-2 text-sm text-texto-2">
+            <Icon name="info" class="size-4 shrink-0 text-marca-texto" /> Pensá qué le dirías al cliente y tocá para ver la respuesta.
+          </p>
+        </Fragment>
+      </ContenidoGuia>
 
       <!-- Repaso: siempre en el HTML (su script lo busca al cargar) -->
       {
         hayRepaso && (
-          <div data-panel="repaso" hidden>
+          <div id="panel-repaso" role="tabpanel" aria-labelledby="tab-repaso" data-panel="repaso" tabindex="0" hidden>
             <QuizGondola
               gondolaId={categoria.id}
               titulo={d.titulo}
@@ -132,26 +166,40 @@ const pestanas = [
         )
       }
 
-      <nav class="no-print mt-10 grid grid-cols-2 gap-3" aria-label="Otras góndolas">
+      <!-- Se oculta mientras se responde el repaso (html.repaso-en-curso, lo pone QuizGondola) y cuando
+           el resultado del repaso ya ofrece su propio "Siguiente": así hay uno solo. -->
+      <nav class:list={['otras-gondolas no-print mt-10 grid grid-cols-2 gap-3', { 'con-siguiente': !!siguiente }]} aria-label="Otras góndolas">
         {
           anterior ? (
             <a href={urlCategoria(anterior)} class="rounded-2xl bg-white p-3.5 ring-1 ring-profundo/10 hover:bg-menta-suave">
-              <span class="flex items-center gap-1 text-xs font-semibold text-marca">
+              <span class="flex items-center gap-1 text-xs font-semibold text-marca-texto">
                 <Icon name="arrow-left" class="size-4" /> Anterior
               </span>
               <span class="mt-1 block text-[0.95rem] leading-snug font-semibold text-profundo">{anterior.data.titulo}</span>
             </a>
           ) : (
-            <span />
+            <a href={url('/#gondolas')} class="rounded-2xl bg-white p-3.5 ring-1 ring-profundo/10 hover:bg-menta-suave">
+              <span class="flex items-center gap-1 text-xs font-semibold text-marca-texto">
+                <Icon name="arrow-left" class="size-4" /> Volver
+              </span>
+              <span class="mt-1 block text-[0.95rem] leading-snug font-semibold text-profundo">Todas las góndolas</span>
+            </a>
           )
         }
         {
-          siguiente && (
+          siguiente ? (
             <a href={urlCategoria(siguiente)} class="rounded-2xl bg-profundo p-3.5 text-right text-white hover:bg-profundo-2">
               <span class="flex items-center justify-end gap-1 text-xs font-semibold text-menta">
                 Siguiente <Icon name="arrow-right" class="size-4" />
               </span>
               <span class="mt-1 block text-[0.95rem] leading-snug font-semibold">{siguiente.data.titulo}</span>
+            </a>
+          ) : (
+            <a href={url('/examen')} class="rounded-2xl bg-profundo p-3.5 text-right text-white hover:bg-profundo-2">
+              <span class="flex items-center justify-end gap-1 text-xs font-semibold text-menta">
+                Siguiente <Icon name="arrow-right" class="size-4" />
+              </span>
+              <span class="mt-1 block text-[0.95rem] leading-snug font-semibold">El examen</span>
             </a>
           )
         }
@@ -165,13 +213,13 @@ const pestanas = [
     position: sticky;
     top: 64px;
     z-index: 30;
-    margin: 16px -16px 0;
+    margin: 12px -16px 0;
     display: grid;
     grid-template-columns: repeat(var(--cantidad), minmax(0, 1fr));
     gap: 6px;
     background: rgb(251 248 242 / 0.94);
     padding: 10px 16px;
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px); /* -webkit-backdrop-filter va en el style del elemento */
     border-bottom: 1px solid rgb(33 76 59 / 0.08);
   }
   @media (min-width: 640px) {
@@ -185,14 +233,17 @@ const pestanas = [
     }
   }
   .pestana {
+    position: relative;
     display: inline-flex;
     min-width: 0;
+    min-height: 44px;
     align-items: center;
     justify-content: center;
     gap: 6px;
     border-radius: 9999px;
-    padding: 9px 4px;
+    padding: 12px 4px;
     font-size: 0.875rem;
+    line-height: 1.25rem;
     font-weight: 700;
     color: var(--color-texto-2);
     background: #fff;
@@ -204,42 +255,149 @@ const pestanas = [
     color: #fff;
     box-shadow: none;
   }
+  /* Celulares angostos (360 px): un punto menos de letra para que "Productos" no toque el borde */
+  @media (max-width: 374px) {
+    .pestana {
+      font-size: 0.8125rem;
+    }
+  }
+  @media (max-width: 339px) {
+    .pestana {
+      padding-inline: 2px;
+      font-size: 0.75rem;
+    }
+  }
+  /* En el celular no entra al lado del nombre: va como globito en la esquina */
   .pestana-cuenta {
-    display: none;
+    position: absolute;
+    top: -7px;
+    right: -3px;
+    min-width: 20px;
     border-radius: 9999px;
-    background: var(--color-menta-suave);
-    padding: 1px 7px;
+    background: var(--color-menta);
+    padding: 0 5px;
     font-size: 0.75rem;
+    line-height: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
     color: var(--color-profundo);
+    box-shadow: 0 0 0 2px var(--color-crema);
   }
   @media (min-width: 640px) {
     .pestana {
       font-size: 0.9375rem;
-      padding: 9px 10px;
+      padding: 12px 10px;
     }
     .pestana-cuenta {
-      display: inline;
+      position: static;
+      min-width: 0;
+      background: var(--color-menta-suave);
+      padding: 1px 7px;
+      line-height: 1.25rem;
+      font-weight: 700;
+      box-shadow: none;
+    }
+    .pestana[aria-selected='true'] .pestana-cuenta {
+      background: rgb(255 255 255 / 0.18);
+      color: #fff;
     }
   }
-  .pestana[aria-selected='true'] .pestana-cuenta {
-    background: rgb(255 255 255 / 0.18);
-    color: #fff;
+
+  /* Campo de búsqueda: la "x" propia (44 px y con los colores de la app) en lugar de la del navegador */
+  .campo-busqueda::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
   }
-  :global(.boton-guardar) {
-    display: inline-flex;
-    width: 36px;
-    height: 36px;
-    flex: none;
+  .borrar-busqueda {
+    position: absolute;
+    top: 50%;
+    right: 2px;
+    display: flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    color: var(--color-profundo);
+  }
+  .borrar-busqueda > span {
+    display: flex;
+    width: 28px;
+    height: 28px;
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
-    color: var(--color-marca);
-    transition: transform 300ms var(--ease-fluid), background-color 300ms;
+    background: var(--color-menta-suave);
   }
-  :global(.boton-guardar:active) {
+  @media (hover: hover) {
+    .borrar-busqueda:hover > span {
+      background: var(--color-menta);
+    }
+  }
+
+  /* Repaso: mientras se responde, nada que invite a irse; con el resultado, un solo "Siguiente" */
+  :global(html.repaso-en-curso) .otras-gondolas {
+    display: none;
+  }
+  :global(html:has(#panel-repaso:not([hidden]) [data-paso='resultado']:not(.hidden):not([hidden]))) .otras-gondolas.con-siguiente {
+    display: none;
+  }
+
+  [role='tabpanel']:focus-visible {
+    outline-offset: 6px;
+  }
+</style>
+
+<style is:global>
+  /* Las preguntas: título, ayuda y tarjetas */
+  .prosa.guia .lista-preguntas > h2 {
+    margin: 0 0 2px;
+    font-size: 1.25rem;
+  }
+  .prosa.guia .lista-preguntas > .ayuda-preguntas {
+    margin-bottom: 4px;
+    line-height: 1.45;
+  }
+
+  /* Cada ficha va envuelta para que la estrella quede afuera del summary (un summary ya es un
+     botón): la estrella se ubica arriba a la derecha, al lado de la flecha. */
+  .prosa.guia .ficha-wrap {
+    position: relative;
+  }
+  .prosa.guia .ficha-wrap > details.ficha > summary {
+    align-items: flex-start;
+  }
+  .prosa.guia .ficha-wrap > details.ficha > summary .ficha-abrir {
+    margin-top: -3px;
+    margin-left: 42px; /* lugar para la estrella */
+  }
+  .boton-guardar {
+    position: absolute;
+    top: 5px;
+    right: 48px;
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    color: var(--color-marca-texto);
+    transition:
+      transform 300ms var(--ease-fluid),
+      background-color 300ms;
+  }
+  @media (hover: hover) {
+    .boton-guardar:hover {
+      background: var(--color-menta-suave);
+    }
+  }
+  .boton-guardar:active {
     transform: scale(0.85);
   }
-  :global(.boton-guardar svg) {
+  .boton-guardar svg {
     width: 22px;
     height: 22px;
     fill: transparent;
@@ -247,14 +405,32 @@ const pestanas = [
     stroke-width: 14;
     stroke-linejoin: round;
   }
-  :global(.boton-guardar[aria-pressed='true']) {
-    color: #c9922e;
+  .boton-guardar[aria-pressed='true'] {
+    color: #9a6a0c;
   }
-  :global(.boton-guardar[aria-pressed='true'] svg) {
+  .boton-guardar[aria-pressed='true'] svg {
     fill: currentColor;
   }
+  .boton-guardar.pop svg {
+    animation: estrella-pop 360ms var(--ease-fluid);
+  }
+  @keyframes estrella-pop {
+    40% {
+      transform: scale(1.3);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .boton-guardar,
+    .boton-guardar:active {
+      transition: none;
+      transform: none;
+    }
+    .boton-guardar.pop svg {
+      animation: none;
+    }
+  }
   @media print {
-    :global(.boton-guardar) {
+    .boton-guardar {
       display: none;
     }
   }
@@ -262,31 +438,67 @@ const pestanas = [
 
 <script>
   import { app } from '../../scripts/app';
+  import { avisar } from '../../scripts/aviso';
 
   const ESTRELLA =
     '<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>';
 
+  const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
   const contenedor = document.querySelector<HTMLElement>('[data-gondola-id]');
   const gondolaId = contenedor?.dataset.gondolaId;
   const fichas = [...document.querySelectorAll<HTMLDetailsElement>('details.ficha')];
   const preguntas = [...document.querySelectorAll<HTMLDetailsElement>('details.pregunta')];
 
-  // ---------- Pestañas ----------
-  const pestanas = [...document.querySelectorAll<HTMLButtonElement>('[data-tab]')];
-  function mostrarPestana(id: string) {
-    pestanas.forEach((p) => p.setAttribute('aria-selected', String(p.dataset.tab === id)));
-    document.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== id));
-    if (id !== 'productos') document.querySelector('[data-filtro-vacio]')?.classList.add('hidden');
-    else filtrar();
+  // ---------- Bajada: dos líneas y "Ver más" ----------
+  const bajada = document.querySelector<HTMLElement>('[data-bajada]');
+  const verMas = document.querySelector<HTMLButtonElement>('[data-bajada-mas]');
+  if (bajada && verMas) {
+    const revisar = () => {
+      if (verMas.getAttribute('aria-expanded') !== 'true') verMas.hidden = bajada.scrollHeight <= bajada.clientHeight + 1;
+    };
+    verMas.addEventListener('click', () => {
+      const abrir = verMas.getAttribute('aria-expanded') !== 'true';
+      verMas.setAttribute('aria-expanded', String(abrir));
+      bajada.classList.toggle('line-clamp-2', !abrir);
+      verMas.textContent = abrir ? 'Ver menos' : 'Ver más';
+    });
+    revisar();
+    addEventListener('resize', revisar);
   }
-  pestanas.forEach((p) =>
+
+  // ---------- Pestañas (patrón ARIA: la activa es la única con Tab; flechas, Inicio y Fin) ----------
+  const pestanas = [...document.querySelectorAll<HTMLButtonElement>('[role="tab"][data-tab]')];
+  const paneles = [...document.querySelectorAll<HTMLElement>('[role="tabpanel"][data-panel]')];
+  function mostrarPestana(id: string) {
+    pestanas.forEach((p) => {
+      const activa = p.dataset.tab === id;
+      p.setAttribute('aria-selected', String(activa));
+      p.tabIndex = activa ? 0 : -1;
+    });
+    paneles.forEach((p) => (p.hidden = p.dataset.panel !== id));
+    if (id === 'productos') filtrar();
+  }
+  pestanas.forEach((p, i) => {
     p.addEventListener('click', () => {
       mostrarPestana(p.dataset.tab!);
       const tabs = document.querySelector<HTMLElement>('.pestanas')!;
       // Si bajaste mucho, volvé al principio de la sección.
       if (tabs.getBoundingClientRect().top <= 70) scrollTo({ top: scrollY + tabs.getBoundingClientRect().top - 64 - 1 });
-    }),
-  );
+    });
+    p.addEventListener('keydown', (e) => {
+      const ultimo = pestanas.length - 1;
+      const destino =
+        e.key === 'ArrowRight' ? (i === ultimo ? 0 : i + 1)
+        : e.key === 'ArrowLeft' ? (i === 0 ? ultimo : i - 1)
+        : e.key === 'Home' ? 0
+        : e.key === 'End' ? ultimo
+        : -1;
+      if (destino < 0) return;
+      e.preventDefault();
+      pestanas[destino].focus();
+      pestanas[destino].click();
+    });
+  });
 
   // ---------- Fichas: de a una abierta ----------
   const ALTO_FIJO = 130; // encabezado + pestañas
@@ -294,7 +506,8 @@ const pestanas = [
     lista.forEach((x) => x !== d && (x.open = false));
     requestAnimationFrame(() => {
       const top = d.getBoundingClientRect().top;
-      if (top < ALTO_FIJO || top > innerHeight - 120) scrollTo({ top: scrollY + top - ALTO_FIJO, behavior: 'smooth' });
+      if (top < ALTO_FIJO || top > innerHeight - 120)
+        scrollTo({ top: scrollY + top - ALTO_FIJO, behavior: sinMovimiento.matches ? 'auto' : 'smooth' });
     });
   }
   fichas.forEach((d) => d.addEventListener('toggle', () => d.open && alAbrir(d, fichas)));
@@ -305,17 +518,25 @@ const pestanas = [
   const textos = new Map(fichas.map((d) => [d, norm(d.textContent ?? '')]));
   const titulos = new Map(fichas.map((d) => [d, norm(d.querySelector('h3')?.textContent ?? '')]));
   const filtro = document.querySelector<HTMLInputElement>('[data-filtro]');
+  const borrar = document.querySelector<HTMLButtonElement>('[data-filtro-borrar]');
   function filtrar() {
     const q = norm(filtro?.value.trim() ?? '');
     let visibles = 0;
     fichas.forEach((d) => {
       const ok = !q || titulos.get(d)!.includes(q) || textos.get(d)!.includes(q);
-      d.hidden = !ok;
+      // Se oculta la envoltura, así la estrella se va con su ficha.
+      (d.closest<HTMLElement>('.ficha-wrap') ?? d).hidden = !ok;
       if (ok) visibles++;
     });
     document.querySelector('[data-filtro-vacio]')?.classList.toggle('hidden', visibles > 0);
+    if (borrar) borrar.hidden = !filtro?.value;
   }
   filtro?.addEventListener('input', filtrar);
+  borrar?.addEventListener('click', () => {
+    filtro!.value = '';
+    filtrar();
+    filtro!.focus();
+  });
 
   // ---------- Llegar a un producto o sección desde un enlace (#id) ----------
   function irAlHash() {
@@ -340,28 +561,32 @@ const pestanas = [
   irAlHash();
 
   // ---------- Estrellas de Guardados y góndola vista ----------
+  // La estrella va en la envoltura de la ficha, afuera del summary: tocarla no abre ni cierra la ficha.
   if (contenedor && gondolaId) {
     app.marcarVista(gondolaId);
     contenedor.querySelectorAll<HTMLHeadingElement>('.ficha h3[id]').forEach((h3) => {
+      const envoltura = h3.closest('.ficha-wrap');
+      if (!envoltura) return;
       const id = `${gondolaId}#${h3.id}`;
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'boton-guardar';
       b.innerHTML = ESTRELLA;
-      const pintar = () => {
-        const on = app.estaGuardada(id);
-        b.setAttribute('aria-pressed', String(on));
-        b.setAttribute('aria-label', on ? `Quitar ${h3.textContent} de guardados` : `Guardar ${h3.textContent}`);
-      };
-      b.addEventListener('click', (e) => {
-        // Está dentro del summary: que no abra ni cierre la ficha.
-        e.preventDefault();
-        e.stopPropagation();
-        app.guardarFicha(id, !app.estaGuardada(id));
+      b.setAttribute('aria-label', `Guardar ${h3.textContent?.trim()}`);
+      const pintar = () => b.setAttribute('aria-pressed', String(app.estaGuardada(id)));
+      b.addEventListener('click', () => {
+        const poner = !app.estaGuardada(id);
+        app.guardarFicha(id, poner);
         pintar();
+        b.classList.remove('pop');
+        if (poner) {
+          void b.offsetWidth; // reinicia la animación
+          b.classList.add('pop');
+        }
+        avisar(poner ? 'Guardada en Guardados' : 'Quitada de Guardados');
       });
       pintar();
-      h3.closest('summary')?.querySelector('.ficha-abrir')?.before(b);
+      envoltura.append(b);
     });
   }
 </script>

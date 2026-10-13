@@ -1,8 +1,8 @@
-# Guía de productos y carteles — reglas de redacción
+# Guía de productos: reglas de redacción
 
 El dueño del proyecto pidió algo **simple y a tierra**: que una empleada nueva sepa qué es cada producto, para qué lo busca la gente y cómo explicarlo. **Nada de leyes, artículos, normas, resoluciones ni siglas de organismos.** Si algo es importante para la seguridad del cliente (sin TACC, alergias), se dice en una frase simple, sin citar normas.
 
-Ya existe un manual largo en `src/content/modulos/` con todo verificado. **Tu primera fuente es ese manual.** Para lo que no esté ahí (tipos de producto, usos en la cocina, sabores, góndolas nuevas), usá conocimiento de producto de dietética argentina que sea seguro y, ante la duda, verificalo con una búsqueda web. Nunca inventes.
+Para los datos (tipos de producto, usos en la cocina, sabores, valores nutricionales), usá conocimiento de producto de dietética argentina que sea seguro y, ante la duda, verificalo con una búsqueda web. Nunca inventes.
 
 **El objetivo central:** que la empleada conozca **todos los tipos** de cada cosa que se vende en una dietética argentina y pueda **responder las preguntas reales de los clientes**: qué tipos de nueces hay, qué leche vegetal conviene para el café, qué diferencia hay entre una harina 000 y una 0000, qué pan es integral de verdad, qué té no tiene cafeína, etc.
 
@@ -12,6 +12,9 @@ Ya existe un manual largo en `src/content/modulos/` con todo verificado. **Tu pr
 - Frases cortas. Nada de párrafos largos.
 - Sin guiones largos ni guiones dentro de las frases.
 - Nunca decir que un producto cura, desinflama, adelgaza, baja el azúcar ni que sirve para una enfermedad. Se habla de sabor, uso en la cocina y costumbre ("mucha gente la toma después de comer").
+- A la empleada se le habla en voseo singular: "mirá la etiqueta con el cliente", no "miren juntos" ni "leamos".
+- Palabras del mostrador: "etiqueta" o "envase", no "rótulo". "El azúcar" en masculino: "poco azúcar", "mucho azúcar".
+- Edades concretas, nunca "chicos chicos": para leches y alergias, "bebés y chicos chiquitos, que lo hable con el pediatra".
 
 ---
 
@@ -27,7 +30,6 @@ numero: 2
 titulo: "Yuyos y hierbas"
 bajada: "Una frase que se ve en el índice."
 icono: "plant"
-modulo: 9
 claves:
   - "De 3 a 5 frases cortas: lo que hay que saber sí o sí."
 ---
@@ -79,8 +81,12 @@ Manzanilla, tilo o melisa: no tienen cafeína y son suaves.
     - `- **Tip:** ...` (cómo ofrecerlo, qué preguntarle al cliente).
     - `- **Ojo:** ...` (precauciones reales: embarazo, lactancia, niños, medicación, alergias, cafeína, sin TACC, heladera, confusiones). Obligatorio cuando hay una precaución real.
     - Tip y Ojo: máximo 35 palabras cada uno.
+  - Entre el último párrafo y la primera viñeta va siempre una línea en blanco.
   - Total por ficha: **entre 80 y 220 palabras**.
   - Prohibido igual en Propiedades: "cura", "desinflama", "adelgaza", "baja el azúcar", "desintoxica", "quema grasa", "previene" una enfermedad. Lo que dice la tradición se cuenta como tradición.
+- **Usos tradicionales, sin dolencias ni órganos.** Se cuenta "popularmente se la considera digestiva" o "se le atribuyen propiedades relajantes", nunca "para la garganta", "para los resfríos", "para conciliar el sueño", "diurético", "depurativo" ni "lo asocia con el hígado". Si hace falta nombrar una promesa para frenarla, en la misma oración: "no prometas que es diurético". Lo que dice el envase, como "muchos envases avisan...", nunca como si todos lo dijeran.
+- **Sin TACC (regla del local):** solo se asegura lo envasado con el logo oficial sin TACC; lo fraccionado o del granel no se recomienda a celíacos. En una columna de TACC de una tabla, nunca "No" ni "No, naturalmente" a secas: "No de por sí, solo con logo". Si una ficha o una respuesta dice que algo no tiene gluten, en esa misma ficha o respuesta va que para celíacos es solo envasado con el logo sin TACC: las fichas se guardan y se leen solas.
+- Lo que depende del local (qué se trabaja, quesos de pequeños productores, cervezas) se dice con "si el local lo trabaja" o "confirmá con la encargada".
 - `## Lo que más te van a preguntar`: de **8 a 12** preguntas reales de clientes, en negrita y entre comillas, con la respuesta modelo en 1 a 3 líneas debajo (en la línea siguiente, sin línea en blanco entre pregunta y respuesta; con una línea en blanco entre cada par).
 - Extensión total orientativa: **entre 1.500 y 5.500 palabras** por categoría, según cuántos productos tenga.
 - No uses `<Alerta>` ni ningún otro componente. No uses `####`. No uses `<`, `>`, `{` ni `}` en el texto.
@@ -90,47 +96,13 @@ Manzanilla, tilo o melisa: no tienen cafeína y son suaves.
 ### Valores
 
 - `icono`: uno de: grains-slash, storefront, leaf, plant, tea-bag, coffee, drop, pepper, grains, bowl-food, cube, nut, sparkle, orange-slice, drop-half, jar-label, bread, cookie, barbell, snowflake, basket, egg-crack, flask, fire, heartbeat.
-- `modulo`: el número del módulo largo relacionado.
 
 ### Validar
 
 ```powershell
-node scripts/validar-guia.mjs
+node scripts/validar-guia.mjs          # todas las góndolas
+node scripts/validar-guia.mjs 18 23    # solo esas
 ```
 
----
+Revisa la estructura y los largos de arriba, la normativa, las promesas de salud y los usos atados a una dolencia, "rótulo" y "chicos chicos", y la regla sin TACC en tablas, fichas y respuestas.
 
-## 2. Carteles para el cliente (para plastificar en cada sector)
-
-Van todos en un único archivo `src/data/carteles.json`: un arreglo de objetos. Cada cartel es **una hoja A4** que se pega en la góndola para que **el cliente** lea mientras elige. Tiene que ser lindo, curioso y fácil: datos copados, como el cartel de un zoológico.
-
-```json
-[
-  {
-    "slug": "yerbas",
-    "sector": "Yerbas",
-    "titulo": "¿Qué yerba es la tuya?",
-    "icono": "leaf",
-    "intro": "Una frase que invite a leer.",
-    "datos": [
-      { "titulo": "El palo suaviza", "texto": "La yerba con palo es más suave y rinde más. La despalada es puro sabor intenso." }
-    ],
-    "sabias": "Un dato curioso destacado, de 1 o 2 frases.",
-    "guiaTitulo": "Elegí según tu gusto",
-    "guia": [
-      { "nombre": "Suave", "texto": "Para tomar todo el día." }
-    ]
-  }
-]
-```
-
-### Reglas
-
-- Le hablás **al cliente** (voseo), no a la empleada.
-- `datos`: de 4 a 6, cada `titulo` de 2 a 5 palabras y cada `texto` de **máximo 25 palabras**.
-- `sabias`: 1 dato curioso y **verdadero**, máximo 35 palabras.
-- `guia`: de 3 a 6 filas para ayudar a elegir (opcional), cada `texto` máximo 12 palabras.
-- Total por cartel: **entre 150 y 260 palabras**, para que entre en una hoja A4 con letra grande.
-- Nada de promesas de salud, nada de leyes. Datos de origen, sabor, cómo se usa, curiosidades.
-- Si el cartel menciona algo para celíacos, solo: "Buscá el logo sin TACC en el envase".
-- JSON válido: comillas dobles, sin comas finales. Las comillas dentro de un texto van como comillas tipográficas “ ” o simples ‘ ’.

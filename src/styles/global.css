@@ -1,11 +1,22 @@
 @import "tailwindcss";
-@import "@fontsource-variable/manrope";
+
+/* Manrope variable, solo el subset latin (castellano completo): las otras 4 variantes no se usan. */
+@font-face {
+  font-family: "Manrope Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 @theme {
   --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
 
   /* Misma paleta que la landing */
-  --color-marca: #5a9684;
+  --color-marca: #5a9684; /* bordes, rellenos, barras e íconos grandes */
+  --color-marca-texto: #37705e; /* textos y fondos con letra blanca: 5,4:1 sobre crema, 5,8:1 sobre blanco */
   --color-menta: #c7e7d9;
   --color-menta-suave: #e6f3ee;
   --color-profundo: #214c3b;
@@ -19,6 +30,15 @@
   --color-peligro-suave: #f8e9e4;
   --color-ambar: #8a6514;
   --color-ambar-suave: #fbf1d9;
+
+  /* Radios: chico (botones, ítems, campos), tarjeta y grande (bloques destacados) */
+  --radius-chico: 14px;
+  --radius-tarjeta: 24px;
+  --radius-grande: 32px;
+
+  /* Sombras: reposo (tarjetas) y elevada (tarjeta destacada o flotante) */
+  --shadow-reposo: 0 0 0 1px rgb(33 76 59 / 0.08), 0 18px 36px -30px rgb(33 76 59 / 0.45);
+  --shadow-elevada: 0 0 0 1px rgb(33 76 59 / 0.1), 0 22px 44px -24px rgb(33 76 59 / 0.55);
 
   --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
 }
@@ -44,7 +64,7 @@
     color: var(--color-profundo);
   }
   :focus-visible {
-    outline: 2px solid var(--color-marca);
+    outline: 2px solid var(--color-profundo);
     outline-offset: 3px;
     border-radius: 8px;
   }
@@ -156,7 +176,7 @@
     margin-top: 0.35em;
   }
   .prosa li::marker {
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   /* Listas de tareas: casillas grandes, también en papel */
   .prosa ul.contains-task-list {
@@ -258,7 +278,7 @@
     background: var(--color-arena-suave);
   }
   .prosa.guia .destacados li.propiedades strong {
-    color: var(--color-marca);
+    color: var(--color-marca-texto);
   }
   .prosa.guia .destacados li.tip {
     background: var(--color-menta-suave);
@@ -486,7 +506,7 @@
     .prosa .tabla.tarjetas td:not(:first-child)::before {
       content: attr(data-label) ': ';
       font-weight: 700;
-      color: var(--color-marca);
+      color: var(--color-marca-texto);
     }
     /* La columna Propiedades, destacada como en las fichas */
     .prosa .tabla.tarjetas td[data-label='Propiedades'] {
@@ -495,6 +515,89 @@
       background: var(--color-arena-suave);
       padding: 6px 10px;
     }
+  }
+}
+
+/* ---------- Toques cómodos en el celular (mínimo 44 px) ---------- */
+
+@layer components {
+  /* El control mide al menos 44x44 px */
+  .tap {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* El control se ve igual, pero el área que responde al toque se agranda hasta 44 px */
+  .tap-area {
+    position: relative;
+  }
+  .tap-area::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* ---------- Primera visita: logo y ruedita mientras se confirma la sesión (Manual.astro) ---------- */
+
+.verificando-spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  border: 3px solid var(--color-menta);
+  border-top-color: var(--color-profundo);
+  animation: verificando-girar 0.9s linear infinite;
+}
+@keyframes verificando-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Avisos en pantalla (src/scripts/aviso.ts) ---------- */
+
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  width: max-content; /* con left: 50% el texto se partía en dos líneas */
+  max-width: min(92vw, 420px);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 18px;
+  border-radius: 16px;
+  background: var(--color-profundo);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 18px 40px -18px rgb(33 76 59 / 0.6);
+  transform: translate(-50%, 12px);
+  opacity: 0;
+  transition:
+    opacity 180ms var(--ease-fluid),
+    transform 180ms var(--ease-fluid);
+}
+.aviso.visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+.aviso-accion {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.14);
+  color: var(--color-menta);
+  font-weight: 800;
+  white-space: nowrap;
+}
+@media (min-width: 1024px) {
+  .aviso {
+    bottom: 32px;
   }
 }
 
@@ -521,21 +624,34 @@ html {
   }
 }
 
-/* Instalada como app: sin el espacio de la barra del navegador, respetando el notch */
+/* Instalada como app: sin el espacio de la barra del navegador, respetando el notch.
+   (Se deja el "tirar para actualizar" de Android: es la forma de traer una versión nueva sin cerrar la app.) */
 @media (display-mode: standalone) {
   body {
     padding-top: env(safe-area-inset-top);
-    overscroll-behavior-y: none;
   }
   .solo-navegador {
     display: none !important;
   }
 }
 
+/* Con "reducir movimiento" activado: sin animaciones ni transiciones (botones, flechas, barras, cajón).
+   Se dejan en 0,01 ms y no en "none" para que los scripts que esperan el fin de una transición sigan andando. */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .boton:active {
+    transform: none;
   }
 }
 

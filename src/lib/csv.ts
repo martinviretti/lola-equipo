@@ -1,12 +1,23 @@
 // Descargas para Excel: CSV con punto y coma y BOM, así Excel en español lo abre con columnas y acentos bien.
+
+/**
+ * Una celda del CSV. Los textos que empiezan con =, +, -, @, tabulación o retorno Excel los toma como
+ * fórmula (y una fórmula puede abrir enlaces o pedir datos): se les pone un apóstrofo adelante para que
+ * queden como texto. Los números van tal cual (un -5 sigue siendo número).
+ */
+export function celdaCsv(v: string | number | null | undefined) {
+  if (typeof v === 'number') return String(v);
+  let s = String(v ?? '');
+  if (/^[\s]*[=+\-@]/.test(s) || /^[\t\r]/.test(s)) s = `'${s}`;
+  return /[";\r\n]/.test(s) || s.startsWith("'") ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** Todo el archivo, listo para guardar. */
+export const textoCsv = (filas: (string | number)[][]) => '﻿' + filas.map((f) => f.map(celdaCsv).join(';')).join('\r\n');
+
 export function descargarCsv(nombre: string, filas: (string | number)[][]) {
-  const celda = (v: string | number) => {
-    const s = String(v ?? '');
-    return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  };
-  const texto = '﻿' + filas.map((f) => f.map(celda).join(';')).join('\r\n');
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([texto], { type: 'text/csv;charset=utf-8' }));
+  a.href = URL.createObjectURL(new Blob([textoCsv(filas)], { type: 'text/csv;charset=utf-8' }));
   a.download = nombre;
   document.body.append(a);
   a.click();

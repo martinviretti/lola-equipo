@@ -2,10 +2,10 @@
   {
     "id": "14-1",
     "tipo": "opcion",
-    "pregunta": "Un cliente quiere hacer una torta con edulcorante. ¿Cuál no le conviene?",
-    "opciones": ["Aspartamo", "Sucralosa", "Eritritol"],
-    "correcta": 0,
-    "explicacion": "El aspartamo pierde dulzor con el calor. Sucralosa, stevia, eritritol y xilitol sí aguantan el horno."
+    "pregunta": "Un cliente quiere endulzar una torta que va al horno. ¿Qué edulcorante le ofrecés?",
+    "opciones": ["Aspartamo, que es el de las gaseosas light", "Sucralosa o stevia, que aguantan el calor", "Cualquiera: todos se comportan como el azúcar"],
+    "correcta": 1,
+    "explicacion": "El aspartamo pierde dulzor con el calor. Sucralosa, stevia, eritritol y xilitol aguantan el horno, aunque no doran como el azúcar."
   },
   {
     "id": "14-2",
@@ -18,9 +18,9 @@
     "id": "14-3",
     "tipo": "opcion",
     "pregunta": "Una clienta con diabetes pregunta si la fructosa le sirve. ¿Qué le respondés?",
-    "opciones": ["Que es apta para diabéticos", "Le mostrás la etiqueta y que consulte al médico", "Que no le sube el azúcar"],
+    "opciones": ["Le decís que es apta, que es el azúcar de la fruta", "Le mostrás la etiqueta y le sugerís ver al médico", "Le decís que la fructosa no le sube el azúcar"],
     "correcta": 1,
-    "explicacion": "Nunca digas apto para diabéticos. Si le conviene o no, lo decide su médico o nutricionista."
+    "explicacion": "La fructosa es azúcar. Nunca digas apto para diabéticos: si le conviene o no, lo decide su médico o nutricionista."
   },
   {
     "id": "14-4",

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "validar": "node scripts/validar-guia.mjs && node scripts/validar-examen.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "pdf": "node scripts/generar-pdf.mjs",

@@ -26,9 +26,9 @@
     "id": "05-4",
     "tipo": "opcion",
     "pregunta": "Una clienta alérgica al sésamo quiere un mix de semillas. ¿Qué hacés?",
-    "opciones": ["Le das el mix, porque casi no lleva sésamo", "Le ofrecés gomasio en su lugar", "Le avisás que suele llevar sésamo y no asegurás nada"],
+    "opciones": ["Le das el mix, que casi no lleva sésamo", "Le ofrecés gomasio, que es más simple", "Le explicás que casi siempre trae sésamo"],
     "correcta": 2,
-    "explicacion": "Los mixes casi siempre llevan sésamo, y el gomasio es sésamo. Del granel no le asegurás nada a un alérgico."
+    "explicacion": "Los mixes casi siempre llevan sésamo, y el gomasio es sésamo. Del granel no le asegurás nada a un alérgico: leé con ella los ingredientes de algo envasado."
   },
   {
     "id": "05-5",

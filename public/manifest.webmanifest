@@ -1,7 +1,8 @@
 {
-  "name": "Lola · Equipo",
+  "id": "/lola-equipo/",
+  "name": "La Almacén de Lola · Intranet del equipo",
   "short_name": "Lola",
-  "description": "Intranet del equipo de La Almacén de Lola: cómo trabajamos, los productos de la dietética y el examen.",
+  "description": "Intranet del equipo de La Almacén de Lola: cómo trabajamos, los productos del local y el examen.",
   "lang": "es-AR",
   "start_url": "./",
   "scope": "./",
@@ -32,33 +33,15 @@
   "shortcuts": [
     {
       "name": "Fichar",
-      "url": "./fichar",
-      "icons": [
-        {
-          "src": "iconos/icono-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "url": "./fichar"
     },
     {
       "name": "Buscar un producto",
-      "url": "./buscar",
-      "icons": [
-        {
-          "src": "iconos/icono-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "url": "./buscar"
     },
     {
       "name": "Examinarme",
-      "url": "./examen",
-      "icons": [
-        {
-          "src": "iconos/icono-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "url": "./examen"
     }
   ]
 }
