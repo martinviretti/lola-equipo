@@ -1,35 +1,20 @@
 ---
-// Panel de admin → Aprendizaje, en dos partes que se ven de a una:
-//  · Resumen: los números, los gráficos, cómo va cada persona (se abre para ver el detalle) y el Excel.
-//  · Equipo y accesos: dar acceso, cambiar el rol, dar de baja y reactivar.
-// Solo lo ven las admins (rol 'admin' en la tabla autorizados); la base lo controla con RLS.
-// La otra pestaña del panel (Fichaje) es fichadas.astro.
+// Panel de admin → Inicio: el tablero principal. Lo que hay que mirar hoy (los números del día y quién
+// está en el local), los pendientes con un botón que lleva a resolverlos, un vistazo del aprendizaje,
+// atajos y, al final, "Descargar todo" (un Excel con toda la información, en hojas).
+// Las otras partes del panel: Horarios y fichajes (fichadas.astro), Gestión de equipo (equipo.astro)
+// y Aprendizaje (aprendizaje.astro). Solo lo ven las admins; la base lo controla con RLS.
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
-import VistasPanel from '../components/VistasPanel.astro';
-import { getGuia } from '../data/guia';
-import { secciones } from '../data/bienvenida';
-import { NIVELES } from '../data/niveles';
-
-const gondolas = (await getGuia()).map((c) => ({ id: c.id, titulo: c.data.titulo }));
-const datos = {
-  gondolas,
-  secciones: secciones.map((s) => ({ id: s.id, titulo: s.titulo })),
-  niveles: NIVELES.map((n) => ({ numero: n.numero, nombre: n.nombre })),
-};
+import DatosGuia from '../components/DatosGuia.astro';
+import { url } from '../lib/url';
 ---
 
 <Manual title="Panel de admin">
   <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
-    <div class="mx-auto max-w-[960px]">
-      <PestanasAdmin activa="aprendizaje" />
-      <VistasPanel
-        opciones={[
-          { id: 'resumen', texto: 'Resumen', icono: 'chart-bar' },
-          { id: 'equipo', texto: 'Equipo y accesos', icono: 'user-gear' },
-        ]}
-      />
+    <div class="mx-auto max-w-[1040px]">
+      <PestanasAdmin activa="inicio" />
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
         <Icon name="lock-key" class="mx-auto size-10 text-marca" />
@@ -38,94 +23,58 @@ const datos = {
       </div>
 
       <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
-        <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando el equipo…
+        <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando…
       </p>
 
       <div class="hidden" data-panel>
-        <!-- ==================== RESUMEN ==================== -->
-        <section data-vista="resumen">
-        <!-- Números principales -->
-        <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" data-resumen></div>
-        <p class="mt-2 text-xs text-texto-2" data-base-texto></p>
+        <p class="mt-6 text-sm font-semibold text-texto-2 first-letter:uppercase" data-hoy-fecha></p>
+        <div class="mt-2 grid grid-cols-2 gap-3 lg:grid-cols-4" data-metricas></div>
 
-        <!-- Tablero general -->
-        <div class="mt-6 grid gap-4 lg:grid-cols-2">
+        <!-- Pendientes -->
+        <section class="tarjeta mt-5">
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="list-checks" class="size-6 text-marca" /> Pendientes</h2>
+          <p class="tarjeta-sub">Lo que conviene resolver. Cada uno tiene un botón que te lleva directo.</p>
+          <ul class="mt-3 flex flex-col" data-pendientes></ul>
+        </section>
+
+        <div class="mt-5 grid gap-5 lg:grid-cols-2">
+          <!-- Hoy en el local -->
           <section class="tarjeta">
-            <h2 class="tarjeta-titulo">Actividad de los últimos 14 días</h2>
-            <p class="tarjeta-sub">Lecturas, repasos, exámenes y temas de Bienvenida, sumados por día.</p>
-            <div class="mt-4" data-grafico-actividad></div>
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="storefront" class="size-6 text-marca" /> Hoy en el local</h2>
+            <p class="tarjeta-sub">Quién está ahora y quién ya se fue.</p>
+            <ul class="mt-3 flex flex-col gap-2" data-hoy></ul>
+            <a href={`${url('/fichadas')}#resumen`} class="mt-3 inline-block text-sm font-semibold text-marca underline underline-offset-4">Ver el día y la semana</a>
           </section>
 
+          <!-- Aprendizaje -->
           <section class="tarjeta">
-            <h2 class="tarjeta-titulo">Examen por nivel</h2>
-            <p class="tarjeta-sub">Cuántas aprobaron cada nivel.</p>
-            <div class="mt-4 flex flex-col gap-4" data-grafico-niveles></div>
-          </section>
-
-          <section class="tarjeta lg:col-span-2">
-            <h2 class="tarjeta-titulo">Góndolas completadas</h2>
-            <p class="tarjeta-sub">Cuántas personas aprobaron el repaso de cada góndola. Las que menos se completaron, arriba.</p>
-            <div class="mt-4" data-grafico-gondolas></div>
+            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="book-open-text" class="size-6 text-marca" /> Aprendizaje</h2>
+            <p class="tarjeta-sub">Cómo viene el equipo con la guía.</p>
+            <div class="mt-3 grid grid-cols-3 gap-2" data-aprendizaje></div>
+            <a href={url('/aprendizaje')} class="mt-3 inline-block text-sm font-semibold text-marca underline underline-offset-4">Ver el avance de cada una</a>
           </section>
         </div>
 
-        <!-- Cómo va cada una -->
-        <section class="mt-8">
-          <h2 class="text-xl font-bold text-profundo">Cómo va cada una</h2>
-          <p class="mt-1 text-sm text-texto-2">Tocá a una persona para ver su avance: cada góndola, los exámenes y lo último que hizo.</p>
-          <ul class="mt-4 flex flex-col gap-3" data-equipo></ul>
+        <!-- Atajos -->
+        <section class="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <a href={`${url('/equipo')}#sumar`} class="atajo"><Icon name="plus-square" class="size-6 text-marca" /> Sumar a alguien</a>
+          <a href={`${url('/fichadas')}#resumen`} class="atajo"><Icon name="calendar-blank" class="size-6 text-marca" /> Ver la semana</a>
+          <a href={`${url('/fichadas')}#dia`} class="atajo"><Icon name="clock" class="size-6 text-marca" /> Corregir un día</a>
+          <a href={url('/equipo')} class="atajo"><Icon name="users-three" class="size-6 text-marca" /> Ver el equipo</a>
         </section>
 
-        <!-- Descargas -->
-        <section class="tarjeta mt-6">
-          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
-          <p class="tarjeta-sub">Sirve para llevar registro y como copia de seguridad. Se abre directo con Excel.</p>
-          <div class="mt-4 grid gap-3 sm:grid-cols-2">
-            <button type="button" class="boton boton-principal" data-descargar="resumen">
-              <Icon name="download-simple" class="size-5" /> Resumen: una fila por persona
-            </button>
-            <button type="button" class="boton boton-secundario" data-descargar="detalle">
-              <Icon name="download-simple" class="size-5" /> Detalle: toda la actividad
-            </button>
+        <!-- Descargar todo (al final: es para trabajar la información aparte) -->
+        <section class="mt-10 rounded-3xl bg-crema p-5 ring-1 ring-profundo/10">
+          <h2 class="flex items-center gap-2 font-bold text-profundo"><Icon name="download-simple" class="size-5 text-marca" /> Descargar todo en Excel</h2>
+          <p class="mt-1 text-sm text-texto-2">
+            Un solo archivo con toda la información, en hojas: las horas y cada fichada del mes que elijas, el equipo, y el avance y la actividad en la guía.
+          </p>
+          <div class="mt-3 flex flex-wrap items-center gap-3">
+            <label class="sr-only" for="mes">Mes</label>
+            <input id="mes" type="month" class="campo !w-auto" data-mes />
+            <button type="button" class="boton boton-secundario" data-descargar-todo><Icon name="download-simple" class="size-5" /> Descargar todo</button>
+            <span class="text-sm font-semibold text-texto-2" data-descargar-estado></span>
           </div>
-        </section>
-
-        </section>
-
-        <!-- ==================== EQUIPO Y ACCESOS ==================== -->
-        <section data-vista="equipo" hidden>
-        <!-- Agregar -->
-        <section class="tarjeta mt-6">
-          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca" /> Dar acceso a alguien</h2>
-          <p class="tarjeta-sub">Con su mail de Google (Gmail). Puede entrar apenas la agregás.</p>
-          <form class="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]" data-agregar>
-            <label class="sr-only" for="nuevo-email">Mail de Google</label>
-            <input id="nuevo-email" name="email" type="email" required autocomplete="off" placeholder="nombre@gmail.com" class="campo" />
-            <label class="sr-only" for="nuevo-nombre">Nombre</label>
-            <input id="nuevo-nombre" name="nombre" type="text" autocomplete="off" placeholder="Nombre (opcional)" class="campo" />
-            <label class="sr-only" for="nuevo-rol">Rol</label>
-            <select id="nuevo-rol" name="rol" class="campo">
-              <option value="empleada">Empleada</option>
-              <option value="admin">Admin</option>
-            </select>
-            <button type="submit" class="boton boton-principal">Agregar</button>
-          </form>
-          <p class="mt-3 hidden text-sm font-semibold" data-agregar-estado aria-live="polite"></p>
-        </section>
-
-        <!-- El equipo: rol y bajas -->
-        <section class="mt-8">
-          <h2 class="text-xl font-bold text-profundo">El equipo</h2>
-          <p class="mt-1 text-sm text-texto-2">Quiénes pueden entrar a la app y fichar. Desde acá cambiás el rol o das de baja a alguien (su historial queda guardado).</p>
-          <ul class="mt-4 flex flex-col gap-2" data-accesos></ul>
-        </section>
-
-        <!-- Dadas de baja: no entran ni fichan, pero su historial queda -->
-        <section class="mt-8 hidden" data-bajas-seccion>
-          <h2 class="text-lg font-bold text-profundo">Dadas de baja</h2>
-          <p class="mt-1 text-sm text-texto-2">No pueden entrar ni fichar. Su avance y sus fichadas quedan guardados.</p>
-          <ul class="mt-3 flex flex-col gap-2" data-bajas></ul>
-        </section>
         </section>
 
         <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
@@ -134,23 +83,10 @@ const datos = {
   </main>
 </Manual>
 
-<script type="application/json" id="admin-datos" set:html={JSON.stringify(datos)} />
+<DatosGuia />
 
 <style>
-  .campo {
-    width: 100%;
-    border-radius: 14px;
-    background: var(--color-crema);
-    padding: 12px 14px;
-    font-size: 1rem;
-    color: var(--color-texto);
-    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
-    outline: none;
-  }
-  .campo:focus {
-    box-shadow: inset 0 0 0 2px var(--color-marca);
-  }
-  .tarjeta {
+  :global(.tarjeta) {
     border-radius: 24px;
     background: #fff;
     padding: 20px;
@@ -166,673 +102,240 @@ const datos = {
     font-size: 0.875rem;
     color: var(--color-texto-2);
   }
-  :global(.persona summary::-webkit-details-marker) {
-    display: none;
-  }
-
-  /* ---------- Gráficos (una sola serie por gráfico, color de marca) ---------- */
-  /* Medidor: barra fina con el valor en texto al lado */
-  :global(.medidor) {
-    height: 8px;
-    border-radius: 9999px;
-    background: var(--color-menta-suave);
-  }
-  :global(.medidor > span) {
-    display: block;
-    height: 100%;
-    border-radius: 9999px;
-    background: var(--color-marca);
-  }
-  /* Columnas por día */
-  :global(.columnas) {
-    position: relative;
-  }
-  :global(.columnas-area) {
-    display: flex;
-    height: 140px;
-    padding-top: 20px;
-    align-items: flex-end;
-    gap: 2px;
-    border-bottom: 1px solid rgb(33 76 59 / 0.14);
-  }
-  :global(.columnas-area.chica) {
-    height: 64px;
-    padding-top: 4px;
-  }
-  :global(.col) {
-    position: relative;
-    display: flex;
-    height: 100%;
-    flex: 1;
-    align-items: flex-end;
-    justify-content: center;
+  .campo {
+    border-radius: 14px;
+    background: #fff;
+    padding: 9px 12px;
+    font-size: 1rem;
+    color: var(--color-texto);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
     outline: none;
   }
-  :global(.col > i) {
-    display: block;
-    width: min(18px, 70%);
-    border-radius: 4px 4px 0 0;
-    background: var(--color-marca);
-    transition: opacity 150ms;
-  }
-  :global(.col.cero > i) {
-    height: 2px !important;
-    border-radius: 0;
-    background: rgb(33 76 59 / 0.1);
-  }
-  :global(.columnas-area:hover .col > i) {
-    opacity: 0.55;
-  }
-  :global(.columnas-area .col:hover > i),
-  :global(.columnas-area .col:focus-visible > i) {
-    opacity: 1;
-  }
-  :global(.col:focus-visible) {
-    box-shadow: inset 0 0 0 2px var(--color-marca);
-    border-radius: 6px;
-  }
-  :global(.col-valor) {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, -100%);
-    padding-bottom: 2px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--color-texto);
-  }
-  :global(.columnas-ejes) {
+  .atajo {
     display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 18px;
+    background: #fff;
+    padding: 14px 16px;
+    font-weight: 700;
+    color: var(--color-profundo);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  .atajo:hover {
+    background: var(--color-menta-suave);
+  }
+  :global(.metrica) {
+    display: flex;
+    flex-direction: column;
     gap: 2px;
-    margin-top: 4px;
-    font-size: 0.6875rem;
+    border-radius: 20px;
+    background: #fff;
+    padding: 14px 16px;
+    text-align: left;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  :global(a.metrica:hover) {
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  :global(.metrica.aviso) {
+    background: var(--color-ambar-suave);
+  }
+  :global(.metrica-titulo) {
+    font-size: 0.8125rem;
+    font-weight: 600;
     color: var(--color-texto-2);
   }
-  :global(.columnas-ejes span) {
-    flex: 1;
-    text-align: center;
-    white-space: nowrap;
-  }
-  :global(.globo) {
-    pointer-events: none;
-    position: absolute;
-    z-index: 5;
-    min-width: 150px;
-    transform: translate(-50%, calc(-100% - 8px));
-    border-radius: 12px;
-    background: var(--color-profundo);
-    padding: 8px 10px;
-    font-size: 0.8125rem;
-    line-height: 1.4;
-    color: #fff;
-    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.4);
-  }
-  /* Barras horizontales por góndola */
-  :global(.barras) {
-    display: grid;
-    gap: 10px 28px;
-  }
-  @media (min-width: 640px) {
-    :global(.barras) {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  :global(.barras .etq) {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.875rem;
-    color: var(--color-texto);
-  }
-  :global(.barras .pista) {
-    margin-top: 3px;
-    height: 8px;
-    border-radius: 9999px;
-    background: rgb(33 76 59 / 0.06);
-  }
-  :global(.barras .pista > span) {
-    display: block;
-    height: 100%;
-    border-radius: 9999px;
-    background: var(--color-marca);
-  }
-  :global(.barras .val) {
-    font-size: 0.8125rem;
-    font-weight: 700;
-    color: var(--color-texto);
+  :global(.metrica-valor) {
+    font-size: 1.75rem;
+    line-height: 1.15;
+    font-weight: 800;
+    color: var(--color-profundo);
     font-variant-numeric: tabular-nums;
+  }
+  :global(.metrica.aviso .metrica-valor) {
+    color: var(--color-ambar);
+  }
+  :global(.metrica-sub) {
+    font-size: 0.75rem;
+    color: var(--color-texto-2);
+  }
+  :global(.pendiente) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 0;
+  }
+  :global(.pendiente + .pendiente) {
+    border-top: 1px solid rgb(33 76 59 / 0.08);
+  }
+  :global(.pendiente-punto) {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    border-radius: 9999px;
+    background: var(--color-ambar);
+  }
+  :global(.pendiente-punto.suave) {
+    background: rgb(33 76 59 / 0.25);
   }
 </style>
 
 <script>
   import { supabase } from '../lib/supabase';
   import { sesionLista } from '../scripts/sesion';
-  import { descargarCsv, fechaExcel } from '../lib/csv';
+  import { diaClave, diaLargo, duracion, hora } from '../lib/fichador';
+  import { url } from '../lib/url';
+  import { cargarAprendizaje, leerInfoGuia, type DatosAprendizaje } from '../scripts/admin/aprendizaje-datos';
+  import { descargarTodo } from '../scripts/admin/descargar-todo';
+  import { $, el, fichadasEntre, lunesDe, nombreDe, q, quienesFichan, sumarDias, tramosPorPersona, type FichadaCompleta, type Persona } from '../scripts/admin/comun';
 
-  // ---------- Tipos ----------
-  interface Autorizado {
-    email: string;
-    nombre: string | null;
-    rol: 'empleada' | 'admin';
-    user_id: string | null;
-    agregado_el: string;
-    primer_ingreso: string | null;
-    ultimo_ingreso: string | null;
-    /** Sin la columna (base sin actualizar) cuenta como activa. */
-    activo?: boolean;
-    baja_el?: string | null;
-  }
-  interface Gondola {
-    user_id: string;
-    gondola: string;
-    vista_el: string | null;
-    quiz_intentos: number;
-    quiz_mejor: number;
-    quiz_total: number;
-    completada_el: string | null;
-    actualizado_el: string;
-  }
-  interface Intento {
-    user_id: string;
-    nivel: number;
-    nota: number;
-    aprobado: boolean;
-    hecho_el: string;
-  }
-  interface Lectura {
-    user_id: string;
-    seccion: string;
-    leida_el: string;
-  }
-  interface Evento {
-    user_id: string;
-    tipo: 'Góndola leída' | 'Repaso' | 'Góndola completada' | 'Examen' | 'Bienvenida';
-    que: string;
-    resultado: string;
-    fecha: string;
-  }
+  const info = leerInfoGuia();
+
   interface Datos {
-    equipo: Autorizado[];
-    bajas: Autorizado[];
-    gondolas: Gondola[];
-    intentos: Intento[];
-    leidas: Lectura[];
-    /** Mails con cara registrada en el fichador. */
-    conCara: Set<string>;
+    apr: DatosAprendizaje;
+    fichadas: FichadaCompleta[];
+    revisar: number;
+    aparatos: number;
+    horasMax: number;
   }
-
-  const info: {
-    gondolas: { id: string; titulo: string }[];
-    secciones: { id: string; titulo: string }[];
-    niveles: { numero: number; nombre: string }[];
-  } = JSON.parse(document.getElementById('admin-datos')!.textContent!);
-  const tituloGondola = (id: string) => info.gondolas.find((g) => g.id === id)?.titulo ?? id;
-  const tituloSeccion = (id: string) => info.secciones.find((s) => s.id === id)?.titulo ?? id;
-  const nombreNivel = (n: number) => info.niveles.find((v) => v.numero === n)?.nombre ?? '';
-
-  // ---------- Utilidades ----------
-  const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s)!;
-  const el = <K extends keyof HTMLElementTagNameMap>(tag: K, clase = '', texto = '') => {
-    const e = document.createElement(tag);
-    if (clase) e.className = clase;
-    if (texto) e.textContent = texto;
-    return e;
-  };
-  const fecha = (iso: string | null) =>
-    iso ? new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(iso)) : 'Nunca';
-  const hace = (iso: string | null) => {
-    if (!iso) return 'Nunca entró';
-    const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
-    return dias === 0 ? 'Entró hoy' : dias === 1 ? 'Entró ayer' : `Entró hace ${dias} días`;
-  };
-  const diaLocal = (d: Date) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-  const nombreDe = (p: Autorizado) => p.nombre ?? p.email.split('@')[0];
-  const porUsuario = <T extends { user_id: string }>(lista: T[], uid: string | null) => (uid ? lista.filter((x) => x.user_id === uid) : []);
-
-  /** Toda la actividad registrada, como eventos con fecha. */
-  function eventos(d: Datos): Evento[] {
-    const lista: Evento[] = [];
-    for (const g of d.gondolas) {
-      const t = tituloGondola(g.gondola);
-      if (g.vista_el) lista.push({ user_id: g.user_id, tipo: 'Góndola leída', que: t, resultado: '', fecha: g.vista_el });
-      if (g.quiz_intentos > 0)
-        lista.push({
-          user_id: g.user_id,
-          tipo: 'Repaso',
-          que: t,
-          resultado: `Mejor: ${g.quiz_mejor} de ${g.quiz_total} (${g.quiz_intentos} ${g.quiz_intentos === 1 ? 'intento' : 'intentos'})`,
-          fecha: g.actualizado_el,
-        });
-      if (g.completada_el) lista.push({ user_id: g.user_id, tipo: 'Góndola completada', que: t, resultado: 'Repaso aprobado', fecha: g.completada_el });
-    }
-    for (const x of d.intentos)
-      lista.push({
-        user_id: x.user_id,
-        tipo: 'Examen',
-        que: `Nivel ${x.nivel} · ${nombreNivel(x.nivel)}`,
-        resultado: `${x.nota}% · ${x.aprobado ? 'aprobado' : 'no aprobado'}`,
-        fecha: x.hecho_el,
-      });
-    for (const l of d.leidas) lista.push({ user_id: l.user_id, tipo: 'Bienvenida', que: tituloSeccion(l.seccion), resultado: 'Tema leído', fecha: l.leida_el });
-    return lista.sort((a, b) => b.fecha.localeCompare(a.fecha));
-  }
-
-  // ---------- Gráficos ----------
-  const medidor = (parte: number, total: number) => {
-    const b = el('div', 'medidor');
-    b.setAttribute('role', 'img');
-    b.setAttribute('aria-label', `${parte} de ${total}`);
-    const s = el('span');
-    s.style.width = `${total ? Math.min(100, (parte / total) * 100) : 0}%`;
-    b.append(s);
-    return b;
-  };
-
-  /** Fila de medidor con título y valor en texto. */
-  const filaMedidor = (titulo: string, parte: number, total: number, extra = '') => {
-    const caja = el('div');
-    const cab = el('p', 'mb-1.5 flex items-baseline justify-between gap-3 text-sm');
-    cab.append(el('span', 'font-semibold text-profundo', titulo), el('span', 'font-bold text-texto tabular-nums', `${parte} de ${total}${extra}`));
-    caja.append(cab, medidor(parte, total));
-    return caja;
-  };
-
-  /** Columnas de los últimos 14 días (una sola serie), con globo al pasar o tocar. */
-  function columnasActividad(evs: Evento[], chica = false) {
-    const hoy = new Date();
-    const dias = Array.from({ length: 14 }, (_, k) => {
-      const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - (13 - k));
-      return { d, clave: diaLocal(d), evs: [] as Evento[] };
-    });
-    for (const e of evs) dias.find((x) => x.clave === diaLocal(new Date(e.fecha)))?.evs.push(e);
-    const max = Math.max(1, ...dias.map((x) => x.evs.length));
-    const kMax = dias.reduce((m, x, k) => (x.evs.length > dias[m].evs.length ? k : m), 0);
-
-    const raiz = el('div', 'columnas');
-    const area = el('div', `columnas-area${chica ? ' chica' : ''}`);
-    const globo = el('div', 'globo hidden');
-    const fmtDia = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
-
-    dias.forEach((x, k) => {
-      const n = x.evs.length;
-      const col = el('div', `col${n ? '' : ' cero'}`);
-      col.tabIndex = 0;
-      const resumen = (['Góndola leída', 'Repaso', 'Góndola completada', 'Examen', 'Bienvenida'] as const)
-        .map((t) => [t, x.evs.filter((e) => e.tipo === t).length] as const)
-        .filter(([, c]) => c);
-      col.setAttribute('aria-label', `${fmtDia.format(x.d)}: ${n} ${n === 1 ? 'actividad' : 'actividades'}`);
-      const barra = el('i');
-      barra.style.height = `${(n / max) * 100}%`;
-      col.append(barra);
-      if (!chica && n && k === kMax) {
-        const v = el('span', 'col-valor', String(n));
-        v.style.bottom = `${(n / max) * 100}%`;
-        col.append(v);
-      }
-      const mostrar = () => {
-        globo.replaceChildren(
-          el('strong', 'block', fmtDia.format(x.d)),
-          el('span', 'block', n ? `${n} ${n === 1 ? 'actividad' : 'actividades'}` : 'Sin actividad'),
-          ...resumen.map(([t, c]) => el('span', 'block text-white/80', `${t}: ${c}`)),
-        );
-        globo.classList.remove('hidden');
-        const r = col.getBoundingClientRect();
-        const base = raiz.getBoundingClientRect();
-        const x0 = r.left - base.left + r.width / 2;
-        globo.style.left = `${Math.min(Math.max(x0, 80), base.width - 80)}px`;
-        globo.style.top = `${area.offsetTop + area.offsetHeight * (1 - Math.max(n / max, 0.05))}px`;
-      };
-      col.addEventListener('pointerenter', mostrar);
-      col.addEventListener('focus', mostrar);
-      col.addEventListener('click', mostrar);
-      col.addEventListener('pointerleave', () => globo.classList.add('hidden'));
-      col.addEventListener('blur', () => globo.classList.add('hidden'));
-      area.append(col);
-    });
-
-    const ejes = el('div', 'columnas-ejes');
-    const fmtCorto = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'numeric' });
-    dias.forEach((x, k) => ejes.append(el('span', '', k === 13 ? 'Hoy' : k % 3 === 1 ? fmtCorto.format(x.d) : '')));
-    raiz.append(area, ejes, globo);
-    if (!evs.length) raiz.append(el('p', 'mt-2 text-sm text-texto-2', 'Todavía no hay actividad registrada.'));
-    return raiz;
-  }
-
-  /** Barras horizontales: personas que completaron cada góndola (una sola serie). */
-  function barrasGondolas(d: Datos, base: Set<string>) {
-    const total = base.size;
-    const filas = info.gondolas
-      .map((g) => {
-        const filasG = d.gondolas.filter((x) => x.gondola === g.id && base.has(x.user_id));
-        const completas = filasG.filter((x) => x.completada_el).length;
-        const conRepaso = filasG.filter((x) => x.quiz_intentos > 0);
-        const promedio = conRepaso.length ? conRepaso.reduce((s, x) => s + x.quiz_mejor / (x.quiz_total || 5), 0) / conRepaso.length : null;
-        return { g, completas, leidas: filasG.filter((x) => x.vista_el).length, promedio };
-      })
-      .sort((a, b) => a.completas - b.completas || a.leidas - b.leidas);
-    const grilla = el('div', 'barras');
-    for (const f of filas) {
-      const fila = el('div', 'barra-fila');
-      fila.title = `${f.g.titulo}: completada por ${f.completas} de ${total} · leída por ${f.leidas}${
-        f.promedio !== null ? ` · promedio del repaso ${Math.round(f.promedio * 100)}%` : ''
-      }`;
-      const cab = el('p', 'flex items-baseline justify-between gap-3');
-      cab.append(el('span', 'etq', f.g.titulo), el('span', 'val', `${f.completas}/${total}`));
-      const pista = el('div', 'pista');
-      const barra = el('span');
-      barra.style.width = `${total ? (f.completas / total) * 100 : 0}%`;
-      pista.append(barra);
-      fila.append(cab, pista);
-      grilla.append(fila);
-    }
-    return grilla;
-  }
-
-  // ---------- Carga ----------
-  let miEmail = '';
-  let ultimo: Datos | null = null;
 
   async function cargar(): Promise<Datos> {
     const db = supabase!;
-    const [a, g, i, l] = await Promise.all([
-      db.from('autorizados').select('*').order('rol').order('nombre'),
-      db.from('progreso_gondola').select('user_id,gondola,vista_el,quiz_intentos,quiz_mejor,quiz_total,completada_el,actualizado_el'),
-      db.from('intentos_examen').select('user_id,nivel,nota,aprobado,hecho_el').order('hecho_el', { ascending: false }).limit(5000),
-      db.from('secciones_leidas').select('user_id,seccion,leida_el'),
+    const hoy = diaClave(new Date());
+    // Desde el lunes de la semana pasada: alcanza para esta semana y para las salidas olvidadas recientes.
+    const desde = sumarDias(lunesDe(hoy), -7);
+    const [apr, fichadas, rev, sin, aparatos, aj] = await Promise.all([
+      cargarAprendizaje(),
+      fichadasEntre(desde, sumarDias(hoy, 1)),
+      db.from('fichadas').select('id').not('revisar', 'is', null).is('revisada_el', null).eq('anulada', false).gte('hora', new Date(Date.now() - 30 * 86400000).toISOString()),
+      db.from('fichadas_sin_reconocer').select('id').is('resuelta_el', null),
+      db.from('dispositivos').select('id').eq('activo', true),
+      q<{ horas_max_turno: number }[]>(db.from('ajustes_fichador').select('horas_max_turno')),
     ]);
-    if (a.error || g.error || i.error || l.error) throw a.error ?? g.error ?? i.error ?? l.error;
-    // Caras del fichador: si la base todavía no tiene el fichador, el panel anda igual.
-    const c = await db.from('caras').select('email');
-    const todos = a.data as Autorizado[];
-    return {
-      equipo: todos.filter((p) => p.activo !== false),
-      bajas: todos.filter((p) => p.activo === false),
-      gondolas: g.data as Gondola[],
-      intentos: i.data as Intento[],
-      leidas: l.data as Lectura[],
-      conCara: new Set(c.error ? [] : (c.data as { email: string }[]).map((x) => x.email)),
-    };
+    return { apr, fichadas, revisar: (rev.data?.length ?? 0) + (sin.data?.length ?? 0), aparatos: aparatos.data?.length ?? 0, horasMax: aj[0]?.horas_max_turno ?? 16 };
   }
 
-  // ---------- Pintar ----------
+  const nombres = (ps: Persona[]) => {
+    const n = ps.map((p) => nombreDe(p));
+    return n.length <= 3 ? n.join(', ') : `${n.slice(0, 3).join(', ')} y ${n.length - 3} más`;
+  };
+
   function pintar(d: Datos) {
-    ultimo = d;
-    const total = info.gondolas.length;
-    const evs = eventos(d);
-
-    // Sobre quiénes se calcula: las empleadas que ya entraron; si todavía no entró ninguna, todas las que entraron.
-    const empleadasQueEntraron = d.equipo.filter((p) => p.rol === 'empleada' && p.user_id);
-    const baseLista = empleadasQueEntraron.length ? empleadasQueEntraron : d.equipo.filter((p) => p.user_id);
-    const base = new Set(baseLista.map((p) => p.user_id!));
-    $('[data-base-texto]').textContent = empleadasQueEntraron.length
-      ? `Los gráficos cuentan a las ${base.size} empleadas que ya entraron a la app.`
-      : base.size
-        ? 'Todavía no entró ninguna empleada: por ahora los gráficos cuentan a las admins que entraron.'
-        : 'Todavía no entró nadie.';
-    const evsBase = evs.filter((e) => base.has(e.user_id));
-
-    // Números principales
-    const activas7 = baseLista.filter((p) => p.ultimo_ingreso && Date.now() - new Date(p.ultimo_ingreso).getTime() < 7 * 86400000).length;
-    const completasTotales = d.gondolas.filter((x) => base.has(x.user_id) && x.completada_el).length;
-    const posibles = base.size * total;
-    const tarjeta = (valor: string, texto: string) => {
-      const c = el('div', 'rounded-2xl bg-white p-4 ring-1 ring-profundo/10');
-      c.append(el('span', 'block text-3xl font-bold text-profundo tabular-nums', valor), el('span', 'block text-sm text-texto-2', texto));
-      return c;
+    const hoy = diaClave(new Date());
+    const lunes = lunesDe(hoy);
+    const personas = d.apr.equipo;
+    const fichan = quienesFichan(personas, d.apr.conCara);
+    const ts = tramosPorPersona(
+      d.fichadas.filter((f) => !f.anulada),
+      d.horasMax,
+    );
+    const hoyTs = ts.filter((t) => t.dia === hoy);
+    const semanaMs = ts.filter((t) => t.dia >= lunes).reduce((s, t) => s + t.ms, 0);
+    const carga = fichan.reduce((s, p) => s + Number(p.horas_semana ?? 0), 0);
+    const adentro = [...new Set(hoyTs.filter((t) => t.entrada && !t.salida).map((t) => t.email))];
+    const vinieron = new Set(hoyTs.map((t) => t.email));
+    const nombre = (email: string) => {
+      const p = personas.find((x) => x.email === email);
+      return p ? nombreDe(p) : email.split('@')[0];
     };
-    $('[data-resumen]').replaceChildren(
-      tarjeta(String(d.equipo.filter((p) => p.rol === 'empleada').length), 'empleadas con acceso'),
-      tarjeta(`${activas7}/${base.size}`, 'entraron en la última semana'),
-      tarjeta(posibles ? `${Math.round((completasTotales / posibles) * 100)}%` : '0%', 'de la guía completada en promedio'),
-      tarjeta(String(d.intentos.filter((x) => base.has(x.user_id) && x.aprobado).length), 'exámenes aprobados'),
+
+    // ---------- Números del día ----------
+    $('[data-hoy-fecha]').textContent = `Hoy, ${diaLargo(new Date())}`;
+    const metrica = (titulo: string, valor: string, sub: string, href: string, aviso = false) => {
+      const a = el('a', `metrica${aviso ? ' aviso' : ''}`);
+      a.href = href;
+      a.append(el('span', 'metrica-titulo', titulo), el('span', 'metrica-valor', valor), el('span', 'metrica-sub', sub));
+      return a;
+    };
+    const fichajes = url('/fichadas');
+    $('[data-metricas]').replaceChildren(
+      metrica('Ahora en el local', String(adentro.length), adentro.length === 1 ? 'persona adentro' : 'personas adentro', `${fichajes}#resumen`),
+      metrica('Hoy ficharon', `${vinieron.size} de ${fichan.length}`, 'del equipo', `${fichajes}#resumen`),
+      metrica('Para revisar', String(d.revisar), d.revisar ? 'Tocá para verlas' : 'Todo en orden', `${fichajes}#dia`, d.revisar > 0),
+      metrica('Horas de esta semana', `${Math.floor(semanaMs / 3600000)} h`, carga ? `de ${Math.round(carga)} h de carga horaria` : 'entre todas', `${fichajes}#resumen`),
     );
 
-    // Tablero general
-    $('[data-grafico-actividad]').replaceChildren(columnasActividad(evsBase));
-    $('[data-grafico-niveles]').replaceChildren(
-      ...info.niveles.map((n) => {
-        const aprobaron = new Set(d.intentos.filter((x) => x.nivel === n.numero && x.aprobado && base.has(x.user_id)).map((x) => x.user_id)).size;
-        return filaMedidor(`Nivel ${n.numero} · ${n.nombre}`, aprobaron, base.size);
-      }),
-    );
-    $('[data-grafico-gondolas]').replaceChildren(base.size ? barrasGondolas(d, base) : el('p', 'text-sm text-texto-2', 'Todavía no entró nadie.'));
+    // ---------- Pendientes ----------
+    const pendientes: { texto: string; boton: string; href: string; suave?: boolean }[] = [];
+    if (d.revisar) pendientes.push({ texto: `${d.revisar} ${d.revisar === 1 ? 'fichada para revisar' : 'fichadas para revisar'}`, boton: 'Revisar', href: `${fichajes}#dia` });
+    const sinSalida = ts.filter((t) => t.entrada && !t.salida && t.dia < hoy).sort((a, b) => b.dia.localeCompare(a.dia));
+    for (const t of sinSalida.slice(0, 5))
+      pendientes.push({
+        texto: `${nombre(t.email)}: falta la salida del ${diaLargo(`${t.dia}T12:00:00-03:00`)}`,
+        boton: 'Arreglar',
+        href: `${fichajes}#dia/${t.dia}/${encodeURIComponent(t.email)}`,
+      });
+    if (sinSalida.length > 5) pendientes.push({ texto: `Y ${sinSalida.length - 5} salidas más que faltan`, boton: 'Ver', href: `${fichajes}#dia` });
+    if (!d.aparatos) pendientes.push({ texto: 'Todavía no hay ningún aparato que fiche (la compu o el celular del local)', boton: 'Configurar', href: `${fichajes}#config` });
+    const equipo = url('/equipo');
+    const enlacePersona = (ps: Persona[]) => (ps.length === 1 ? `${equipo}#persona/${encodeURIComponent(ps[0].email)}` : equipo);
+    const sinCara = fichan.filter((p) => !d.apr.conCara.has(p.email));
+    if (sinCara.length) pendientes.push({ texto: `Sin la cara registrada: ${nombres(sinCara)}`, boton: 'Ver', href: enlacePersona(sinCara) });
+    const sinCarga = personas.filter((p) => p.rol === 'empleada' && !p.horas_semana);
+    if (sinCarga.length) pendientes.push({ texto: `Sin carga horaria: ${nombres(sinCarga)}`, boton: 'Cargarla', href: enlacePersona(sinCarga) });
+    const empleadas = personas.filter((p) => p.rol === 'empleada');
+    const nunca = empleadas.filter((p) => !p.ultimo_ingreso);
+    if (nunca.length) pendientes.push({ texto: `Todavía no entraron a la app: ${nombres(nunca)}`, boton: 'Ver', href: enlacePersona(nunca), suave: true });
+    const quietas = empleadas.filter((p) => p.ultimo_ingreso && Date.now() - new Date(p.ultimo_ingreso).getTime() > 7 * 86400000);
+    if (quietas.length) pendientes.push({ texto: `No entran a la app hace más de una semana: ${nombres(quietas)}`, boton: 'Ver', href: url('/aprendizaje'), suave: true });
 
-    // Equipo, con el tablero de cada persona
-    $('[data-equipo]').replaceChildren(...d.equipo.map((p) => persona(p, d, evs, total)));
-    $('[data-accesos]').replaceChildren(...d.equipo.map((p) => filaAcceso(p, d)));
-
-    // Dadas de baja
-    $('[data-bajas-seccion]').classList.toggle('hidden', !d.bajas.length);
-    $('[data-bajas]').replaceChildren(
-      ...d.bajas.map((p) => {
-        const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-profundo/10');
-        const quien = el('span', 'min-w-0 flex-1');
-        quien.append(
-          el('span', 'block truncate font-semibold text-texto-2', nombreDe(p)),
-          el('span', 'block truncate text-sm text-texto-2', `${p.email}${p.baja_el ? ` · de baja desde ${fecha(p.baja_el)}` : ''}`),
-        );
-        const reactivar = el('button', 'boton boton-secundario !py-2 !text-sm', 'Reactivar');
-        reactivar.type = 'button';
-        reactivar.addEventListener('click', async () => {
-          if (!confirm(`¿Reactivar a ${nombreDe(p)}? Vuelve a poder entrar y fichar.`)) return;
-          const { error } = await supabase!.from('autorizados').update({ activo: true, baja_el: null }).eq('email', p.email);
-          if (error) alert('No se pudo reactivar.');
-          void refrescar();
-        });
-        li.append(quien, reactivar);
+    const lista = $('[data-pendientes]');
+    lista.replaceChildren(
+      ...pendientes.map((x) => {
+        const li = el('li', 'pendiente');
+        const a = el('a', 'boton boton-secundario !py-1.5 !px-3 !text-sm', x.boton);
+        a.href = x.href;
+        li.append(el('span', `pendiente-punto${x.suave ? ' suave' : ''}`), el('span', 'min-w-0 flex-1 text-sm font-semibold text-profundo first-letter:uppercase', x.texto), a);
         return li;
       }),
     );
-  }
+    if (!pendientes.length) lista.append(el('li', 'py-2 text-sm font-semibold text-marca', 'Todo en orden: no hay nada pendiente.'));
 
-  function persona(p: Autorizado, d: Datos, evs: Evento[], total: number) {
-    const gs = porUsuario(d.gondolas, p.user_id);
-    const completas = gs.filter((x) => x.completada_el).length;
-    const vistas = gs.filter((x) => x.vista_el).length;
-    const its = porUsuario(d.intentos, p.user_id);
-    const leidas = new Set(porUsuario(d.leidas, p.user_id).map((x) => x.seccion));
-    const misEvs = p.user_id ? evs.filter((e) => e.user_id === p.user_id) : [];
-
-    const li = el('li');
-    const det = el('details', 'persona rounded-3xl bg-white ring-1 ring-profundo/10');
-    const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-3 p-4');
-    const avatar = el('span', 'flex size-11 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo', nombreDe(p)[0].toUpperCase());
-    const quien = el('span', 'min-w-0 flex-1');
-    const nombre = el('span', 'block truncate font-semibold text-profundo', nombreDe(p));
-    if (p.rol === 'admin') nombre.append(el('span', 'ml-2 rounded-full bg-profundo px-2 py-0.5 text-[0.7rem] font-bold text-white uppercase', 'Admin'));
-    if (d.conCara.has(p.email)) nombre.append(el('span', 'ml-2 rounded-full bg-menta-suave px-2 py-0.5 text-[0.7rem] font-bold text-profundo', 'Cara ✓'));
-    quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
-    const avance = el('span', 'w-full sm:w-56');
-    const cab = el('span', 'mb-1 flex justify-between text-xs font-semibold text-texto-2');
-    cab.append(el('span', '', 'Góndolas completadas'), el('span', 'tabular-nums text-texto', `${completas}/${total}`));
-    avance.append(cab, medidor(completas, total));
-    const niveles = el('span', 'flex gap-1.5');
-    for (const n of info.niveles) {
-      const ok = its.some((x) => x.nivel === n.numero && x.aprobado);
-      const chip = el('span', `rounded-full px-2 py-1 text-[0.7rem] font-bold ${ok ? 'bg-marca text-white' : 'bg-menta-suave text-texto-2'}`, `N${n.numero}${ok ? ' ✓' : ''}`);
-      chip.title = `Nivel ${n.numero} · ${n.nombre}: ${ok ? 'aprobado' : 'sin aprobar'}`;
-      niveles.append(chip);
-    }
-    sum.append(avatar, quien, avance, niveles);
-
-    // Tablero de la persona
-    const cuerpo = el('div', 'border-t border-profundo/8 p-4');
-    if (!p.user_id) {
-      cuerpo.append(el('p', 'text-sm text-texto-2', `Todavía no entró a la app. Tiene acceso desde ${fecha(p.agregado_el)}.`));
-    } else {
-      const grid = el('div', 'grid gap-4 md:grid-cols-2');
-      const izq = el('div', 'flex flex-col gap-3');
-      const promedioRepasos = gs.filter((x) => x.quiz_intentos > 0);
-      izq.append(
-        filaMedidor('Góndolas completadas', completas, total),
-        filaMedidor('Góndolas leídas', vistas, total),
-        filaMedidor('Temas de Bienvenida', leidas.size, info.secciones.length),
-      );
-      const datosP = el('div', 'mt-1 text-sm');
-      const fila = (t: string, v: string) => {
-        const r = el('p', 'flex justify-between gap-3 py-0.5');
-        r.append(el('span', 'text-texto-2', t), el('span', 'font-semibold text-profundo', v));
-        return r;
-      };
-      datosP.append(
-        fila('Primer ingreso', fecha(p.primer_ingreso)),
-        fila('Último ingreso', fecha(p.ultimo_ingreso)),
-        fila(
-          'Promedio en repasos',
-          promedioRepasos.length
-            ? `${Math.round((promedioRepasos.reduce((s, x) => s + x.quiz_mejor / (x.quiz_total || 5), 0) / promedioRepasos.length) * 100)}%`
-            : 'Sin repasos',
-        ),
-        fila('Exámenes hechos', String(its.length)),
-        fila('Mejor nota de examen', its.length ? `${Math.max(...its.map((x) => x.nota))}%` : '—'),
-      );
-      izq.append(datosP);
-
-      const der = el('div');
-      der.append(el('p', 'text-sm font-semibold text-profundo', 'Su actividad, últimos 14 días'), columnasActividad(misEvs, true));
-      der.append(el('p', 'mt-4 text-sm font-semibold text-profundo', 'Lo último que hizo'));
-      const ult = el('ul', 'mt-2 flex flex-col gap-1.5');
-      for (const e of misEvs.slice(0, 6)) {
-        const r = el('li', 'rounded-xl bg-crema px-3 py-2 text-sm');
-        r.append(el('span', 'block font-semibold text-profundo', `${e.tipo}: ${e.que}`), el('span', 'block text-xs text-texto-2', [e.resultado, fecha(e.fecha)].filter(Boolean).join(' · ')));
-        ult.append(r);
-      }
-      if (!misEvs.length) ult.append(el('li', 'text-sm text-texto-2', 'Todavía no hizo nada en la app.'));
-      der.append(ult);
-      grid.append(izq, der);
-      cuerpo.append(grid);
-
-      // Detalle por góndola y exámenes, plegados para no alargar
-      const plegable = (titulo: string, contenido: HTMLElement) => {
-        const dd = el('details', 'mt-4 rounded-2xl bg-crema');
-        const s = el('summary', 'cursor-pointer px-4 py-3 text-sm font-semibold text-profundo', titulo);
-        const c = el('div', 'px-4 pb-4');
-        c.append(contenido);
-        dd.append(s, c);
-        return dd;
-      };
-      const listaG = el('ul', 'grid gap-1.5 sm:grid-cols-2');
-      for (const gd of info.gondolas) {
-        const x = gs.find((y) => y.gondola === gd.id);
-        const estado = x?.completada_el ? `Completada · ${x.quiz_mejor}/${x.quiz_total}` : x?.quiz_intentos ? `Repaso ${x.quiz_mejor}/${x.quiz_total}` : x?.vista_el ? 'Leída' : 'Sin abrir';
-        const r = el('li', `flex justify-between gap-2 rounded-xl bg-white px-3 py-2 text-sm`);
-        r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca' : 'text-texto-2'}`, estado));
-        listaG.append(r);
-      }
-      cuerpo.append(plegable('Cada góndola', listaG));
-      const listaEx = el('ul', 'flex flex-col gap-1.5');
-      for (const x of its.slice(0, 30)) {
-        const r = el('li', 'flex justify-between gap-3 rounded-xl bg-white px-3 py-2 text-sm');
-        r.append(el('span', '', `Nivel ${x.nivel} · ${nombreNivel(x.nivel)} · ${fecha(x.hecho_el)}`), el('span', 'font-bold tabular-nums', `${x.nota}% ${x.aprobado ? '✓' : ''}`));
-        listaEx.append(r);
-      }
-      if (!its.length) listaEx.append(el('li', 'text-sm text-texto-2', 'Todavía no hizo ningún examen.'));
-      cuerpo.append(plegable(`Exámenes (${its.length})`, listaEx));
-    }
-
-
-    det.append(sum, cuerpo);
-    li.append(det);
-    return li;
-  }
-
-  /** Equipo y accesos: una fila por persona, con su rol y los botones para cambiarlo o darla de baja. */
-  function filaAcceso(p: Autorizado, d: Datos) {
-    const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-profundo/10');
-    li.append(el('span', 'flex size-10 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo', nombreDe(p)[0].toUpperCase()));
-    const quien = el('span', 'min-w-0 flex-1');
-    const nombre = el('span', 'block truncate font-semibold text-profundo', nombreDe(p));
-    nombre.append(
-      el('span', `ml-2 rounded-full px-2 py-0.5 text-[0.7rem] font-bold uppercase ${p.rol === 'admin' ? 'bg-profundo text-white' : 'bg-menta-suave text-profundo'}`, p.rol === 'admin' ? 'Admin' : 'Empleada'),
+    // ---------- Hoy en el local ----------
+    const porPersona = [...vinieron].map((email) => {
+      const mios = hoyTs.filter((t) => t.email === email);
+      const abierto = mios.find((t) => t.entrada && !t.salida);
+      const ultima = [...mios].reverse().find((t) => t.salida)?.salida;
+      return { email, abierto, ultima, ms: mios.reduce((s, t) => s + t.ms, 0) };
+    });
+    porPersona.sort((a, b) => Number(!!b.abierto) - Number(!!a.abierto));
+    $('[data-hoy]').replaceChildren(
+      ...porPersona.map((x) => {
+        const li = el('li', 'flex items-center gap-3 rounded-2xl bg-crema px-3 py-2');
+        li.append(
+          el('span', `size-2.5 shrink-0 rounded-full ${x.abierto ? 'bg-marca' : 'bg-profundo/25'}`),
+          el('span', 'min-w-0 flex-1 truncate font-semibold text-profundo', nombre(x.email)),
+          el(
+            'span',
+            'text-sm tabular-nums text-texto-2',
+            x.abierto ? `Adentro desde las ${hora(x.abierto.entrada!.hora)}` : x.ultima ? `Se fue a las ${hora(x.ultima.hora)} · ${duracion(x.ms)}` : '',
+          ),
+        );
+        return li;
+      }),
     );
-    if (d.conCara.has(p.email)) nombre.append(el('span', 'ml-2 rounded-full bg-menta-suave px-2 py-0.5 text-[0.7rem] font-bold text-profundo', 'Cara ✓'));
-    quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
-    li.append(quien);
-    if (p.email === miEmail) {
-      li.append(el('span', 'text-sm text-texto-2', 'Sos vos'));
-      return li;
-    }
-    const rol = el('button', 'boton boton-secundario !py-2 !text-sm', p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin');
-    rol.type = 'button';
-    rol.addEventListener('click', async () => {
-      const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
-      if (!confirm(`¿Cambiar a ${nombreDe(p)} a ${nuevo}?`)) return;
-      const { error } = await supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email);
-      if (error) alert('No se pudo cambiar el rol.');
-      void refrescar();
-    });
-    const quitar = el('button', 'boton !py-2 !text-sm bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', 'Dar de baja');
-    quitar.type = 'button';
-    quitar.addEventListener('click', async () => {
-      if (!confirm(`¿Dar de baja a ${nombreDe(p)}? Ya no va a poder entrar ni fichar. Su avance y sus fichadas quedan guardados, y la podés reactivar cuando quieras.`)) return;
-      const { error } = await supabase!.from('autorizados').update({ activo: false, baja_el: new Date().toISOString() }).eq('email', p.email);
-      if (error) alert('No se pudo dar de baja.');
-      void refrescar();
-    });
-    li.append(rol, quitar);
-    return li;
-  }
+    if (!porPersona.length) $('[data-hoy]').append(el('li', 'text-sm text-texto-2', 'Hoy todavía no fichó nadie.'));
 
-  // ---------- Descargas para Excel (descargarCsv y fechaExcel vienen de lib/csv) ----------
-  function descargar(tipo: 'resumen' | 'detalle') {
-    if (!ultimo) return;
-    const d = ultimo;
-    const hoy = new Date().toISOString().slice(0, 10);
+    // ---------- Aprendizaje ----------
+    const entraron = empleadas.filter((p) => p.user_id);
+    const base = new Set(entraron.map((p) => p.user_id!));
     const total = info.gondolas.length;
-    if (tipo === 'resumen') {
-      const filas: (string | number)[][] = [
-        [
-          'Nombre',
-          'Mail',
-          'Rol',
-          'Agregada',
-          'Primer ingreso',
-          'Último ingreso',
-          `Góndolas leídas (de ${total})`,
-          `Góndolas completadas (de ${total})`,
-          'Promedio en repasos (%)',
-          `Temas de Bienvenida leídos (de ${info.secciones.length})`,
-          ...info.niveles.map((n) => `Nivel ${n.numero} ${n.nombre}`),
-          'Exámenes hechos',
-          'Mejor nota de examen (%)',
-        ],
-      ];
-      for (const p of d.equipo) {
-        const gs = porUsuario(d.gondolas, p.user_id);
-        const its = porUsuario(d.intentos, p.user_id);
-        const conRepaso = gs.filter((x) => x.quiz_intentos > 0);
-        filas.push([
-          nombreDe(p),
-          p.email,
-          p.rol === 'admin' ? 'Admin' : 'Empleada',
-          fechaExcel(p.agregado_el),
-          fechaExcel(p.primer_ingreso),
-          fechaExcel(p.ultimo_ingreso),
-          gs.filter((x) => x.vista_el).length,
-          gs.filter((x) => x.completada_el).length,
-          conRepaso.length ? Math.round((conRepaso.reduce((s, x) => s + x.quiz_mejor / (x.quiz_total || 5), 0) / conRepaso.length) * 100) : '',
-          new Set(porUsuario(d.leidas, p.user_id).map((x) => x.seccion)).size,
-          ...info.niveles.map((n) => {
-            const ap = its.filter((x) => x.nivel === n.numero && x.aprobado).sort((a, b) => a.hecho_el.localeCompare(b.hecho_el))[0];
-            return ap ? `Aprobado ${fechaExcel(ap.hecho_el)} (${ap.nota}%)` : its.some((x) => x.nivel === n.numero) ? 'No aprobado todavía' : 'Sin hacer';
-          }),
-          its.length,
-          its.length ? Math.max(...its.map((x) => x.nota)) : '',
-        ]);
-      }
-      descargarCsv(`lola-avance-resumen-${hoy}.csv`, filas);
-    } else {
-      const quien = new Map(d.equipo.filter((p) => p.user_id).map((p) => [p.user_id!, p]));
-      const filas: (string | number)[][] = [['Nombre', 'Mail', 'Tipo', 'Qué', 'Resultado', 'Fecha']];
-      for (const e of eventos(d)) {
-        const p = quien.get(e.user_id);
-        filas.push([p ? nombreDe(p) : '(ya no tiene acceso)', p?.email ?? '', e.tipo, e.que, e.resultado, fechaExcel(e.fecha)]);
-      }
-      descargarCsv(`lola-avance-detalle-${hoy}.csv`, filas);
-    }
+    const completas = d.apr.gondolas.filter((x) => base.has(x.user_id) && x.completada_el).length;
+    const activas7 = entraron.filter((p) => p.ultimo_ingreso && Date.now() - new Date(p.ultimo_ingreso).getTime() < 7 * 86400000).length;
+    const numero = (valor: string, texto: string) => {
+      const c = el('div', 'rounded-2xl bg-crema p-3');
+      c.append(el('span', 'block text-2xl font-bold text-profundo tabular-nums', valor), el('span', 'block text-xs text-texto-2', texto));
+      return c;
+    };
+    $('[data-aprendizaje]').replaceChildren(
+      numero(`${activas7}/${entraron.length}`, 'entraron esta semana'),
+      numero(base.size && total ? `${Math.round((completas / (base.size * total)) * 100)}%` : '0%', 'de la guía completada'),
+      numero(String(d.apr.intentos.filter((x) => base.has(x.user_id) && x.aprobado).length), 'exámenes aprobados'),
+    );
   }
 
-  // ---------- Acciones ----------
   async function refrescar() {
     try {
       pintar(await cargar());
@@ -840,32 +343,22 @@ const datos = {
       alert('No se pudieron cargar los datos. Revisá la conexión.');
     }
   }
-
-  document.querySelectorAll<HTMLButtonElement>('[data-descargar]').forEach((b) =>
-    b.addEventListener('click', () => descargar(b.dataset.descargar as 'resumen' | 'detalle')),
-  );
-
-  $('[data-agregar]').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const f = e.target as HTMLFormElement;
-    const datosForm = new FormData(f);
-    const email = String(datosForm.get('email')).trim().toLowerCase();
-    const nombre = String(datosForm.get('nombre') ?? '').trim() || null;
-    const rol = String(datosForm.get('rol'));
-    const estado = $('[data-agregar-estado]');
-    estado.classList.remove('hidden');
-    const { error } = await supabase!.from('autorizados').insert({ email, nombre, rol });
-    if (error) {
-      estado.className = 'mt-3 text-sm font-semibold text-peligro';
-      estado.textContent = error.code === '23505' ? 'Ese mail ya está en la lista (si está dado de baja, reactivalo más abajo, en Dadas de baja).' : 'No se pudo agregar. Revisá el mail y la conexión.';
-      return;
-    }
-    estado.className = 'mt-3 text-sm font-semibold text-marca';
-    estado.textContent = `Listo: ${email} ya puede entrar con Google.`;
-    f.reset();
-    void refrescar();
-  });
   $('[data-recargar]').addEventListener('click', () => void refrescar());
+
+  // ---------- Descargar todo ----------
+  const mes = $<HTMLInputElement>('[data-mes]');
+  mes.value = diaClave(new Date()).slice(0, 7);
+  $('[data-descargar-todo]').addEventListener('click', async () => {
+    if (!/^\d{4}-\d{2}$/.test(mes.value)) return;
+    const estado = $('[data-descargar-estado]');
+    estado.textContent = 'Armando el Excel…';
+    try {
+      await descargarTodo(mes.value, info);
+      estado.textContent = 'Listo ✓';
+    } catch {
+      estado.textContent = 'No se pudo armar. Revisá la conexión y probá de nuevo.';
+    }
+  });
 
   sesionLista.then(async (acceso) => {
     if (!acceso || acceso.rol !== 'admin' || !supabase) {
@@ -873,9 +366,9 @@ const datos = {
       $('[data-sin-permiso]').classList.remove('hidden');
       return;
     }
-    miEmail = acceso.email;
     await refrescar();
     $('[data-cargando]').classList.add('hidden');
     $('[data-panel]').classList.remove('hidden');
+    setInterval(() => document.visibilityState === 'visible' && void refrescar(), 60000);
   });
 </script>

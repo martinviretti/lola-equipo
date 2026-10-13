@@ -16,11 +16,12 @@ Cada fichada guarda una foto chica como prueba.
 
 **Por día, como mucho 2 entradas y 2 salidas** (para el horario cortado). Una quinta fichada en el día se rechaza, y tampoco se puede cargar a mano.
 
-Las admins lo ven todo en la intranet, en **Panel de admin → Fichaje**. El panel tiene dos pestañas, **Aprendizaje** y **Fichaje**, y Fichaje tiene tres partes:
+Las admins lo manejan todo desde la intranet, en el **Panel de admin**, que tiene cuatro partes:
 
-- **Resumen**, para mirar rápido: los números del día, la línea de tiempo de hoy, la planilla de la semana contra la **carga horaria** y el Excel del mes;
-- **Día a día**, para gestionar: lo que hay que revisar y cada día persona por persona, para corregir o agregar;
-- **Configuración**: cómo funciona, la carga horaria y el horario fijo, los aparatos, las caras y los ajustes.
+- **Inicio**: el tablero principal. Los números del día, los **pendientes** (cada uno con un botón que lleva a resolverlo), quién está en el local, un vistazo del aprendizaje y, al final, **Descargar todo**.
+- **Horarios y fichajes**: el control de horarios y fichadas. **Hoy y semana** (la línea de tiempo de hoy y la planilla de la semana contra la carga horaria), **Día a día** (revisar y corregir) y **Aparatos y ajustes**.
+- **Gestión de equipo**: sumar a alguien, la **ficha de cada persona** (acceso y rol, la cara para fichar, la carga horaria y el horario, y cómo va con la guía) y las dadas de baja.
+- **Aprendizaje**: el avance en la guía y los exámenes.
 
 Cuesta $0 salvo la webcam: todo corre en el plan gratis de Supabase y en GitHub Pages.
 
@@ -69,14 +70,14 @@ Igual quedaría a la vista: cada fichada registra desde qué conexión de intern
   New-Item -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Force | Out-Null; Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability -Value 2 -Type DWord
   ```
   Para Chrome es lo mismo, cambiando `Microsoft\Edge` por `Google\Chrome`. Para deshacerlo: `Remove-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Edge' -Name DeveloperToolsAvailability`.
-- Si alguna vez sospechás que copiaron el secreto: **Panel de admin → Fichaje → Configuración → Aparatos que fichan → Desactivar** y activalo de nuevo. El secreto viejo deja de servir.
+- Si alguna vez sospechás que copiaron el secreto: **Panel de admin → Horarios y fichajes → Aparatos y ajustes → Desactivar** y activalo de nuevo. El secreto viejo deja de servir.
 
 ### 3. Registrar la cara de cada una
 
 Siempre en un aparato del local (nunca desde el celular propio), con la persona adelante y buena luz de frente:
 
 - **En el celular del local** (con la sesión de admin abierta): **Registrar cara** → tocá su nombre.
-- **En la compu del local**: primero **Panel de admin → Fichaje → Configuración → Caras registradas → Generar código** (6 números, dura 15 minutos). Después **Registrar cara** y escribí el código.
+- **En la compu del local**: primero, en **Panel de admin → Gestión de equipo**, abrí la ficha de la persona y tocá **Generar código** (6 números, dura 15 minutos). Después, en la compu, **Registrar cara** y escribí el código.
 
 Son 5 tomas guiadas: de frente, girando hacia su izquierda, hacia su derecha, con una sonrisa y de frente otra vez. Las indicaciones se dicen en voz alta, una flecha marca hacia dónde girar y se llena a medida que gira, y cada toma suena, vibra (en el celular) y completa una parte del círculo.
 
@@ -103,34 +104,41 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 - **Horario cortado**: se puede entrar, salir, volver a entrar y volver a salir. Más de 2 entradas y 2 salidas en el día no se aceptan: el fichador avisa "hoy ya fichaste 4 veces".
 - **Cada una ve sus horas** en la app, en **Fichar**: cuánto lleva en la semana y, si tiene carga horaria, cuánto le falta.
 
-## El panel (Panel de admin → Fichaje)
+## El panel de admin
 
-### Resumen
-- **Los números de arriba**: cuántas están adentro ahora, cuántas ficharon hoy, cuántas fichadas hay para revisar (tocás y te lleva) y las horas de la semana contra la carga horaria de todas.
-- **Hoy**: una línea de tiempo con cada persona, de cuándo a cuándo estuvo. Las que están adentro ahora se ven distinto. Tocás una persona y se abre el detalle del día.
-- **Semana**: una planilla con una fila por persona y una columna por día. En cada día, las horas trabajadas. En verde, completo; en ámbar, algo para mirar: falta una fichada, llegó tarde, se fue antes o es un día fuera de su horario. Un puntito marca que hay algo para revisar. Al final, el total contra su carga horaria ("25 h 23 de 30 h · Faltaron 4 h 37"). Tocás un día y te lleva a ese día en **Día a día**.
-- **Descargar para Excel**: por mes, en dos versiones: horas por persona (con la carga horaria y las horas esperadas en el mes) y todas las fichadas.
+### Inicio
+- **Los números del día**: cuántas están adentro, cuántas ficharon hoy, cuántas fichadas hay para revisar y las horas de la semana contra la carga horaria de todas. Tocás un número y te lleva.
+- **Pendientes**: fichadas para revisar, salidas que faltan, personas sin la cara registrada o sin carga horaria, aparatos sin activar y quién no entra a la app. Cada uno tiene su botón: **Arreglar** te lleva justo a ese día con esa persona.
+- **Hoy en el local**, **Aprendizaje** (tres números) y **atajos**.
+- **Descargar todo en Excel** (al final): un solo archivo con hojas para las horas y cada fichada del mes elegido, el equipo, y el avance y la actividad en la guía. Las fechas quedan como fechas: se pueden ordenar y filtrar.
 
-### Día a día
-- **Para revisar** (si hay): mirás la foto y tocás **Está bien** o **Anular**. Aparecen las fichadas guardadas sin internet y las que llegaron desde otra conexión que la del local. Si una guardada sin internet no se pudo reconocer, aparece como **"¿Quién es?"** con la foto: elegís la persona y si fue entrada o salida.
-- **El día**: elegís el día con las flechas, con los botones de la semana (un puntito marca los días con algo para mirar) o con la fecha. Ves a cada persona con sus entradas y salidas, las horas y las marcas, y también a quién no fichó.
-- **Agregar la salida** aparece cuando alguien se olvidó de fichar al irse. **Ver y corregir** abre las fotos y deja corregir una hora, cambiar entrada por salida, anular o agregar una fichada. Nada se borra: queda quién lo cambió y por qué.
-- Una salida solo cierra una entrada **del mismo día**: un olvido no desordena los días siguientes.
+### Horarios y fichajes
+- **Hoy y semana**:
+  - la línea de tiempo de hoy, con cada persona: de cuándo a cuándo estuvo, y quién está adentro ahora;
+  - la planilla de la semana: una fila por persona, una columna por día, con las horas. En verde, completo; en ámbar, algo para mirar (falta una fichada, llegó tarde, se fue antes, día fuera de su horario). Un puntito marca que hay algo para revisar. Al final, el total contra su carga horaria ("25 h 23 de 30 h · Faltaron 4 h 37"). Tocás un día y te lleva a **Día a día**.
+- **Día a día**:
+  - **Para revisar** (si hay): mirás la foto y tocás **Está bien** o **Anular**. Son las fichadas guardadas sin internet y las que llegaron desde otra conexión. Si una guardada sin internet no se reconoció, aparece **"¿Quién es?"** con la foto.
+  - **El día**: lo elegís con las flechas, los botones de la semana o la fecha. Ves a cada persona con sus entradas y salidas, y a quién no fichó. **Agregar la salida** aparece cuando alguien se olvidó de fichar al irse; **Ver y corregir** abre las fotos y deja corregir una hora, cambiar entrada por salida, anular o agregar. Nada se borra: queda quién lo cambió y por qué.
+  - Una salida solo cierra una entrada **del mismo día**: un olvido no desordena los días siguientes.
+- **Aparatos y ajustes**: cómo funciona, los aparatos que fichan (la compu y el celular del local) y los ajustes del reconocimiento.
 
-### Configuración
-- **Cómo funciona el fichaje**, en cinco pasos.
-- **Carga horaria y horarios**: tocás a cada persona.
-  - **Carga horaria**: cuántas horas por semana trabaja. Es flexible: no dice qué días ni a qué hora.
-  - **Horario fijo** (opcional): si tiene días y horarios fijos, se marcan las tardanzas. Nunca bloquea: los reemplazos y cambios de turno se fichan igual.
-- **Aparatos que fichan** (la compu y el celular del local), **Caras registradas** y **Ajustes del reconocimiento**.
+### Gestión de equipo
+- **Sumar a alguien**: mail de Google, nombre, rol y, si querés, la carga horaria. Después se registra su cara en el fichador del local.
+- **La ficha de cada persona** (se abre al tocarla):
+  - **Acceso**: hacerla admin o empleada, o darla de baja.
+  - **Cara para fichar**: la foto, generar un código para registrarla o volver a registrarla, o borrarla.
+  - **Carga horaria y horario**: las horas por semana (flexible: no dice qué días ni a qué hora) y, si tiene, el horario fijo para marcar tardanzas. Nunca bloquea: los reemplazos y cambios de turno se fichan igual.
+  - **Aprendizaje**: cuántas góndolas completó y qué niveles aprobó, con un enlace a su avance.
+- **Dadas de baja**: no entran ni fichan, pero su historial queda. Se pueden **reactivar**.
 
-**Altas y bajas**: en **Panel de admin → Aprendizaje → Equipo y accesos**. "Dar de baja" deja a la persona sin acceso y sin poder fichar, pero guarda su historial. Se puede **reactivar**.
+### Aprendizaje
+- Los números y gráficos del equipo (actividad, exámenes por nivel, góndolas completadas) y **cómo va cada una**, que se abre para ver cada góndola, los exámenes y lo último que hizo.
 
 ## Si algo no anda
 
 - **"Falta el permiso de la cámara"**: tocá el candado al lado de la dirección → Cámara → Permitir → Reintentar.
 - **"No encontramos la cámara"**: revisá el cable USB y que ninguna otra app (Zoom, Teams) la esté usando.
-- **Cambiaste de compu o de celular, o se rompió**: en **Panel de admin → Fichaje → Configuración → Aparatos que fichan**, tocá **Desactivar** en el viejo y activá el nuevo.
+- **Cambiaste de compu o de celular, o se rompió**: en **Panel de admin → Horarios y fichajes → Aparatos y ajustes**, tocá **Desactivar** en el viejo y activá el nuevo.
 - **Alguien se olvidó de fichar**: en la semana, tocá el día → **Agregar una fichada que faltó**.
 
 ## Antes de usarlo con el equipo
@@ -149,7 +157,8 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 - **Páginas**:
   - `src/pages/fichador.astro`: el fichador (compu o celular del local), con el layout `src/layouts/Kiosco.astro` y el manifest `public/manifest-fichador.webmanifest`;
   - `src/pages/fichar.astro`: el código para mostrar desde el celular propio;
-  - `src/pages/fichadas.astro`: el panel de Fichaje (Resumen, Día a día y Configuración; las sub-pestañas son `src/components/VistasPanel.astro` y `src/scripts/vistas.ts`).
+  - el panel de admin: `src/pages/admin.astro` (Inicio), `src/pages/fichadas.astro` (Horarios y fichajes; sus sub-pestañas son `src/components/VistasPanel.astro` y `src/scripts/vistas.ts`), `src/pages/equipo.astro` (Gestión de equipo) y `src/pages/aprendizaje.astro`; las pestañas, `src/components/PestanasAdmin.astro`;
+  - lo que comparten: `src/scripts/admin/` (datos del fichaje y del aprendizaje, y "Descargar todo") y `src/lib/xlsx.ts` (Excel con varias hojas, sin librerías).
 - **Lógica del fichador** (`src/scripts/fichador/`):
   - `kiosco.ts`: ciclo de la cámara, QR y pantallas;
   - `caras.ts`: face-api;

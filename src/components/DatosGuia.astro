@@ -1,0 +1,15 @@
+---
+// Los títulos de la guía (góndolas, temas de Bienvenida y niveles del examen) para los scripts del
+// panel de admin, que los leen con leerInfoGuia() (src/scripts/admin/aprendizaje-datos.ts).
+import { getGuia } from '../data/guia';
+import { secciones } from '../data/bienvenida';
+import { NIVELES } from '../data/niveles';
+
+const datos = {
+  gondolas: (await getGuia()).map((c) => ({ id: c.id, titulo: c.data.titulo })),
+  secciones: secciones.map((s) => ({ id: s.id, titulo: s.titulo })),
+  niveles: NIVELES.map((n) => ({ numero: n.numero, nombre: n.nombre })),
+};
+---
+
+<script type="application/json" id="guia-datos" set:html={JSON.stringify(datos)} />

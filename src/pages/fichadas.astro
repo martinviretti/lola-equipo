@@ -1,10 +1,11 @@
 ---
-// Panel de admin → Fichaje (solo admins), en tres partes que se ven de a una:
-//  · Resumen: los números del día, la línea de tiempo de hoy, la planilla de la semana contra la
-//    carga horaria y el Excel del mes.
+// Panel de admin → Horarios y fichajes (solo admins), en tres partes que se ven de a una:
+//  · Hoy y semana: los números del día, la línea de tiempo de hoy y la planilla de la semana contra
+//    la carga horaria.
 //  · Día a día: lo que hay que revisar y cada día persona por persona, para corregir o agregar.
-//  · Configuración: cómo funciona, carga horaria y horarios, aparatos, caras y ajustes.
-// La otra pestaña del panel (Aprendizaje) es admin.astro.
+//    Se puede abrir en un día y una persona: #dia/AAAA-MM-DD/mail (lo usan los pendientes de Inicio).
+//  · Aparatos y ajustes: cómo funciona, los aparatos que fichan y los ajustes del reconocimiento.
+// La cara, la carga horaria y el horario de cada persona están en su ficha (Gestión de equipo).
 import Manual from '../layouts/Manual.astro';
 import Icon from '../components/Icon.astro';
 import PestanasAdmin from '../components/PestanasAdmin.astro';
@@ -14,15 +15,15 @@ import { url } from '../lib/url';
 const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 ---
 
-<Manual title="Panel de admin · Fichaje">
+<Manual title="Panel de admin · Horarios y fichajes">
   <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
     <div class="mx-auto max-w-[1040px]">
       <PestanasAdmin activa="fichaje" />
       <VistasPanel
         opciones={[
-          { id: 'resumen', texto: 'Resumen', icono: 'chart-bar' },
+          { id: 'resumen', texto: 'Hoy y semana', icono: 'chart-bar' },
           { id: 'dia', texto: 'Día a día', icono: 'calendar-blank' },
-          { id: 'config', texto: 'Configuración', icono: 'gear-six' },
+          { id: 'config', texto: 'Aparatos y ajustes', icono: 'desktop' },
         ]}
       />
 
@@ -43,9 +44,11 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           <div class="tarjeta mt-6 flex flex-wrap items-center gap-3 !bg-ambar-suave">
             <Icon name="lightbulb" class="size-7 shrink-0 text-ambar" />
             <p class="min-w-0 flex-1 text-sm text-texto">
-              <strong>Para empezar:</strong> en <strong>Configuración</strong> activá la compu y el celular del local, registrá las caras y cargá la carga horaria de cada una.
+              <strong>Para empezar:</strong> activá la compu y el celular del local (en <strong>Aparatos y ajustes</strong>) y registrá las caras y la carga horaria de cada una (en
+              <strong>Gestión de equipo</strong>).
             </p>
-            <button type="button" class="boton boton-secundario !py-2 !text-sm" data-ir-config>Ir a Configuración</button>
+            <button type="button" class="boton boton-secundario !py-2 !text-sm" data-ir-config>Aparatos y ajustes</button>
+            <a href={url('/equipo')} class="boton boton-secundario !py-2 !text-sm">Gestión de equipo</a>
           </div>
           </div>
 
@@ -80,16 +83,6 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
             </p>
           </section>
 
-          <section class="tarjeta mt-5">
-            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
-            <p class="tarjeta-sub">Un mes completo. Sirve para la liquidación y como copia de seguridad.</p>
-            <div class="mt-4 grid gap-3 sm:grid-cols-[auto_1fr_1fr]">
-              <label class="sr-only" for="mes">Mes</label>
-              <input id="mes" type="month" class="campo" data-mes />
-              <button type="button" class="boton boton-principal" data-excel="horas"><Icon name="download-simple" class="size-5" /> Horas por persona</button>
-              <button type="button" class="boton boton-secundario" data-excel="detalle"><Icon name="download-simple" class="size-5" /> Todas las fichadas</button>
-            </div>
-          </section>
         </section>
 
         <!-- ==================== DÍA A DÍA: revisar y corregir ==================== -->
@@ -133,29 +126,17 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
                 <strong>Fichar</strong> desde el celular propio. Desde otro lado no se puede.
               </li>
               <li><strong>Cada día, como mucho 2 entradas y 2 salidas</strong> (para el horario cortado). Si es entrada o salida, lo decide solo.</li>
-              <li><strong>Una sola vez, acá abajo:</strong> activá los aparatos, registrá las caras y cargá la carga horaria de cada una.</li>
-              <li><strong>Todos los días:</strong> en <strong>Resumen</strong> ves quién vino y cómo va la semana; en <strong>Día a día</strong> revisás y corregís.</li>
-              <li><strong>A fin de mes:</strong> en <strong>Resumen</strong>, bajá el Excel de horas por persona.</li>
+              <li>
+                <strong>Una sola vez:</strong> activá los aparatos (acá abajo). La cara, la carga horaria y el horario de cada una se cargan en su ficha, en <strong>Gestión de equipo</strong>.
+              </li>
+              <li><strong>Todos los días:</strong> en <strong>Hoy y semana</strong> ves quién vino y cómo va la semana; en <strong>Día a día</strong> revisás y corregís.</li>
+              <li><strong>A fin de mes:</strong> en <strong>Inicio</strong>, abajo, <strong>Descargar todo</strong> baja un Excel con las horas y todo lo demás.</li>
             </ol>
             <p class="mt-3 text-sm text-texto-2">
-              Para sumar a alguien o darlo de baja: pestaña <a class="enlace" href={url('/admin#equipo')}>Aprendizaje → Equipo y accesos</a>.
+              Para sumar a alguien o darlo de baja: <a class="enlace" href={url('/equipo')}>Gestión de equipo</a>.
             </p>
           </details>
 
-          <section class="tarjeta mt-5">
-            <div class="flex flex-wrap items-baseline gap-2">
-              <h2 class="tarjeta-titulo flex flex-1 items-center gap-2"><Icon name="timer" class="size-6 text-marca" /> Carga horaria y horarios</h2>
-              <span class="text-sm text-texto-2" data-horas-resumen></span>
-            </div>
-            <p class="tarjeta-sub mt-2">
-              <strong>Carga horaria:</strong> cuántas horas por semana trabaja cada una. En la semana se ve cuánto lleva y cuánto le falta. Es flexible: no importa qué días ni a qué hora.
-            </p>
-            <p class="tarjeta-sub mt-1">
-              <strong>Horario fijo (opcional):</strong> si alguien tiene días y horarios fijos, cargalos y se marca si llegó tarde o se fue antes. Nunca bloquea a nadie: los cambios de turno y
-              los reemplazos se fichan igual.
-            </p>
-            <ul class="mt-4 flex flex-col gap-2" data-horarios></ul>
-          </section>
 
           <section class="tarjeta mt-5">
             <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="desktop" class="size-6 text-marca" /> Aparatos que fichan</h2>
@@ -166,14 +147,6 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
             <ul class="mt-3 flex flex-col gap-2" data-compus></ul>
           </section>
 
-          <section class="tarjeta mt-5">
-            <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="user-focus" class="size-6 text-marca" /> Caras registradas</h2>
-            <p class="tarjeta-sub">
-              Siempre en el fichador del local, con la persona adelante. En el celular del local (con la sesión de admin abierta) tocá <strong>Registrar cara</strong> y elegí a la persona.
-              En la compu, generá acá un código, tocá <strong>Registrar cara</strong> y escribilo. Vale 15 minutos.
-            </p>
-            <ul class="mt-3 flex flex-col gap-2" data-caras></ul>
-          </section>
 
           <section class="tarjeta mt-5">
             <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="gear-six" class="size-6 text-marca" /> Ajustes del reconocimiento</h2>
@@ -742,8 +715,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 <script>
   import { supabase } from '../lib/supabase';
   import { sesionLista } from '../scripts/sesion';
-  import { descargarCsv, fechaExcel } from '../lib/csv';
-  import { irAVista } from '../scripts/vistas';
+  import { irAVista, parametrosVista } from '../scripts/vistas';
   import { hora, diaClave, diaLargo, duracion, tramos, type Fichada, type Tramo } from '../lib/fichador';
 
   // ---------- Tipos ----------
@@ -1486,81 +1458,13 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     abrirDetalle(detalle.email, detalle.dia);
   });
 
-  // ---------- Excel ----------
-  const mes = $<HTMLInputElement>('[data-mes]');
-  mes.value = diaClave(new Date()).slice(0, 7);
-  document.querySelectorAll<HTMLButtonElement>('[data-excel]').forEach((b) =>
-    b.addEventListener('click', async () => {
-      const [a, m] = mes.value.split('-').map(Number);
-      if (!a || !m) return;
-      const primero = `${mes.value}-01`;
-      const siguiente = `${m === 12 ? a + 1 : a}-${String(m === 12 ? 1 : m + 1).padStart(2, '0')}-01`;
-      let fs: FichadaCompleta[];
-      try {
-        fs = await todas<FichadaCompleta>((a, b) =>
-          supabase!.from('fichadas').select(COLUMNAS).gte('hora', inicioDia(primero)).lt('hora', inicioDia(siguiente)).order('hora').order('id').range(a, b),
-        );
-      } catch {
-        return alert('No se pudieron bajar los datos. Revisá la conexión.');
-      }
-      if (b.dataset.excel === 'detalle') {
-        const filas: (string | number)[][] = [['Nombre', 'Mail', 'Tipo', 'Fecha y hora', 'Cómo fichó', 'Parecido (%)', 'Para revisar', 'Revisada por', 'Cargada por', 'Nota', 'Hora original', 'Corregida por', 'Anulada', 'Motivo']];
-        for (const f of fs)
-          filas.push([
-            nombreDe(f.email),
-            f.email,
-            f.tipo === 'entrada' ? 'Entrada' : 'Salida',
-            fechaExcel(f.hora),
-            METODO[f.metodo],
-            f.similitud != null ? Math.round(f.similitud * 100) : '',
-            f.revisar ?? '',
-            f.revisada_por ?? '',
-            f.creada_por ?? '',
-            f.nota ?? '',
-            fechaExcel(f.hora_original ?? null),
-            f.corregida_por ?? '',
-            f.anulada ? 'Sí' : '',
-            f.motivo ?? '',
-          ]);
-        descargarCsv(`lola-fichadas-${mes.value}.csv`, filas);
-      } else {
-        const ts = tramosPorPersona(fs);
-        const diasDelMes = new Date(a, m, 0).getDate();
-        const filas: (string | number)[][] = [
-          ['Nombre', 'Mail', 'Días trabajados', 'Horas (h:mm)', 'Horas (decimal)', 'Carga horaria semanal', 'Horas esperadas en el mes (aprox.)', 'Tramos sin salida o sin entrada', 'Fichadas para revisar'],
-        ];
-        for (const p of personas) {
-          const mios = ts.filter((t) => t.email === p.email);
-          if (!mios.length) continue;
-          const ms = mios.reduce((s, t) => s + t.ms, 0);
-          const min = Math.round(ms / 60000);
-          filas.push([
-            p.nombre || p.email.split('@')[0],
-            p.email,
-            new Set(mios.map((t) => t.dia)).size,
-            `${Math.floor(min / 60)}:${String(min % 60).padStart(2, '0')}`,
-            (min / 60).toFixed(2).replace('.', ','),
-            p.horas_semana ? String(Number(p.horas_semana)).replace('.', ',') : '',
-            p.horas_semana ? ((Number(p.horas_semana) * diasDelMes) / 7).toFixed(1).replace('.', ',') : '',
-            mios.filter((t) => !t.entrada || !t.salida).length,
-            fs.filter((f) => f.email === p.email && !f.anulada && f.revisar && !f.revisada_el).length,
-          ]);
-        }
-        descargarCsv(`lola-horas-${mes.value}.csv`, filas);
-      }
-    }),
-  );
-
   // ---------- Configuración ----------
   async function pintarConfig() {
     const db = supabase!;
-    const [compus, caras] = await Promise.all([
-      q<Compu[]>(db.from('dispositivos').select('id,nombre,activo,creado_por,creado_el,ultimo_uso').order('creado_el')),
-      q<Cara[]>(db.from('caras').select('id,email,foto,creada_el,parecida_a').order('id')),
-    ]);
+    const compus = await q<Compu[]>(db.from('dispositivos').select('id,nombre,activo,creado_por,creado_el,ultimo_uso').order('creado_el'));
 
-    // Si falta lo básico, el Resumen lo avisa
-    $('[data-arranque]').hidden = compus.some((c) => c.activo) && caras.length > 0;
+    // Si falta lo básico, arriba se avisa
+    $('[data-arranque]').hidden = compus.some((c) => c.activo) && conCara.size > 0;
 
     // Compus
     const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' });
@@ -1585,166 +1489,12 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         : [el('li', 'text-sm text-texto-2', 'Todavía no hay ningún aparato activado.')]),
     );
 
-    // Caras
-    const activas = personas.filter((p) => p.activo);
-    $('[data-caras]').replaceChildren(
-      ...activas.map((p) => {
-        const suyas = caras.filter((c) => c.email === p.email);
-        const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-crema px-4 py-3');
-        const muestra = suyas.find((c) => c.foto);
-        if (muestra?.foto) {
-          const img = el('img', 'size-12 rounded-full object-cover -scale-x-100');
-          img.src = muestra.foto;
-          img.alt = `Cara registrada de ${p.nombre ?? p.email}`;
-          li.append(img);
-        } else li.append(el('span', 'flex size-12 items-center justify-center rounded-full bg-white text-lg font-bold text-texto-2', (p.nombre || p.email)[0].toUpperCase()));
-        const txt = el('div', 'min-w-0 flex-1');
-        txt.append(
-          el('p', 'font-semibold text-profundo', p.nombre || p.email.split('@')[0]),
-          el('p', `text-xs ${suyas.length ? 'text-marca font-semibold' : 'text-texto-2'}`, suyas.length ? `Cara registrada el ${fmt.format(new Date(suyas[0].creada_el))}` : 'Sin cara registrada'),
-          ...(suyas[0]?.parecida_a ? [el('p', 'text-xs text-ambar', `Se registró aunque se parece a ${suyas[0].parecida_a} (se confirmó que es otra persona)`)] : []),
-        );
-        const codigo = el('p', 'w-full hidden rounded-xl bg-white px-4 py-3 text-center');
-        li.append(
-          txt,
-          boton(suyas.length ? 'Volver a registrar' : 'Generar código', 'boton-principal', async () => {
-            const { data, error } = await db.rpc('crear_codigo_cara', { p_email: p.email });
-            if (error) return alert('No se pudo generar el código.');
-            codigo.classList.remove('hidden');
-            codigo.replaceChildren(
-              el('span', 'block text-xs font-semibold text-texto-2', 'Código para el fichador del local (vale 15 minutos):'),
-              el('span', 'block text-4xl font-extrabold tracking-[0.25em] text-profundo tabular-nums', String(data)),
-            );
-          }),
-        );
-        if (suyas.length)
-          li.append(
-            boton('Borrar cara', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
-              if (!confirm(`¿Borrar la cara registrada de ${p.nombre ?? p.email}? Va a tener que fichar con el código hasta que la registres de nuevo.`)) return;
-              if (await accion(db.from('caras').delete().eq('email', p.email), 'No se pudo borrar la cara.')) void pintarConfig();
-            }),
-          );
-        li.append(codigo);
-        return li;
-      }),
-    );
-
-    // Carga horaria y horarios
-    $('[data-horarios]').replaceChildren(...activas.map((p) => filaHorario(p)));
-    pintarResumenHoras();
-
     // Ajustes
     const f = $<HTMLFormElement>('[data-ajustes]');
     const exigencia = f.elements.namedItem('similitud_min') as HTMLSelectElement;
     exigencia.value = [...exigencia.options].reduce((m, o) => (Math.abs(Number(o.value) - ajustes.similitud_min) < Math.abs(Number(m) - ajustes.similitud_min) ? o.value : m), '0.5');
     (f.elements.namedItem('tolerancia_min') as HTMLInputElement).value = String(ajustes.tolerancia_min);
     (f.elements.namedItem('parpadeo') as HTMLInputElement).checked = ajustes.parpadeo;
-  }
-
-  /** Carga horaria y horario fijo de una persona (se abre al tocarla). */
-  function filaHorario(p: Persona) {
-    const li = el('li');
-    const det = el('details', 'rounded-2xl bg-crema');
-    const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-2 px-4 py-3');
-    const chipCarga = el('span');
-    const chipFijo = el('span', 'marca marca-verde', 'Horario fijo');
-    const pintarChips = () => {
-      chipCarga.className = `marca ${p.horas_semana ? 'marca-verde' : 'marca-gris'}`;
-      chipCarga.textContent = p.horas_semana ? `${horasTexto(Number(p.horas_semana))} por semana` : 'Sin carga horaria';
-      chipFijo.classList.toggle('hidden', !p.horario_fijo);
-    };
-    pintarChips();
-    sum.append(el('span', 'flex-1 font-semibold text-profundo', p.nombre || p.email.split('@')[0]), chipCarga, chipFijo);
-
-    const cuerpo = el('form', 'px-4 pb-4');
-    // Carga horaria
-    const filaCarga = el('label', 'flex flex-wrap items-center gap-2 text-sm font-semibold text-profundo');
-    const horas = el('input', 'campo !w-24 !py-1.5 text-center');
-    horas.type = 'number';
-    horas.min = '1';
-    horas.max = '80';
-    horas.step = '0.5';
-    horas.inputMode = 'decimal';
-    horas.placeholder = '—';
-    horas.value = p.horas_semana ? String(Number(p.horas_semana)) : '';
-    filaCarga.append('Carga horaria:', horas, el('span', 'font-normal text-texto-2', 'horas por semana'));
-
-    // Horario fijo (opcional)
-    const prender = el('label', 'mt-4 flex items-center gap-2 text-sm font-semibold text-profundo');
-    const check = el('input');
-    check.type = 'checkbox';
-    check.checked = p.horario_fijo;
-    check.className = 'size-5 accent-[var(--color-marca)]';
-    prender.append(check, 'Tiene horario fijo: marcar si llega tarde o se va antes');
-    const grilla = el('div', 'grilla-horario mt-3');
-    const orden = [1, 2, 3, 4, 5, 6, 0];
-    const campos = orden.map((dia) => {
-      const h = horarios.find((x) => x.email === p.email && x.dia === dia);
-      const desde = el('input', 'campo !py-1.5');
-      desde.type = 'time';
-      desde.value = h?.entrada.slice(0, 5) ?? '';
-      desde.setAttribute('aria-label', `${DIAS[dia]}: entrada`);
-      const hasta = el('input', 'campo !py-1.5');
-      hasta.type = 'time';
-      hasta.value = h?.salida.slice(0, 5) ?? '';
-      hasta.setAttribute('aria-label', `${DIAS[dia]}: salida`);
-      grilla.append(el('span', 'text-sm font-semibold text-texto-2', DIAS[dia]), desde, hasta);
-      return { dia, desde, hasta };
-    });
-    const cajaFijo = el('div');
-    cajaFijo.append(el('p', 'mt-1 text-xs text-texto-2', 'Dejá vacíos los días que no trabaja.'), grilla);
-    const verFijo = () => cajaFijo.classList.toggle('hidden', !check.checked);
-    check.addEventListener('change', verFijo);
-    verFijo();
-
-    const pie = el('div', 'mt-4 flex items-center gap-3');
-    const guardar = el('button', 'boton boton-principal !py-2 !text-sm', 'Guardar');
-    guardar.type = 'submit';
-    const aviso = el('span', 'text-sm font-semibold');
-    pie.append(guardar, aviso);
-    cuerpo.append(filaCarga, el('p', 'mt-1 text-xs text-texto-2', 'El total de la semana, sin importar qué días ni a qué hora. Vacío si no tiene.'), prender, cajaFijo, pie);
-    cuerpo.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      aviso.className = 'text-sm font-semibold text-peligro';
-      const valor = horas.value.trim() === '' ? null : Number(horas.value.replace(',', '.'));
-      if (valor !== null && !(valor > 0 && valor <= 80)) {
-        aviso.textContent = 'Poné un número de horas entre 1 y 80.';
-        return;
-      }
-      const filas = campos.filter((c) => c.desde.value && c.hasta.value).map((c) => ({ email: p.email, dia: c.dia, entrada: c.desde.value, salida: c.hasta.value }));
-      if (check.checked && !filas.length) {
-        aviso.textContent = 'Cargá al menos un día del horario fijo.';
-        return;
-      }
-      const r1 = await supabase!.from('autorizados').update({ horas_semana: valor }).eq('email', p.email);
-      // El horario, todo junto en la base: si algo falla, el anterior queda como estaba.
-      const r2 = r1.error
-        ? r1
-        : await supabase!.rpc('guardar_horario', { p_email: p.email, p_fijo: check.checked, p_dias: filas.map(({ dia, entrada, salida }) => ({ dia, entrada, salida })) });
-      if (r2.error) {
-        aviso.textContent = 'No se pudo guardar. Revisá la conexión.';
-        return;
-      }
-      aviso.className = 'text-sm font-semibold text-marca';
-      aviso.textContent = 'Guardado ✓';
-      p.horas_semana = valor;
-      p.horario_fijo = check.checked;
-      horarios = [...horarios.filter((x) => x.email !== p.email), ...filas];
-      pintarChips();
-      pintarResumenHoras();
-      pintarPlanilla();
-      pintarDia();
-    });
-    det.append(sum, cuerpo);
-    li.append(det);
-    return li;
-  }
-
-  /** En el título de la tarjeta: cuántas tienen la carga horaria cargada. */
-  function pintarResumenHoras() {
-    const activas = personas.filter((p) => p.activo);
-    const con = activas.filter((p) => p.horas_semana).length;
-    $('[data-horas-resumen]').textContent = `${con} de ${activas.length} con carga horaria`;
   }
 
   $<HTMLFormElement>('[data-ajustes]').addEventListener('submit', async (e) => {
@@ -1755,7 +1505,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     if (error) return alert('No se pudieron guardar los ajustes.');
     ajustes = { ...ajustes, ...nuevos };
     pintarPlanilla();
-      pintarDia();
+    pintarDia();
     alert('Ajustes guardados.');
   });
 
@@ -1784,6 +1534,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     await refrescar();
     $('[data-cargando]').classList.add('hidden');
     $('[data-panel]').classList.remove('hidden');
+    // Desde un pendiente de Inicio: #dia/AAAA-MM-DD/mail abre ese día con la persona marcada.
+    const [dia, email] = parametrosVista();
+    if (location.hash.startsWith('#dia/') && /^\d{4}-\d{2}-\d{2}$/.test(dia ?? '')) void irADia(dia, email);
     setInterval(() => {
       if (document.visibilityState !== 'visible' || dialogo.open) return;
       void pintarHoy();

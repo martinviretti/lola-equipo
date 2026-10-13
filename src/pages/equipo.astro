@@ -1,0 +1,588 @@
+---
+// Panel de admin → Gestión de equipo: sumar a alguien y la ficha de cada persona con todo lo suyo
+// (acceso y rol, la cara para fichar, la carga horaria y el horario fijo, y cómo va con la guía), más
+// las dadas de baja. Solo lo ven las admins; la base lo controla con RLS.
+import Manual from '../layouts/Manual.astro';
+import Icon from '../components/Icon.astro';
+import PestanasAdmin from '../components/PestanasAdmin.astro';
+import DatosGuia from '../components/DatosGuia.astro';
+---
+
+<Manual title="Panel de admin · Gestión de equipo">
+  <main id="contenido" class="px-5 pt-6 pb-24 lg:px-8 lg:pt-10">
+    <div class="mx-auto max-w-[1040px]">
+      <PestanasAdmin activa="equipo" />
+
+      <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
+        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
+        <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
+        <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
+      </div>
+
+      <p class="mt-8 flex items-center gap-2 font-semibold text-profundo" data-cargando>
+        <span class="size-4 animate-spin rounded-full border-2 border-marca border-t-transparent"></span> Cargando el equipo…
+      </p>
+
+      <div class="hidden" data-panel>
+        <!-- Sumar a alguien -->
+        <section class="tarjeta mt-6" id="sumar">
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca" /> Sumar a alguien</h2>
+          <p class="tarjeta-sub">Con su mail de Google (Gmail). Puede entrar apenas la agregás. Después, registrá su cara en el fichador del local.</p>
+          <form class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_auto_auto_auto]" data-agregar>
+            <label class="sr-only" for="nuevo-email">Mail de Google</label>
+            <input id="nuevo-email" name="email" type="email" required autocomplete="off" placeholder="nombre@gmail.com" class="campo" />
+            <label class="sr-only" for="nuevo-nombre">Nombre</label>
+            <input id="nuevo-nombre" name="nombre" type="text" autocomplete="off" placeholder="Nombre" class="campo" />
+            <label class="sr-only" for="nuevo-rol">Rol</label>
+            <select id="nuevo-rol" name="rol" class="campo">
+              <option value="empleada">Empleada</option>
+              <option value="admin">Admin</option>
+            </select>
+            <label class="flex items-center gap-2 text-sm text-texto-2">
+              <input name="horas" type="number" min="1" max="80" step="0.5" inputmode="decimal" placeholder="—" class="campo !w-20 text-center" aria-label="Carga horaria (horas por semana)" />
+              h por semana
+            </label>
+            <button type="submit" class="boton boton-principal">Agregar</button>
+          </form>
+          <p class="mt-2 text-xs text-texto-2">La carga horaria es opcional: la podés poner ahora o después, en su ficha.</p>
+          <p class="mt-3 hidden text-sm font-semibold" data-agregar-estado aria-live="polite"></p>
+        </section>
+
+        <!-- El equipo -->
+        <section class="mt-8">
+          <h2 class="text-xl font-bold text-profundo">El equipo</h2>
+          <p class="mt-1 text-sm text-texto-2">Tocá a una persona para ver y cambiar todo lo suyo: acceso, cara, carga horaria, horario y avance en la guía.</p>
+          <ul class="mt-4 flex flex-col gap-3" data-personas></ul>
+        </section>
+
+        <!-- Dadas de baja: no entran ni fichan, pero su historial queda -->
+        <section class="mt-8 hidden" data-bajas-seccion>
+          <h2 class="text-lg font-bold text-profundo">Dadas de baja</h2>
+          <p class="mt-1 text-sm text-texto-2">No pueden entrar ni fichar. Su avance y sus fichadas quedan guardados.</p>
+          <ul class="mt-3 flex flex-col gap-2" data-bajas></ul>
+        </section>
+
+        <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
+      </div>
+    </div>
+  </main>
+</Manual>
+
+<DatosGuia />
+
+<style>
+  :global(.tarjeta) {
+    border-radius: 24px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.1);
+  }
+  .tarjeta-titulo {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  .tarjeta-sub {
+    margin-top: 2px;
+    font-size: 0.875rem;
+    color: var(--color-texto-2);
+  }
+  :global(.campo) {
+    width: 100%;
+    border-radius: 14px;
+    background: var(--color-crema);
+    padding: 10px 12px;
+    font-size: 1rem;
+    color: var(--color-texto);
+    box-shadow: inset 0 0 0 1px rgb(33 76 59 / 0.18);
+    outline: none;
+  }
+  :global(.campo:focus) {
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  :global(.ficha summary::-webkit-details-marker) {
+    display: none;
+  }
+  :global(.ficha[open] .ficha-flecha) {
+    transform: rotate(180deg);
+  }
+  :global(.ficha-bloque) {
+    border-top: 1px solid rgb(33 76 59 / 0.08);
+    padding: 16px 0 4px;
+  }
+  :global(.ficha-bloque-titulo) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  :global(.ficha-bloque-sub) {
+    margin-top: 2px;
+    font-size: 0.8125rem;
+    color: var(--color-texto-2);
+  }
+  :global(.marca) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 9999px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  :global(.marca.hidden) {
+    display: none;
+  }
+  :global(.marca-ambar) {
+    background: var(--color-ambar-suave);
+    color: var(--color-ambar);
+  }
+  :global(.marca-gris) {
+    background: var(--color-arena-suave);
+    color: var(--color-texto-2);
+  }
+  :global(.marca-verde) {
+    background: var(--color-menta-suave);
+    color: var(--color-profundo);
+  }
+  :global(.marca-oscura) {
+    background: var(--color-profundo);
+    color: #fff;
+  }
+  :global(.grilla-horario) {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 6px 8px;
+    align-items: center;
+    max-width: 420px;
+  }
+  :global(.barra-carga) {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+  }
+  :global(.barra-carga span) {
+    display: block;
+    height: 100%;
+    border-radius: 9999px;
+    background: var(--color-marca);
+  }
+  :global(.avatar) {
+    display: flex;
+    width: 46px;
+    height: 46px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-menta);
+    font-weight: 700;
+    color: var(--color-profundo);
+  }
+  :global(.avatar img),
+  :global(.foto-cara) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
+  :global(.foto-cara) {
+    width: 72px;
+    height: 72px;
+    flex: none;
+    border-radius: 18px;
+    background: var(--color-menta-suave);
+  }
+</style>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { sesionLista } from '../scripts/sesion';
+  import { diaClave, duracion } from '../lib/fichador';
+  import { cargarAprendizaje, leerInfoGuia, porUsuario, type DatosAprendizaje } from '../scripts/admin/aprendizaje-datos';
+  import {
+    $,
+    DIAS,
+    avanceCarga,
+    boton,
+    el,
+    fichadasEntre,
+    hace,
+    horasTexto,
+    lunesDe,
+    nombreDe,
+    q,
+    sumarDias,
+    tramosPorPersona,
+    type Horario,
+    type Persona,
+  } from '../scripts/admin/comun';
+  import { url } from '../lib/url';
+
+  interface Cara {
+    email: string;
+    foto: string | null;
+    creada_el: string;
+    /** Si al registrarla se parecía a otra persona y la admin confirmó que era otra (por ejemplo, un familiar). */
+    parecida_a: string | null;
+  }
+
+  const info = leerInfoGuia();
+  const fmt = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Argentina/Buenos_Aires' });
+
+  // ---------- Estado ----------
+  let miEmail = '';
+  let apr: DatosAprendizaje;
+  let caras: Cara[] = [];
+  let horarios: Horario[] = [];
+  /** Horas de esta semana, por mail. */
+  let horasSemana = new Map<string, number>();
+
+  async function cargar() {
+    const db = supabase!;
+    const hoy = diaClave(new Date());
+    const lunes = lunesDe(hoy);
+    const [a, cs, hs, aj, fs] = await Promise.all([
+      cargarAprendizaje(),
+      q<Cara[]>(db.from('caras').select('email,foto,creada_el,parecida_a').order('id')),
+      q<Horario[]>(db.from('horarios').select('email,dia,entrada,salida')),
+      q<{ horas_max_turno: number }[]>(db.from('ajustes_fichador').select('horas_max_turno')),
+      fichadasEntre(lunes, sumarDias(lunes, 7)),
+    ]);
+    apr = a;
+    caras = cs;
+    horarios = hs;
+    horasSemana = new Map();
+    for (const t of tramosPorPersona(
+      fs.filter((f) => !f.anulada),
+      aj[0]?.horas_max_turno ?? 16,
+    ))
+      horasSemana.set(t.email, (horasSemana.get(t.email) ?? 0) + t.ms);
+  }
+
+  /** Avisa si algo falló (nada falla en silencio). */
+  async function accion(p: PromiseLike<{ error: unknown }>, texto = 'No se pudo guardar. Revisá la conexión y probá de nuevo.') {
+    const { error } = await p;
+    if (error) alert(texto);
+    return !error;
+  }
+
+  // ---------- La ficha de cada persona ----------
+  function ficha(p: Persona) {
+    const suyas = caras.filter((c) => c.email === p.email);
+    const cara = suyas.find((c) => c.foto) ?? suyas[0];
+    const li = el('li');
+    li.dataset.email = p.email;
+    const det = el('details', 'ficha rounded-3xl bg-white ring-1 ring-profundo/10');
+    const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-3 p-4');
+    const avatar = el('span', 'avatar');
+    if (cara?.foto) {
+      const img = el('img');
+      img.src = cara.foto;
+      img.alt = '';
+      avatar.append(img);
+    } else avatar.textContent = nombreDe(p)[0].toUpperCase();
+    const quien = el('span', 'min-w-0 flex-1');
+    quien.append(el('span', 'block truncate font-bold text-profundo', nombreDe(p)), el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
+    const chips = el('span', 'flex flex-wrap gap-1.5');
+    chips.append(
+      el('span', `marca ${p.rol === 'admin' ? 'marca-oscura' : 'marca-gris'}`, p.rol === 'admin' ? 'Admin' : 'Empleada'),
+      el('span', `marca ${suyas.length ? 'marca-verde' : 'marca-ambar'}`, suyas.length ? 'Cara ✓' : 'Sin cara'),
+      el('span', `marca ${p.horas_semana ? 'marca-verde' : 'marca-gris'}`, p.horas_semana ? `${horasTexto(Number(p.horas_semana))} por semana` : 'Sin carga horaria'),
+    );
+    if (p.horario_fijo) chips.append(el('span', 'marca marca-verde', 'Horario fijo'));
+    const flecha = el('span', 'ficha-flecha text-texto-2 transition-transform', '▾');
+    sum.append(avatar, quien, chips, flecha);
+
+    const cuerpo = el('div', 'px-4 pb-4');
+    cuerpo.append(bloqueAcceso(p), bloqueCara(p, suyas), bloqueHoras(p), bloqueAprendizaje(p));
+    det.append(sum, cuerpo);
+    li.append(det);
+    return li;
+  }
+
+  const bloque = (titulo: string, sub: string) => {
+    const b = el('section', 'ficha-bloque');
+    b.append(el('h3', 'ficha-bloque-titulo', titulo), el('p', 'ficha-bloque-sub', sub));
+    return b;
+  };
+
+  function bloqueAcceso(p: Persona) {
+    const b = bloque('Acceso', p.rol === 'admin' ? 'Es admin: entra a la app y a este panel.' : 'Es empleada: entra a la app, ficha y ve su avance.');
+    const acciones = el('div', 'mt-3 flex flex-wrap items-center gap-2');
+    if (p.email === miEmail) {
+      acciones.append(el('span', 'text-sm text-texto-2', 'Sos vos.'));
+    } else {
+      acciones.append(
+        boton(p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin', 'boton-secundario', async () => {
+          const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
+          if (!confirm(`¿Cambiar a ${nombreDe(p)} a ${nuevo}?`)) return;
+          if (await accion(supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email), 'No se pudo cambiar el rol.')) void refrescar();
+        }),
+        boton('Dar de baja', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
+          if (!confirm(`¿Dar de baja a ${nombreDe(p)}? Ya no va a poder entrar ni fichar. Su avance y sus fichadas quedan guardados, y la podés reactivar cuando quieras.`)) return;
+          if (await accion(supabase!.from('autorizados').update({ activo: false, baja_el: new Date().toISOString() }).eq('email', p.email), 'No se pudo dar de baja.')) void refrescar();
+        }),
+      );
+    }
+    b.append(acciones);
+    return b;
+  }
+
+  function bloqueCara(p: Persona, suyas: Cara[]) {
+    const registrada = suyas[0];
+    const b = bloque(
+      'Cara para fichar',
+      registrada
+        ? 'Con esta cara ficha en la compu y en el celular del local.'
+        : 'Se registra en el fichador del local, con la persona adelante: en el celular del local tocá Registrar cara y elegila; en la compu, generá acá un código.',
+    );
+    const fila = el('div', 'mt-3 flex flex-wrap items-center gap-3');
+    const muestra = suyas.find((c) => c.foto);
+    if (muestra?.foto) {
+      const img = el('img', 'foto-cara');
+      img.src = muestra.foto;
+      img.alt = `Cara registrada de ${nombreDe(p)}`;
+      fila.append(img);
+    }
+    const txt = el('div', 'min-w-0 flex-1 text-sm');
+    txt.append(el('p', `font-semibold ${registrada ? 'text-marca' : 'text-ambar'}`, registrada ? `Registrada el ${fmt.format(new Date(registrada.creada_el))}` : 'Todavía no tiene la cara registrada'));
+    if (registrada?.parecida_a) txt.append(el('p', 'text-xs text-ambar', `Se registró aunque se parece a ${registrada.parecida_a} (se confirmó que es otra persona)`));
+    const codigo = el('p', 'mt-2 hidden rounded-xl bg-crema px-4 py-3 text-center');
+    const acciones = el('div', 'mt-2 flex flex-wrap gap-2');
+    acciones.append(
+      boton(registrada ? 'Volver a registrar' : 'Generar código', registrada ? 'boton-secundario' : 'boton-principal', async () => {
+        const { data, error } = await supabase!.rpc('crear_codigo_cara', { p_email: p.email });
+        if (error) return alert('No se pudo generar el código.');
+        codigo.classList.remove('hidden');
+        codigo.replaceChildren(
+          el('span', 'block text-xs font-semibold text-texto-2', 'Código para el fichador del local (vale 15 minutos):'),
+          el('span', 'block text-4xl font-extrabold tracking-[0.25em] text-profundo tabular-nums', String(data)),
+        );
+      }),
+    );
+    if (registrada)
+      acciones.append(
+        boton('Borrar cara', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
+          if (!confirm(`¿Borrar la cara registrada de ${nombreDe(p)}? Va a tener que fichar con el código del celular hasta que la registres de nuevo.`)) return;
+          if (await accion(supabase!.from('caras').delete().eq('email', p.email), 'No se pudo borrar la cara.')) void refrescar();
+        }),
+      );
+    txt.append(acciones, codigo);
+    fila.append(txt);
+    b.append(fila);
+    return b;
+  }
+
+  function bloqueHoras(p: Persona) {
+    const b = bloque('Carga horaria y horario', 'La carga horaria es cuántas horas por semana trabaja (flexible: no importa qué días ni a qué hora). El horario fijo es opcional y sirve para marcar tardanzas.');
+    // Esta semana
+    const ms = horasSemana.get(p.email) ?? 0;
+    const semana = el('div', 'mt-3 max-w-[420px] text-sm');
+    if (p.horas_semana) {
+      const horas = Number(p.horas_semana);
+      const a = avanceCarga(ms, horas, true);
+      const barra = el('div', 'barra-carga mt-1');
+      const lleno = el('span');
+      lleno.style.width = `${Math.min(100, (ms / (horas * 3600000)) * 100)}%`;
+      barra.append(lleno);
+      const linea = el('p', 'flex flex-wrap justify-between gap-x-3');
+      linea.append(el('span', 'font-semibold text-profundo', `Esta semana: ${duracion(ms)} de ${horasTexto(horas)}`), el('span', `font-semibold ${a.clase}`, a.texto));
+      semana.append(linea, barra);
+    } else semana.append(el('p', 'font-semibold text-profundo', `Esta semana: ${duracion(ms)}`));
+    const ver = el('a', 'mt-1 inline-block text-sm font-semibold text-marca underline underline-offset-4', 'Ver sus días en Horarios y fichajes');
+    ver.href = `${url('/fichadas')}#resumen`;
+    semana.append(ver);
+    b.append(semana);
+
+    // Formulario: carga horaria y horario fijo
+    const form = el('form', 'mt-4');
+    const filaCarga = el('label', 'flex flex-wrap items-center gap-2 text-sm font-semibold text-profundo');
+    const campoHoras = el('input', 'campo !w-24 !py-1.5 text-center');
+    campoHoras.type = 'number';
+    campoHoras.min = '1';
+    campoHoras.max = '80';
+    campoHoras.step = '0.5';
+    campoHoras.inputMode = 'decimal';
+    campoHoras.placeholder = '—';
+    campoHoras.value = p.horas_semana ? String(Number(p.horas_semana)) : '';
+    filaCarga.append('Carga horaria:', campoHoras, el('span', 'font-normal text-texto-2', 'horas por semana (vacío si no tiene)'));
+
+    const prender = el('label', 'mt-4 flex items-center gap-2 text-sm font-semibold text-profundo');
+    const check = el('input');
+    check.type = 'checkbox';
+    check.checked = p.horario_fijo;
+    check.className = 'size-5 accent-[var(--color-marca)]';
+    prender.append(check, 'Tiene horario fijo: marcar si llega tarde o se va antes');
+    const grilla = el('div', 'grilla-horario mt-3');
+    const campos = [1, 2, 3, 4, 5, 6, 0].map((dia) => {
+      const h = horarios.find((x) => x.email === p.email && x.dia === dia);
+      const desde = el('input', 'campo !py-1.5');
+      desde.type = 'time';
+      desde.value = h?.entrada.slice(0, 5) ?? '';
+      desde.setAttribute('aria-label', `${DIAS[dia]}: entrada`);
+      const hasta = el('input', 'campo !py-1.5');
+      hasta.type = 'time';
+      hasta.value = h?.salida.slice(0, 5) ?? '';
+      hasta.setAttribute('aria-label', `${DIAS[dia]}: salida`);
+      grilla.append(el('span', 'text-sm font-semibold text-texto-2', DIAS[dia]), desde, hasta);
+      return { dia, desde, hasta };
+    });
+    const cajaFijo = el('div');
+    cajaFijo.append(el('p', 'mt-1 text-xs text-texto-2', 'Dejá vacíos los días que no trabaja.'), grilla);
+    const verFijo = () => cajaFijo.classList.toggle('hidden', !check.checked);
+    check.addEventListener('change', verFijo);
+    verFijo();
+
+    const pie = el('div', 'mt-4 flex items-center gap-3');
+    const guardar = el('button', 'boton boton-principal !py-2 !text-sm', 'Guardar');
+    guardar.type = 'submit';
+    const aviso = el('span', 'text-sm font-semibold');
+    pie.append(guardar, aviso);
+    form.append(filaCarga, prender, cajaFijo, pie);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      aviso.className = 'text-sm font-semibold text-peligro';
+      const valor = campoHoras.value.trim() === '' ? null : Number(campoHoras.value.replace(',', '.'));
+      if (valor !== null && !(valor > 0 && valor <= 80)) {
+        aviso.textContent = 'Poné un número de horas entre 1 y 80.';
+        return;
+      }
+      const filas = campos.filter((c) => c.desde.value && c.hasta.value).map((c) => ({ dia: c.dia, entrada: c.desde.value, salida: c.hasta.value }));
+      if (check.checked && !filas.length) {
+        aviso.textContent = 'Cargá al menos un día del horario fijo.';
+        return;
+      }
+      const r1 = await supabase!.from('autorizados').update({ horas_semana: valor }).eq('email', p.email);
+      // El horario, todo junto en la base: si algo falla, el anterior queda como estaba.
+      const r2 = r1.error ? r1 : await supabase!.rpc('guardar_horario', { p_email: p.email, p_fijo: check.checked, p_dias: filas });
+      if (r2.error) {
+        aviso.textContent = 'No se pudo guardar. Revisá la conexión.';
+        return;
+      }
+      void refrescar();
+    });
+    b.append(form);
+    return b;
+  }
+
+  function bloqueAprendizaje(p: Persona) {
+    const total = info.gondolas.length;
+    const gs = porUsuario(apr.gondolas, p.user_id);
+    const its = porUsuario(apr.intentos, p.user_id);
+    const completas = gs.filter((x) => x.completada_el).length;
+    const b = bloque('Aprendizaje', p.user_id ? 'Cómo viene con la guía y los exámenes.' : 'Todavía no entró a la app.');
+    const fila = el('div', 'mt-3 flex flex-wrap items-center gap-2 text-sm');
+    fila.append(el('span', 'font-semibold text-profundo', `${completas} de ${total} góndolas completadas`));
+    for (const n of info.niveles) {
+      const ok = its.some((x) => x.nivel === n.numero && x.aprobado);
+      fila.append(el('span', `marca ${ok ? 'marca-verde' : 'marca-gris'}`, `Nivel ${n.numero}${ok ? ' ✓' : ''}`));
+    }
+    const ver = el('a', 'text-sm font-semibold text-marca underline underline-offset-4', 'Ver su avance');
+    ver.href = `${url('/aprendizaje')}#persona/${encodeURIComponent(p.email)}`;
+    fila.append(ver);
+    b.append(fila);
+    return b;
+  }
+
+  // ---------- Pintar ----------
+  function pintar() {
+    // Las fichas que estaban abiertas siguen abiertas
+    const abiertas = new Set([...document.querySelectorAll<HTMLElement>('[data-personas] li')].filter((li) => li.querySelector('details')?.open).map((li) => li.dataset.email));
+    const lista = $('[data-personas]');
+    const orden = [...apr.equipo].sort((x, y) => (x.rol === y.rol ? nombreDe(x).localeCompare(nombreDe(y)) : x.rol === 'empleada' ? -1 : 1));
+    lista.replaceChildren(...orden.map((p) => ficha(p)));
+    for (const li of lista.querySelectorAll<HTMLElement>('li')) if (abiertas.has(li.dataset.email)) li.querySelector('details')!.open = true;
+
+    $('[data-bajas-seccion]').classList.toggle('hidden', !apr.bajas.length);
+    $('[data-bajas]').replaceChildren(
+      ...apr.bajas.map((p) => {
+        const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-profundo/10');
+        const quien = el('span', 'min-w-0 flex-1');
+        quien.append(
+          el('span', 'block truncate font-semibold text-texto-2', nombreDe(p)),
+          el('span', 'block truncate text-sm text-texto-2', `${p.email}${p.baja_el ? ` · de baja desde el ${fmt.format(new Date(p.baja_el))}` : ''}`),
+        );
+        li.append(
+          quien,
+          boton('Reactivar', 'boton-secundario', async () => {
+            if (!confirm(`¿Reactivar a ${nombreDe(p)}? Vuelve a poder entrar y fichar.`)) return;
+            if (await accion(supabase!.from('autorizados').update({ activo: true, baja_el: null }).eq('email', p.email), 'No se pudo reactivar.')) void refrescar();
+          }),
+        );
+        return li;
+      }),
+    );
+  }
+
+  async function refrescar() {
+    try {
+      await cargar();
+      pintar();
+    } catch {
+      alert('No se pudieron cargar los datos. Revisá la conexión.');
+    }
+  }
+  $('[data-recargar]').addEventListener('click', () => void refrescar());
+
+  // ---------- Sumar a alguien ----------
+  $<HTMLFormElement>('[data-agregar]').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target as HTMLFormElement;
+    const datos = new FormData(f);
+    const email = String(datos.get('email')).trim().toLowerCase();
+    const nombre = String(datos.get('nombre') ?? '').trim() || null;
+    const rol = String(datos.get('rol'));
+    const horasTxt = String(datos.get('horas') ?? '').trim();
+    const horas = horasTxt ? Number(horasTxt.replace(',', '.')) : null;
+    const estado = $('[data-agregar-estado]');
+    estado.classList.remove('hidden');
+    if (horas !== null && !(horas > 0 && horas <= 80)) {
+      estado.className = 'mt-3 text-sm font-semibold text-peligro';
+      estado.textContent = 'La carga horaria tiene que ser un número de horas entre 1 y 80.';
+      return;
+    }
+    const { error } = await supabase!.from('autorizados').insert(horas ? { email, nombre, rol, horas_semana: horas } : { email, nombre, rol });
+    if (error) {
+      estado.className = 'mt-3 text-sm font-semibold text-peligro';
+      estado.textContent = (error as { code?: string }).code === '23505' ? 'Ese mail ya está en el equipo (si está dado de baja, reactivalo abajo, en Dadas de baja).' : 'No se pudo agregar. Revisá el mail y la conexión.';
+      return;
+    }
+    estado.className = 'mt-3 text-sm font-semibold text-marca';
+    estado.textContent = `Listo: ${email} ya puede entrar con Google. Falta registrar su cara en el fichador del local.`;
+    f.reset();
+    await refrescar();
+  });
+
+  /** #persona/mail abre esa ficha; #sumar va al formulario. */
+  function irAlEnlace() {
+    const [que, email] = location.hash.slice(1).split('/').map(decodeURIComponent);
+    if (que === 'sumar') {
+      $('#sumar').scrollIntoView({ block: 'start' });
+      $<HTMLInputElement>('#nuevo-email').focus();
+      return;
+    }
+    if (que !== 'persona' || !email) return;
+    const li = document.querySelector<HTMLElement>(`[data-personas] [data-email="${CSS.escape(email)}"]`);
+    if (!li) return;
+    li.querySelector('details')!.open = true;
+    requestAnimationFrame(() => li.scrollIntoView({ block: 'start' }));
+  }
+
+  sesionLista.then(async (acceso) => {
+    if (!acceso || acceso.rol !== 'admin' || !supabase) {
+      $('[data-cargando]').classList.add('hidden');
+      $('[data-sin-permiso]').classList.remove('hidden');
+      return;
+    }
+    miEmail = acceso.email;
+    await refrescar();
+    $('[data-cargando]').classList.add('hidden');
+    $('[data-panel]').classList.remove('hidden');
+    irAlEnlace();
+  });
+</script>

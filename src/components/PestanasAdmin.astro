@@ -1,16 +1,21 @@
 ---
-// Encabezado del Panel de admin, con sus dos partes: Aprendizaje (la guía, los exámenes y el equipo)
-// y Fichaje (entradas, salidas y horas). Cada parte es una página; las pestañas las unen.
+// Encabezado del Panel de admin, con sus cuatro partes (cada una es una página):
+//  · Inicio: lo que hay que mirar hoy y los pendientes.
+//  · Horarios y fichajes: quién vino, las horas de la semana y las correcciones.
+//  · Gestión de equipo: altas, bajas y la ficha de cada persona.
+//  · Aprendizaje: el avance en la guía y los exámenes.
 import Icon from './Icon.astro';
 import { url } from '../lib/url';
 
 interface Props {
-  activa: 'aprendizaje' | 'fichaje';
+  activa: 'inicio' | 'fichaje' | 'equipo' | 'aprendizaje';
 }
 const { activa } = Astro.props;
 const pestanas = [
-  { id: 'aprendizaje', href: url('/admin'), icono: 'book-open-text', texto: 'Aprendizaje', sub: 'Guía, exámenes y el equipo' },
-  { id: 'fichaje', href: url('/fichadas'), icono: 'clock', texto: 'Fichaje', sub: 'Entradas, salidas y horas' },
+  { id: 'inicio', href: url('/admin'), icono: 'house', texto: 'Inicio', sub: 'Lo que hay que mirar hoy' },
+  { id: 'fichaje', href: url('/fichadas'), icono: 'clock', texto: 'Horarios y fichajes', sub: 'Quién vino, horas y correcciones' },
+  { id: 'equipo', href: url('/equipo'), icono: 'users-three', texto: 'Gestión de equipo', sub: 'Altas, bajas y la ficha de cada una' },
+  { id: 'aprendizaje', href: url('/aprendizaje'), icono: 'book-open-text', texto: 'Aprendizaje', sub: 'Avance en la guía y exámenes' },
 ];
 ---
 
@@ -19,10 +24,10 @@ const pestanas = [
   {
     pestanas.map((p) => (
       <a href={p.href} class:list={['pestana', { activa: p.id === activa }]} aria-current={p.id === activa ? 'page' : undefined}>
-        <Icon name={p.icono} class="size-7 shrink-0" />
+        <Icon name={p.icono} class="size-6 shrink-0" />
         <span class="min-w-0 text-left leading-tight">
-          <span class="block text-base font-bold sm:text-lg">{p.texto}</span>
-          <span class="block text-xs sm:text-sm">{p.sub}</span>
+          <span class="block font-bold">{p.texto}</span>
+          <span class="block text-xs">{p.sub}</span>
         </span>
       </a>
     ))
@@ -38,12 +43,17 @@ const pestanas = [
     background: var(--color-menta-suave);
     padding: 6px;
   }
+  @media (min-width: 900px) {
+    .pestanas {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
   .pestana {
     display: flex;
     align-items: center;
     gap: 10px;
     border-radius: 16px;
-    padding: 12px 14px;
+    padding: 10px 12px;
     color: var(--color-texto-2);
     transition:
       background 160ms,
