@@ -54,10 +54,11 @@ import DatosGuia from '../components/DatosGuia.astro';
         <section class="mt-8">
           <h2 class="text-xl font-bold text-profundo">Cómo va cada una</h2>
           <p class="mt-1 text-sm text-texto-2">Tocá a una persona para ver su avance: cada góndola, los exámenes y lo último que hizo.</p>
+          <p class="mt-1 text-xs font-semibold text-texto-2">Exámenes: <span data-niveles-leyenda></span></p>
           <ul class="mt-4 flex flex-col gap-3" data-equipo></ul>
         </section>
 
-        <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
+        <button type="button" class="boton boton-secundario mt-6 !text-sm" data-recargar>Actualizar datos</button>
       </div>
     </div>
   </main>
@@ -97,6 +98,58 @@ import DatosGuia from '../components/DatosGuia.astro';
   }
   :global(.persona summary::-webkit-details-marker) {
     display: none;
+  }
+  /* Cabecera de cada persona: en celular, el avance y los niveles van debajo; en compu, en columnas
+     fijas para que todas queden alineadas. */
+  :global(.persona-cabeza) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'avatar quien flecha' 'avance avance avance' 'niveles niveles niveles';
+    align-items: center;
+    gap: 10px 12px;
+  }
+  :global(.persona-cabeza > :nth-child(1)) {
+    grid-area: avatar;
+  }
+  :global(.persona-cabeza > :nth-child(2)) {
+    grid-area: quien;
+  }
+  :global(.persona-avance) {
+    grid-area: avance;
+  }
+  :global(.persona-niveles) {
+    grid-area: niveles;
+    display: flex;
+    gap: 6px;
+  }
+  :global(.persona-flecha) {
+    grid-area: flecha;
+    color: var(--color-texto-2);
+    transition: transform 160ms;
+  }
+  :global(.persona[open] .persona-flecha) {
+    transform: rotate(180deg);
+  }
+  @media (min-width: 768px) {
+    :global(.persona-cabeza) {
+      grid-template-columns: auto minmax(0, 1fr) 13rem 9.5rem auto;
+      grid-template-areas: 'avatar quien avance niveles flecha';
+    }
+  }
+  :global(.chip-nivel) {
+    display: inline-flex;
+    width: 2.9rem;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--color-menta-suave);
+    padding: 4px 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-texto-2);
+  }
+  :global(.chip-nivel.ok) {
+    background: var(--color-marca);
+    color: #fff;
   }
 
   /* ---------- Gráficos (una sola serie por gráfico, color de marca) ---------- */
@@ -173,7 +226,7 @@ import DatosGuia from '../components/DatosGuia.astro';
     display: flex;
     gap: 2px;
     margin-top: 4px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     color: var(--color-texto-2);
   }
   :global(.columnas-ejes span) {
@@ -350,22 +403,37 @@ import DatosGuia from '../components/DatosGuia.astro';
         return { g, completas, leidas: filasG.filter((x) => x.vista_el).length, promedio };
       })
       .sort((a, b) => a.completas - b.completas || a.leidas - b.leidas);
+    // Primero se ven las 5 menos completadas (las que hay que reforzar); el resto, con "Ver las 25".
+    const VISIBLES = 5;
     const grilla = el('div', 'barras');
-    for (const f of filas) {
+    filas.forEach((f, i) => {
       const fila = el('div', 'barra-fila');
+      if (i >= VISIBLES) fila.hidden = true;
       fila.title = `${f.g.titulo}: completada por ${f.completas} de ${total} · leída por ${f.leidas}${
         f.promedio !== null ? ` · promedio del repaso ${Math.round(f.promedio * 100)}%` : ''
       }`;
       const cab = el('p', 'flex items-baseline justify-between gap-3');
-      cab.append(el('span', 'etq', f.g.titulo), el('span', 'val', `${f.completas}/${total}`));
+      cab.append(el('span', 'etq', f.g.titulo), el('span', 'val', `${f.completas} de ${total}`));
       const pista = el('div', 'pista');
       const barra = el('span');
       barra.style.width = `${total ? (f.completas / total) * 100 : 0}%`;
       pista.append(barra);
       fila.append(cab, pista);
       grilla.append(fila);
-    }
-    return grilla;
+    });
+    if (filas.length <= VISIBLES) return grilla;
+    const caja = el('div');
+    const ver = el('button', 'boton boton-secundario mt-4 !py-2 !text-sm', `Ver las ${filas.length}`);
+    ver.type = 'button';
+    ver.setAttribute('aria-expanded', 'false');
+    ver.addEventListener('click', () => {
+      const abrir = ver.getAttribute('aria-expanded') !== 'true';
+      grilla.querySelectorAll<HTMLElement>('.barra-fila').forEach((x, i) => (x.hidden = !abrir && i >= VISIBLES));
+      ver.setAttribute('aria-expanded', String(abrir));
+      ver.textContent = abrir ? 'Ver solo las 5 menos completadas' : `Ver las ${filas.length}`;
+    });
+    caja.append(grilla, ver);
+    return caja;
   }
 
   // ---------- Pintar ----------
@@ -393,11 +461,13 @@ import DatosGuia from '../components/DatosGuia.astro';
       c.append(el('span', 'block text-3xl font-bold text-profundo tabular-nums', valor), el('span', 'block text-sm text-texto-2', texto));
       return c;
     };
+    const empleadas = d.equipo.filter((p) => p.rol === 'empleada').length;
+    const aprobados = d.intentos.filter((x) => base.has(x.user_id) && x.aprobado).length;
     $('[data-resumen]').replaceChildren(
-      tarjeta(String(d.equipo.filter((p) => p.rol === 'empleada').length), 'empleadas con acceso'),
-      tarjeta(`${activas7}/${base.size}`, 'entraron en la última semana'),
+      tarjeta(String(empleadas), empleadas === 1 ? 'empleada con acceso' : 'empleadas con acceso'),
+      tarjeta(`${activas7} de ${base.size}`, 'entraron en los últimos 7 días'),
       tarjeta(posibles ? `${Math.round((completasTotales / posibles) * 100)}%` : '0%', 'de la guía completada en promedio'),
-      tarjeta(String(d.intentos.filter((x) => base.has(x.user_id) && x.aprobado).length), 'exámenes aprobados'),
+      tarjeta(String(aprobados), aprobados === 1 ? 'examen aprobado' : 'exámenes aprobados'),
     );
 
     // Tablero general
@@ -410,8 +480,11 @@ import DatosGuia from '../components/DatosGuia.astro';
     );
     $('[data-grafico-gondolas]').replaceChildren(base.size ? barrasGondolas(d, base) : el('p', 'text-sm text-texto-2', 'Todavía no entró nadie.'));
 
-    // Cómo va cada una, con el tablero de cada persona
+    // Cómo va cada una, con el tablero de cada persona (las que estaban abiertas siguen abiertas)
+    const abiertas = new Set([...document.querySelectorAll<HTMLElement>('[data-equipo] > li')].filter((li) => li.querySelector('details')?.open).map((li) => li.dataset.email));
     $('[data-equipo]').replaceChildren(...d.equipo.map((p) => persona(p, d, evs, total)));
+    for (const li of document.querySelectorAll<HTMLElement>('[data-equipo] > li')) if (abiertas.has(li.dataset.email)) li.querySelector('details')!.open = true;
+    $('[data-niveles-leyenda]').textContent = [...info.niveles.map((n) => `N${n.numero} ${n.nombre}`), '✓ aprobado'].join(' · ');
   }
 
   function persona(p: Autorizado, d: Datos, evs: Evento[], total: number) {
@@ -425,25 +498,26 @@ import DatosGuia from '../components/DatosGuia.astro';
     const li = el('li');
     li.dataset.email = p.email;
     const det = el('details', 'persona rounded-3xl bg-white ring-1 ring-profundo/10');
-    const sum = el('summary', 'flex cursor-pointer list-none flex-wrap items-center gap-3 p-4');
+    const sum = el('summary', 'persona-cabeza cursor-pointer list-none p-4');
     const avatar = el('span', 'flex size-11 shrink-0 items-center justify-center rounded-full bg-menta font-bold text-profundo', nombreDe(p)[0].toUpperCase());
     const quien = el('span', 'min-w-0 flex-1');
     const nombre = el('span', 'block truncate font-semibold text-profundo', nombreDe(p));
-    if (p.rol === 'admin') nombre.append(el('span', 'ml-2 rounded-full bg-profundo px-2 py-0.5 text-[0.7rem] font-bold text-white uppercase', 'Admin'));
-    if (d.conCara.has(p.email)) nombre.append(el('span', 'ml-2 rounded-full bg-menta-suave px-2 py-0.5 text-[0.7rem] font-bold text-profundo', 'Cara ✓'));
+    if (p.rol === 'admin') nombre.append(el('span', 'ml-2 rounded-full bg-profundo px-2 py-0.5 text-xs font-bold text-white uppercase', 'Admin'));
+    if (d.conCara.has(p.email)) nombre.append(el('span', 'ml-2 rounded-full bg-menta-suave px-2 py-0.5 text-xs font-bold text-profundo', 'Cara ✓'));
     quien.append(nombre, el('span', 'block truncate text-sm text-texto-2', `${p.email} · ${hace(p.ultimo_ingreso)}`));
-    const avance = el('span', 'w-full sm:w-56');
+    const avance = el('span', 'persona-avance');
     const cab = el('span', 'mb-1 flex justify-between text-xs font-semibold text-texto-2');
-    cab.append(el('span', '', 'Góndolas completadas'), el('span', 'tabular-nums text-texto', `${completas}/${total}`));
+    cab.append(el('span', '', 'Góndolas completadas'), el('span', 'tabular-nums text-texto', `${completas} de ${total}`));
     avance.append(cab, medidor(completas, total));
-    const niveles = el('span', 'flex gap-1.5');
+    const niveles = el('span', 'persona-niveles');
     for (const n of info.niveles) {
       const ok = its.some((x) => x.nivel === n.numero && x.aprobado);
-      const chip = el('span', `rounded-full px-2 py-1 text-[0.7rem] font-bold ${ok ? 'bg-marca text-white' : 'bg-menta-suave text-texto-2'}`, `N${n.numero}${ok ? ' ✓' : ''}`);
+      const chip = el('span', `chip-nivel ${ok ? 'ok' : ''}`, `N${n.numero}${ok ? ' ✓' : ''}`);
+      chip.setAttribute('aria-label', `Nivel ${n.numero}, ${n.nombre}: ${ok ? 'aprobado' : 'sin aprobar'}`);
       chip.title = `Nivel ${n.numero} · ${n.nombre}: ${ok ? 'aprobado' : 'sin aprobar'}`;
       niveles.append(chip);
     }
-    sum.append(avatar, quien, avance, niveles);
+    sum.append(avatar, quien, avance, niveles, el('span', 'persona-flecha', '▾'));
 
     // Tablero de la persona
     const cuerpo = el('div', 'border-t border-profundo/8 p-4');
@@ -453,8 +527,8 @@ import DatosGuia from '../components/DatosGuia.astro';
       const grid = el('div', 'grid gap-4 md:grid-cols-2');
       const izq = el('div', 'flex flex-col gap-3');
       const promedioRepasos = gs.filter((x) => x.quiz_intentos > 0);
+      // "Góndolas completadas" ya está arriba, en la cabecera de la persona.
       izq.append(
-        filaMedidor('Góndolas completadas', completas, total),
         filaMedidor('Góndolas leídas', vistas, total),
         filaMedidor('Temas de Bienvenida', leidas.size, info.secciones.length),
       );

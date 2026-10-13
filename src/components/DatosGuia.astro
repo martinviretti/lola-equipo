@@ -12,4 +12,4 @@ const datos = {
 };
 ---
 
-<script type="application/json" id="guia-datos" set:html={JSON.stringify(datos)} />
+<script type="application/json" id="guia-datos" set:html={JSON.stringify(datos).replace(/</g, '\\u003c')} />

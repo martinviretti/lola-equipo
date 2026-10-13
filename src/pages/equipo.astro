@@ -30,9 +30,9 @@ import DatosGuia from '../components/DatosGuia.astro';
           <p class="tarjeta-sub">Con su mail de Google (Gmail). Puede entrar apenas la agregás. Después, registrá su cara en el fichador del local.</p>
           <form class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_auto_auto_auto]" data-agregar>
             <label class="sr-only" for="nuevo-email">Mail de Google</label>
-            <input id="nuevo-email" name="email" type="email" required autocomplete="off" placeholder="nombre@gmail.com" class="campo" />
+            <input id="nuevo-email" name="email" type="email" required maxlength="254" autocomplete="off" placeholder="nombre@gmail.com" class="campo" />
             <label class="sr-only" for="nuevo-nombre">Nombre</label>
-            <input id="nuevo-nombre" name="nombre" type="text" autocomplete="off" placeholder="Nombre" class="campo" />
+            <input id="nuevo-nombre" name="nombre" type="text" maxlength="80" autocomplete="off" placeholder="Nombre" class="campo" />
             <label class="sr-only" for="nuevo-rol">Rol</label>
             <select id="nuevo-rol" name="rol" class="campo">
               <option value="empleada">Empleada</option>
@@ -62,7 +62,7 @@ import DatosGuia from '../components/DatosGuia.astro';
           <ul class="mt-3 flex flex-col gap-2" data-bajas></ul>
         </section>
 
-        <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
+        <button type="button" class="boton boton-secundario mt-6 !text-sm" data-recargar>Actualizar datos</button>
       </div>
     </div>
   </main>
@@ -128,7 +128,7 @@ import DatosGuia from '../components/DatosGuia.astro';
     gap: 4px;
     border-radius: 9999px;
     padding: 2px 8px;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
   }
@@ -222,6 +222,7 @@ import DatosGuia from '../components/DatosGuia.astro';
     type Persona,
   } from '../scripts/admin/comun';
   import { url } from '../lib/url';
+  import { confirmar } from '../scripts/admin/confirmar';
 
   interface Cara {
     email: string;
@@ -313,23 +314,40 @@ import DatosGuia from '../components/DatosGuia.astro';
 
   function bloqueAcceso(p: Persona) {
     const b = bloque('Acceso', p.rol === 'admin' ? 'Es admin: entra a la app y a este panel.' : 'Es empleada: entra a la app, ficha y ve su avance.');
-    const acciones = el('div', 'mt-3 flex flex-wrap items-center gap-2');
     if (p.email === miEmail) {
-      acciones.append(el('span', 'text-sm text-texto-2', 'Sos vos.'));
-    } else {
-      acciones.append(
-        boton(p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin', 'boton-secundario', async () => {
-          const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
-          if (!confirm(`¿Cambiar a ${nombreDe(p)} a ${nuevo}?`)) return;
-          if (await accion(supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email), 'No se pudo cambiar el rol.')) void refrescar();
-        }),
-        boton('Dar de baja', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
-          if (!confirm(`¿Dar de baja a ${nombreDe(p)}? Ya no va a poder entrar ni fichar. Su avance y sus fichadas quedan guardados, y la podés reactivar cuando quieras.`)) return;
-          if (await accion(supabase!.from('autorizados').update({ activo: false, baja_el: new Date().toISOString() }).eq('email', p.email), 'No se pudo dar de baja.')) void refrescar();
-        }),
-      );
+      b.append(el('p', 'mt-3 text-sm text-texto-2', 'Sos vos.'));
+      return b;
     }
-    b.append(acciones);
+    // El rol, por un lado
+    const rol = el('div', 'mt-3 flex flex-wrap items-center gap-2');
+    rol.append(
+      boton(p.rol === 'admin' ? 'Pasar a empleada' : 'Hacer admin', 'boton-secundario', async () => {
+        const nuevo = p.rol === 'admin' ? 'empleada' : 'admin';
+        const si = await confirmar({
+          titulo: nuevo === 'admin' ? `¿Hacer admin a ${nombreDe(p)}?` : `¿Pasar a ${nombreDe(p)} a empleada?`,
+          texto: nuevo === 'admin' ? 'Va a poder entrar a este panel y cambiar todo: el equipo, las fichadas y la configuración.' : 'Deja de ver el panel de admin. Sigue entrando a la app y fichando.',
+          si: nuevo === 'admin' ? 'Hacer admin' : 'Pasar a empleada',
+        });
+        if (!si) return;
+        if (await accion(supabase!.from('autorizados').update({ rol: nuevo }).eq('email', p.email), 'No se pudo cambiar el rol.')) void refrescar();
+      }),
+    );
+    // La baja, aparte (es lo más delicado)
+    const baja = el('div', 'mt-4 flex flex-wrap items-center gap-3 rounded-2xl bg-crema px-3 py-2');
+    baja.append(
+      el('span', 'min-w-0 flex-1 text-xs text-texto-2', 'Dar de baja: deja de entrar y de fichar. Su avance y sus fichadas quedan guardados, y se puede reactivar.'),
+      boton('Dar de baja', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
+        const si = await confirmar({
+          titulo: `¿Dar de baja a ${nombreDe(p)}?`,
+          texto: 'Ya no va a poder entrar ni fichar. Su avance y sus fichadas quedan guardados, y la podés reactivar cuando quieras.',
+          si: 'Dar de baja',
+          peligro: true,
+        });
+        if (!si) return;
+        if (await accion(supabase!.from('autorizados').update({ activo: false, baja_el: new Date().toISOString() }).eq('email', p.email), 'No se pudo dar de baja.')) void refrescar();
+      }),
+    );
+    b.append(rol, baja);
     return b;
   }
 
@@ -368,7 +386,13 @@ import DatosGuia from '../components/DatosGuia.astro';
     if (registrada)
       acciones.append(
         boton('Borrar cara', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
-          if (!confirm(`¿Borrar la cara registrada de ${nombreDe(p)}? Va a tener que fichar con el código del celular hasta que la registres de nuevo.`)) return;
+          const si = await confirmar({
+            titulo: `¿Borrar la cara de ${nombreDe(p)}?`,
+            texto: 'Va a tener que fichar con el código del celular hasta que la registres de nuevo.',
+            si: 'Borrar cara',
+            peligro: true,
+          });
+          if (!si) return;
           if (await accion(supabase!.from('caras').delete().eq('email', p.email), 'No se pudo borrar la cara.')) void refrescar();
         }),
       );
@@ -510,7 +534,7 @@ import DatosGuia from '../components/DatosGuia.astro';
         li.append(
           quien,
           boton('Reactivar', 'boton-secundario', async () => {
-            if (!confirm(`¿Reactivar a ${nombreDe(p)}? Vuelve a poder entrar y fichar.`)) return;
+            if (!(await confirmar({ titulo: `¿Reactivar a ${nombreDe(p)}?`, texto: 'Vuelve a poder entrar a la app y fichar, con su historial de antes.', si: 'Reactivar' }))) return;
             if (await accion(supabase!.from('autorizados').update({ activo: true, baja_el: null }).eq('email', p.email), 'No se pudo reactivar.')) void refrescar();
           }),
         );

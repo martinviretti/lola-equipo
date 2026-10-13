@@ -178,7 +178,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           </section>
         </section>
 
-        <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
+        <button type="button" class="boton boton-secundario mt-6 !text-sm" data-recargar>Actualizar datos</button>
       </div>
     </div>
   </main>
@@ -309,7 +309,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     gap: 4px;
     border-radius: 9999px;
     padding: 2px 8px;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
   }
@@ -510,7 +510,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   :global(.linea-reglas) {
     position: relative;
     height: 16px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     color: var(--color-texto-2);
   }
   :global(.linea-reglas span) {
@@ -623,7 +623,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
   :global(.celda-sub) {
     display: block;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 600;
   }
   :global(.celda-punto) {
@@ -700,7 +700,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     background: var(--color-menta-suave);
   }
   :global(.chip-extra) {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--color-texto-2);
   }
@@ -716,6 +716,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   import { supabase } from '../lib/supabase';
   import { sesionLista } from '../scripts/sesion';
   import { irAVista, parametrosVista } from '../scripts/vistas';
+  import { confirmar } from '../scripts/admin/confirmar';
   import { hora, diaClave, diaLargo, duracion, tramos, type Fichada, type Tramo } from '../lib/fichador';
 
   // ---------- Tipos ----------
@@ -1029,7 +1030,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       img.src = x.foto;
       img.alt = 'Foto de la fichada sin reconocer';
       li.append(img);
-    } else li.append(el('span', 'foto-fichada flex items-center justify-center text-center text-[0.7rem] text-texto-2', 'Sin foto'));
+    } else li.append(el('span', 'foto-fichada flex items-center justify-center text-center text-xs text-texto-2', 'Sin foto'));
     const txt = el('div', 'min-w-0 flex-1');
     txt.append(
       el('p', 'font-bold text-profundo', '¿Quién es?'),
@@ -1050,7 +1051,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       tipo,
       asignar,
       boton('Descartar', 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white', async () => {
-        if (!confirm('¿Descartarla? No se va a contar para nadie.')) return;
+        if (!(await confirmar({ titulo: '¿Descartar esta fichada?', texto: 'No se va a contar para nadie. Hacelo solo si no es de nadie del equipo.', si: 'Descartar', peligro: true }))) return;
         if (await accion(supabase!.rpc('descartar_sin_reconocer', { p_id: x.id }))) void refrescar();
       }),
     );
@@ -1071,7 +1072,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     }
     const f = fotos.get(id);
     if (f) img.src = f;
-    else img.replaceWith(el('span', 'foto-fichada flex items-center justify-center text-center text-[0.7rem] text-texto-2', 'Sin foto'));
+    else img.replaceWith(el('span', 'foto-fichada flex items-center justify-center text-center text-xs text-texto-2', 'Sin foto'));
   }
 
   // ---------- Semana ----------
@@ -1480,7 +1481,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
             li.append(
               txt,
               boton(c.activo ? 'Desactivar' : 'Reactivar', c.activo ? 'bg-peligro-suave text-peligro hover:bg-peligro hover:text-white' : 'boton-secundario', async () => {
-                if (c.activo && !confirm(`¿Desactivar "${c.nombre}"? Deja de fichar al instante.`)) return;
+                if (c.activo && !(await confirmar({ titulo: `¿Desactivar "${c.nombre}"?`, texto: 'Deja de fichar al instante. Para volver a usarlo, hay que activarlo de nuevo.', si: 'Desactivar', peligro: true }))) return;
                 if (await accion(db.from('dispositivos').update({ activo: !c.activo }).eq('id', c.id))) void pintarConfig();
               }),
             );
