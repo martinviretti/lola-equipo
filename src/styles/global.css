@@ -565,6 +565,7 @@
   bottom: calc(88px + env(safe-area-inset-bottom));
   z-index: 60;
   display: flex;
+  width: max-content; /* con left: 50% el texto se partía en dos líneas */
   max-width: min(92vw, 420px);
   align-items: center;
   gap: 12px;

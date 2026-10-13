@@ -52,9 +52,9 @@ const principales = [
           </li>
         ))
       }
-      <!-- El panel tiene dos partes: Aprendizaje (/admin) y Fichaje (/fichadas). -->
+      <!-- El panel tiene cuatro partes: Inicio (/admin), Horarios y fichajes (/fichadas), Gestión de equipo (/equipo) y Aprendizaje (/aprendizaje). -->
       <li class="hidden" data-solo-admin>
-        <a href={url('/admin')} class="menu-item" aria-current={ruta.startsWith('/admin') || ruta.startsWith('/fichadas') ? 'page' : undefined}>
+        <a href={url('/admin')} class="menu-item" aria-current={['/admin', '/fichadas', '/equipo', '/aprendizaje'].some((r) => ruta.startsWith(r)) ? 'page' : undefined}>
           <Icon name="users-three" class="size-5 shrink-0" />
           Panel de admin
         </a>

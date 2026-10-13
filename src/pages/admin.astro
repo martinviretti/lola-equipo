@@ -24,7 +24,7 @@ const datos = {
       <p class="mt-4 text-base text-texto-2">Cómo viene el equipo con la guía y los exámenes, y quiénes pueden entrar.</p>
 
       <div class="mt-8 hidden rounded-3xl bg-white p-6 text-center ring-1 ring-profundo/10" data-sin-permiso>
-        <Icon name="lock-key" class="mx-auto size-10 text-marca-texto" />
+        <Icon name="lock-key" class="mx-auto size-10 text-marca" />
         <p class="mt-3 text-lg font-semibold text-profundo">Esta sección es solo para administradoras</p>
         <a href={import.meta.env.BASE_URL} class="boton boton-principal mt-5">Volver al inicio</a>
       </div>
@@ -61,7 +61,7 @@ const datos = {
 
         <!-- Descargas -->
         <section class="tarjeta mt-6">
-          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca-texto" /> Descargar para Excel</h2>
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="download-simple" class="size-6 text-marca" /> Descargar para Excel</h2>
           <p class="tarjeta-sub">Sirve para llevar registro y como copia de seguridad. Se abre directo con Excel.</p>
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
             <button type="button" class="boton boton-principal" data-descargar="resumen">
@@ -75,7 +75,7 @@ const datos = {
 
         <!-- Agregar -->
         <section class="tarjeta mt-6">
-          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca-texto" /> Dar acceso a alguien</h2>
+          <h2 class="tarjeta-titulo flex items-center gap-2"><Icon name="plus-square" class="size-6 text-marca" /> Dar acceso a alguien</h2>
           <p class="tarjeta-sub">Con su mail de Google (Gmail). Puede entrar apenas la agregás.</p>
           <form class="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]" data-agregar>
             <label class="sr-only" for="nuevo-email">Mail de Google</label>
@@ -106,7 +106,7 @@ const datos = {
           <ul class="mt-3 flex flex-col gap-2" data-bajas></ul>
         </section>
 
-        <button type="button" class="mt-6 text-sm font-semibold text-marca-texto underline underline-offset-4" data-recargar>Actualizar datos</button>
+        <button type="button" class="mt-6 text-sm font-semibold text-marca underline underline-offset-4" data-recargar>Actualizar datos</button>
       </div>
     </div>
   </main>
@@ -693,7 +693,7 @@ const datos = {
         const x = gs.find((y) => y.gondola === gd.id);
         const estado = x?.completada_el ? `Completada · ${x.quiz_mejor}/${x.quiz_total}` : x?.quiz_intentos ? `Repaso ${x.quiz_mejor}/${x.quiz_total}` : x?.vista_el ? 'Leída' : 'Sin abrir';
         const r = el('li', `flex justify-between gap-2 rounded-xl bg-white px-3 py-2 text-sm`);
-        r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca-texto' : 'text-texto-2'}`, estado));
+        r.append(el('span', 'truncate', gd.titulo), el('span', `shrink-0 font-semibold ${x?.completada_el ? 'text-marca' : 'text-texto-2'}`, estado));
         listaG.append(r);
       }
       cuerpo.append(plegable('Cada góndola', listaG));
@@ -825,7 +825,7 @@ const datos = {
       estado.textContent = error.code === '23505' ? 'Ese mail ya está en la lista (si está dado de baja, reactivalo abajo, en Dadas de baja).' : 'No se pudo agregar. Revisá el mail y la conexión.';
       return;
     }
-    estado.className = 'mt-3 text-sm font-semibold text-marca-texto';
+    estado.className = 'mt-3 text-sm font-semibold text-marca';
     estado.textContent = `Listo: ${email} ya puede entrar con Google.`;
     f.reset();
     void refrescar();
