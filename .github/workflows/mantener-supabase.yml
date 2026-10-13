@@ -1,12 +1,17 @@
 # Mantiene despierta la base de Supabase: en el plan gratis se pausa si pasa una semana sin uso.
 # Cada 3 días hace una consulta mínima (la función es_autorizado, que sin login devuelve false).
 # Usa la clave PÚBLICA del proyecto (la misma que está en src/lib/supabase-config.ts), no la secreta.
+# Ojo: GitHub apaga solo los workflows programados si el repo pasa 60 días sin cambios. Si pasa, volvé a
+# activarlo en Actions → "Mantener Supabase despierta" → Enable workflow.
 name: Mantener Supabase despierta
 
 on:
   schedule:
     - cron: '17 11 */3 * *' # cada 3 días, 08:17 de Argentina
   workflow_dispatch:
+
+# No necesita leer ni escribir nada del repo.
+permissions: {}
 
 jobs:
   ping:
