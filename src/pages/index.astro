@@ -179,7 +179,7 @@ const pasos = [
 
         <InstalarApp class="portada-instalar" />
 
-        <!-- Video de bienvenida: en el celular, después del camino; en la compu, al costado del título -->
+        <!-- Video de bienvenida: en el celular, justo debajo del título y a todo el ancho; en la compu, al costado del título -->
         <section class="portada-video" aria-labelledby="titulo-video">
           <h2 id="titulo-video" class="text-xl font-bold tracking-tight text-profundo lg:sr-only">El video de bienvenida</h2>
           <p class="mt-1 text-base text-texto-2 lg:hidden">Un minuto para entender cómo usar la intranet.</p>
@@ -279,15 +279,20 @@ const pasos = [
 </Manual>
 
 <style>
-  /* Portada: en el celular va todo en una columna (título, camino, instalar, video);
+  /* Portada: en el celular va todo en una columna (título, video, camino, instalar);
      en la compu el video queda a la derecha del título y el camino abajo, a todo el ancho. */
   .portada {
     display: grid;
     row-gap: 28px;
   }
+  .portada-intro { order: 1; }
+  .portada-video { order: 2; }
+  .portada-camino { order: 3; }
+  .portada :global(.portada-instalar) { order: 4; }
   .video-bienvenida {
     width: 100%;
-    max-width: 280px;
+    max-width: 420px;
+    margin-inline: auto;
   }
   @media (min-width: 1024px) {
     .portada {
