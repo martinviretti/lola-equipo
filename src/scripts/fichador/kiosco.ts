@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { url } from '../../lib/url';
 import { dispositivoGuardado, guardarDispositivo, hora, diaClave, diaLargo, PREFIJO_QR, type Dispositivo } from '../../lib/fichador';
 import { cargarCaras, leer, huella, promedio, ojosCerrados, type Lectura } from './caras';
-import { encolar, mandarPendientes, pendientes, esSinConexion } from './cola';
+import { encolar, mandarPendientes, pendientes, esSinConexion, guardadaHacePoco } from './cola';
 import { iniciarRegistro, registroActivo, alimentarRegistro } from './registrar';
 import { mostrarCapa, capaVisible } from './capas';
 import { sonar } from './sonidos';
@@ -17,6 +17,9 @@ let disp: Dispositivo | null = dispositivoGuardado();
 /** Diferencia entre el reloj de la base y el de la compu (la hora que vale es la de la base). */
 let desfase = 0;
 const ahora = () => new Date(Date.now() + desfase);
+/** Si la base no contesta en este tiempo, se toma como sin internet (un corte del proveedor con el wifi andando deja los pedidos colgados). */
+const ESPERA_MS = 8000;
+const limite = () => AbortSignal.timeout(ESPERA_MS);
 
 // ---------- Reloj y "Hoy en el local" ----------
 interface EventoHoy {
@@ -75,7 +78,7 @@ async function refrescarEstado() {
   pintarCola();
   if (!disp || !supabase) return;
   await mandarPendientes(disp);
-  const { data, error } = await supabase.rpc('estado_fichador', { p_dispositivo: disp.id, p_secreto: disp.secreto });
+  const { data, error } = await supabase.rpc('estado_fichador', { p_dispositivo: disp.id, p_secreto: disp.secreto }).abortSignal(limite());
   if (error) {
     if (/dispositivo_invalido/.test(error.message)) return compuDesactivada();
     pintarCola();
@@ -135,7 +138,7 @@ let ultimaFichada: { id: number; hasta: number } | null = null;
 function mostrarResultado(o: { titulo: string; detalle?: string; sub?: string; tipo: 'entrada' | 'salida' | 'aviso'; id?: number; segundos?: number }) {
   // Una respuesta que llega tarde no tapa el registro de una cara ni la activación.
   const visible = capaVisible();
-  if (visible && visible !== 'resultado') return;
+  if (visible && visible !== 'resultado' && visible !== 'elegir') return;
   const caja = $('[data-resultado-caja]');
   caja.classList.toggle('salida', o.tipo === 'salida');
   caja.classList.toggle('es-aviso', o.tipo === 'aviso');
@@ -169,7 +172,16 @@ $('[data-no-soy-yo]').addEventListener('click', async () => {
   if (!ultimaFichada || !disp) return;
   const id = ultimaFichada.id;
   ultimaFichada = null;
-  const { data } = await supabase!.rpc('deshacer_fichada', { p_dispositivo: disp.id, p_secreto: disp.secreto, p_id: id });
+  // Mientras tanto no se atiende a nadie más: si la respuesta tarda, no tapa la pantalla de otra persona.
+  ocupado = true;
+  const { data } = await supabase!
+    .rpc('deshacer_fichada', {
+      p_dispositivo: disp.id,
+      p_secreto: disp.secreto,
+      p_id: id,
+    })
+    .abortSignal(limite());
+  ocupado = false;
   mostrarResultado({
     titulo: data ? 'Listo, la borramos' : 'No se pudo borrar',
     detalle: data ? 'Probá de nuevo mirando de frente' : 'Avisale a la encargada',
@@ -180,7 +192,7 @@ $('[data-no-soy-yo]').addEventListener('click', async () => {
 });
 
 const primerNombre = (n: string) => n.split(/\s+/)[0];
-function contarRespuesta(r: { estado: string; nombre?: string; tipo?: 'entrada' | 'salida'; hora?: string; id?: number; otra?: string }) {
+function contarRespuesta(r: { estado: string; nombre?: string; tipo?: Tipo; hora?: string; id?: number; otra?: string; tope?: number }) {
   switch (r.estado) {
     case 'ok':
       mostrarResultado({
@@ -199,14 +211,29 @@ function contarRespuesta(r: { estado: string; nombre?: string; tipo?: 'entrada' 
         tipo: 'aviso',
       });
       return true;
-    case 'limite_dia':
+    case 'limite_dia': {
+      const tope = r.tope ?? 2;
       mostrarResultado({
-        titulo: `${primerNombre(r.nombre!)}, hoy ya fichaste 4 veces`,
-        detalle: 'Ya tenés tus 2 entradas y 2 salidas del día',
-        sub: 'Es el máximo por día (horario cortado). Si hay un error, avisale a la encargada.',
+        titulo: r.tipo
+          ? `${primerNombre(r.nombre!)}, ya marcaste ${tope} ${r.tipo === 'entrada' ? 'entradas' : 'salidas'} hoy`
+          : `${primerNombre(r.nombre!)}, hoy ya marcaste ${tope} entradas y ${tope} salidas`,
+        detalle: 'Es el máximo del día',
+        sub: 'Si tenés que volver a entrar, pedile a la encargada que te habilite un turno más.',
         tipo: 'aviso',
-        segundos: 7,
+        segundos: 8,
       });
+      return true;
+    }
+    case 'pase_vencido':
+      mostrarResultado({
+        titulo: 'Se pasó el tiempo',
+        detalle: 'Mirá de nuevo a la cámara',
+        tipo: 'aviso',
+        segundos: 4,
+      });
+      return true;
+    case 'tipo_invalido':
+      mostrarResultado({ titulo: 'Algo falló', detalle: 'Probá de nuevo en un momento', tipo: 'aviso' });
       return true;
     case 'cara_de_otra':
       mostrarResultado({
@@ -231,6 +258,159 @@ function contarRespuesta(r: { estado: string; nombre?: string; tipo?: 'entrada' 
   }
 }
 
+// ---------- Elegir entrada o salida ----------
+// La compu ya sabe quién es (por la cara o el código): la persona toca "Entrada" o "Salida". La que sugiere
+// el fichador viene marcada y, si nadie toca, se marca sola. Si fichó hace poco (seguramente se quedó
+// frente a la cámara), no se marca nada sola. Sin internet también se elige, y se guarda en la compu.
+type Tipo = 'entrada' | 'salida';
+interface Pase {
+  estado: 'elegir';
+  pase: string;
+  nombre: string;
+  sugerido: Tipo;
+  entradas: number;
+  salidas: number;
+  tope: number;
+  reciente: boolean;
+  ultima: { tipo: Tipo; hora: string } | null;
+}
+interface Eleccion {
+  /** Sin pase = sin internet (se guarda en la compu con la huella). */
+  pase?: Pase;
+  embedding?: number[];
+  foto: string | null;
+  /** Cuándo llegó (la hora que vale si se guarda sin internet). */
+  hora: Date;
+  marcada: Tipo | null;
+  /** Si nadie toca: a esta hora se marca sola la marcada (o se cierra). */
+  hasta: number;
+  /** Sin internet: una cara muy parecida ya se guardó hace un momento (puede ser la misma persona o una pariente). */
+  hacePoco?: boolean;
+}
+const SEGUNDOS_ELEGIR = 6;
+const SEGUNDOS_SIN_MARCAR = 10;
+let eleccion: Eleccion | null = null;
+const botonElegir = (t: Tipo) => $<HTMLButtonElement>(`[data-elegir="${t}"]`);
+
+function marcar(tipo: Tipo | null) {
+  if (eleccion) eleccion.marcada = tipo;
+  for (const t of ['entrada', 'salida'] as const) botonElegir(t).classList.toggle('marcada', t === tipo);
+}
+
+function mostrarEleccion(e: Omit<Eleccion, 'marcada' | 'hasta'>) {
+  const p = e.pase;
+  const seMarcaSola = !!p && !p.reciente;
+  const segundos = seMarcaSola ? SEGUNDOS_ELEGIR : SEGUNDOS_SIN_MARCAR;
+  eleccion = { ...e, marcada: null, hasta: Date.now() + segundos * 1000 };
+  $('[data-elegir-titulo]').textContent = p ? `¡Hola, ${primerNombre(p.nombre)}!` : 'Sin internet';
+  $('[data-elegir-texto]').textContent = !p
+    ? e.hacePoco
+      ? 'Ya guardamos una fichada con esta cara hace un momento. Si sos otra persona, o te equivocaste, tocá la que corresponda.'
+      : '¿Es tu entrada o tu salida? Tocá la que corresponda: se guarda en este aparato y se manda sola cuando vuelva la conexión.'
+    : p.reciente && p.ultima
+      ? `Ya marcaste tu ${p.ultima.tipo} a las ${hora(p.ultima.hora)}. Si tenés que marcar otra, tocala.`
+      : '¿Es tu entrada o tu salida?';
+  for (const t of ['entrada', 'salida'] as const) {
+    const lleno = !!p && (t === 'entrada' ? p.entradas : p.salidas) >= p.tope;
+    botonElegir(t).disabled = lleno;
+    $(`[data-elegir-nota="${t}"]`).textContent = lleno ? `Ya marcaste ${p!.tope} hoy` : seMarcaSola && t === p!.sugerido ? 'Sugerida' : '';
+  }
+  marcar(seMarcaSola ? p!.sugerido : null);
+  $('[data-elegir-cancelar]').textContent = p ? 'No soy yo' : 'Cancelar';
+  $<HTMLButtonElement>('[data-elegir-cancelar]').disabled = false;
+  mostrarCapa('elegir');
+  sonar('tic');
+  const contar = () => {
+    if (!eleccion || capaVisible() !== 'elegir') return;
+    const queda = eleccion.hasta - Date.now();
+    if (eleccion.marcada) botonElegir(eleccion.marcada).style.setProperty('--queda', String(Math.max(0, queda / (segundos * 1000))));
+    $('[data-elegir-cuenta]').textContent = eleccion.marcada ? `Se marca sola en ${Math.max(1, Math.ceil(queda / 1000))}…` : 'Tocá la que corresponda';
+    if (queda > 0) return void setTimeout(contar, 100);
+    // Nadie tocó: se marca la sugerida. Sin sugerida (sin internet, o fichó hace poco) no se guarda nada:
+    // si no, alguien que se queda frente a la cámara quedaría fichando una y otra vez.
+    if (eleccion.marcada) void elegir(eleccion.marcada);
+    else cancelarEleccion();
+  };
+  contar();
+}
+
+function cancelarEleccion() {
+  if (!eleccion) return; // ya se está confirmando: desde acá no se puede deshacer
+  eleccion = null;
+  mostrarCapa(null);
+  pausaHasta = Date.now() + 1500;
+}
+  const avisarGuardada = () =>
+  mostrarResultado({
+    titulo: 'Sin internet',
+    detalle: 'Guardamos tu fichada',
+    sub: 'Se confirma sola cuando vuelva la conexión. Si querés, avisale a la encargada.',
+    tipo: 'aviso',
+    segundos: 6,
+  });
+
+async function elegir(tipo: Tipo) {
+  const e = eleccion;
+  if (!e || !disp) return;
+  eleccion = null;
+  marcar(tipo);
+  for (const b of [botonElegir('entrada'), botonElegir('salida'), $<HTMLButtonElement>('[data-elegir-cancelar]')]) b.disabled = true;
+  $('[data-elegir-cuenta]').textContent = 'Un segundo…';
+  const guardarEnLaCompu = () => {
+    encolar(e.embedding!, e.foto, e.hora, tipo);
+    pintarCola();
+    avisarGuardada();
+  };
+  ocupado = true;
+  try {
+    if (!e.pase) return guardarEnLaCompu();
+    const { data, error } = await supabase!
+      .rpc('confirmar_fichada', {
+        p_dispositivo: disp.id,
+        p_secreto: disp.secreto,
+        p_pase: e.pase.pase,
+        p_tipo: tipo,
+      })
+      .abortSignal(limite());
+    if (error) {
+      if (/dispositivo_invalido/.test(error.message)) return compuDesactivada();
+      if (esSinConexion(error)) {
+        if (e.embedding) return guardarEnLaCompu();
+        return mostrarResultado({
+          titulo: 'Sin internet',
+          detalle: 'Con el código no se puede fichar sin conexión',
+          sub: 'Probá con la cara: se guarda y se manda sola después.',
+          tipo: 'aviso',
+        });
+      }
+      throw error;
+    }
+    if (!contarRespuesta(data)) throw new Error(data?.estado);
+  } catch {
+    mostrarResultado({ titulo: 'Algo falló', detalle: 'Probá de nuevo en un momento', tipo: 'aviso' });
+  } finally {
+    ocupado = false;
+  }
+}
+
+for (const t of ['entrada', 'salida'] as const) botonElegir(t).addEventListener('click', () => void elegir(t));
+$('[data-elegir-cancelar]').addEventListener('click', cancelarEleccion);
+// En la compu, también con el teclado: ← o E entrada, → o S salida, Enter la marcada, Esc cancela.
+addEventListener('keydown', (ev) => {
+  if (capaVisible() !== 'elegir' || !eleccion) return;
+  const tecla = ev.key.toLowerCase();
+  if (tecla === 'escape') return cancelarEleccion();
+  if (tecla === 'enter' && (ev.target as HTMLElement | null)?.closest?.('button')) return; // Enter sobre un botón: hace lo de ese botón
+  const pedido: Tipo | null =
+    tecla === 'arrowleft' || tecla === 'e' ? 'entrada' : tecla === 'arrowright' || tecla === 's' ? 'salida' : tecla === 'enter' ? eleccion.marcada : null;
+  if (!pedido || botonElegir(pedido).disabled) return;
+  ev.preventDefault();
+  void elegir(pedido);
+});
+
+/** La base todavía no tiene el paso de elegir (se actualiza la app antes que la base): se ficha como antes. */
+const faltaFuncion = (e: { code?: string; message?: string }) => e.code === 'PGRST202' || /could not find the function/i.test(e.message ?? '');
+
 // ---------- Fichar ----------
 const lienzoFoto = document.createElement('canvas');
 function foto(): string | null {
@@ -249,32 +429,31 @@ async function ficharConCara(embedding: number[]) {
   mensaje('Un segundo…');
   const f = foto();
   const e = huella(embedding);
-  const avisarGuardada = () =>
-    mostrarResultado({
-      titulo: 'Sin internet',
-      detalle: 'Guardamos tu fichada',
-      sub: 'Se confirma sola cuando vuelva la conexión. Si querés, avisale a la encargada.',
-      tipo: 'aviso',
-      segundos: 6,
+  const llegada = ahora();
+  // Sin internet no hay cómo reconocerla: elige igual (sin sugerencia) y se avisa si una cara muy parecida se
+  // guardó hace un momento. Al mandarlas, la base descarta la repetida si es la misma persona.
+  const sinInternet = () =>
+    mostrarEleccion({
+      embedding: e,
+      foto: f,
+      hora: llegada,
+      hacePoco: guardadaHacePoco(e, llegada),
     });
   try {
     // Si quedaron fichadas guardadas sin internet, primero van esas (para respetar el orden).
     if (pendientes()) await mandarPendientes(disp);
-    if (pendientes()) {
-      encolar(e, f, ahora());
-      pintarCola();
-      avisarGuardada();
-      return;
-    }
-    const { data, error } = await supabase!.rpc('fichar_cara', { p_dispositivo: disp.id, p_secreto: disp.secreto, p_embedding: e, p_foto: f });
+    if (pendientes()) return sinInternet();
+    const args = {
+      p_dispositivo: disp.id,
+      p_secreto: disp.secreto,
+      p_embedding: e,
+      p_foto: f,
+    };
+    let { data, error } = await supabase!.rpc('identificar_cara', args).abortSignal(limite());
+    if (error && faltaFuncion(error)) ({ data, error } = await supabase!.rpc('fichar_cara', args).abortSignal(limite()));
     if (error) {
       if (/dispositivo_invalido/.test(error.message)) return compuDesactivada();
-      if (esSinConexion(error)) {
-        encolar(e, f, ahora());
-        pintarCola();
-        avisarGuardada();
-        return;
-      }
+      if (esSinConexion(error)) return sinInternet();
       throw error;
     }
     ultimaSimilitud = `parecido: ${typeof data.similitud === 'number' ? data.similitud.toFixed(2) : '—'} (${data.estado}${data.nombre ? `, ${data.nombre}` : ''})`;
@@ -294,6 +473,13 @@ async function ficharConCara(embedding: number[]) {
       return;
     }
     intentosFallidos = 0;
+    if (data.estado === 'elegir')
+      return mostrarEleccion({
+        pase: data,
+        embedding: e,
+        foto: f,
+        hora: llegada,
+      });
     contarRespuesta(data);
   } catch {
     mostrarResultado({ titulo: 'Algo falló', detalle: 'Probá de nuevo en un momento', tipo: 'aviso' });
@@ -308,13 +494,15 @@ async function ficharConCodigo(qr: string, embedding: number[] | null) {
   ocupado = true;
   mensaje('Un segundo…');
   try {
-    const { data, error } = await supabase!.rpc('fichar_codigo', {
+    const args = {
       p_dispositivo: disp.id,
       p_secreto: disp.secreto,
       p_qr: qr,
       p_embedding: embedding ? huella(embedding) : null,
       p_foto: foto(),
-    });
+    };
+    let { data, error } = await supabase!.rpc('identificar_codigo', args).abortSignal(limite());
+    if (error && faltaFuncion(error)) ({ data, error } = await supabase!.rpc('fichar_codigo', args).abortSignal(limite()));
     if (error) {
       if (/dispositivo_invalido/.test(error.message)) return compuDesactivada();
       mostrarResultado({
@@ -325,6 +513,7 @@ async function ficharConCodigo(qr: string, embedding: number[] | null) {
       });
       return;
     }
+    if (data.estado === 'elegir') return mostrarEleccion({ pase: data, foto: null, hora: ahora() });
     contarRespuesta(data);
   } finally {
     ocupado = false;

@@ -205,7 +205,7 @@ import ErrorCarga from '../components/ErrorCarga.astro';
 <script>
   import { supabase } from '../lib/supabase';
   import { arrancarPanel } from '../scripts/admin/arranque';
-  import { diaClave, duracion } from '../lib/fichador';
+  import { diaClave, diaLargo, duracion } from '../lib/fichador';
   import { cargarAprendizaje, leerInfoGuia, porUsuario, type DatosAprendizaje } from '../scripts/admin/aprendizaje-datos';
   import {
     $,
@@ -246,19 +246,36 @@ import ErrorCarga from '../components/ErrorCarga.astro';
   let horarios: Horario[] = [];
   /** Horas de esta semana, por mail. */
   let horasSemana = new Map<string, number>();
+  /** Turnos extra habilitados, de hoy en adelante. */
+  interface TurnoExtra {
+    email: string;
+    dia: string;
+    extra: number;
+    creado_por: string;
+  }
+  let turnosExtra: TurnoExtra[] = [];
+  /** La base todavía no tiene los turnos extra (se actualiza aparte): el panel anda igual, sin ellos. */
+  const sinTabla = (e: unknown) => ['PGRST205', '42P01'].includes((e as { code?: string } | null)?.code ?? '');
+  let hayTurnosExtra = true;
 
   async function cargar() {
     const db = supabase!;
     const hoy = diaClave(new Date());
     const lunes = lunesDe(hoy);
-    const [a, cs, hs, aj, fs] = await Promise.all([
+    const [a, cs, hs, aj, fs, te] = await Promise.all([
       cargarAprendizaje(),
       q<Cara[]>(db.from('caras').select('email,foto,creada_el,parecida_a').order('id')),
       q<Horario[]>(db.from('horarios').select('email,dia,entrada,salida')),
       q<{ horas_max_turno: number }[]>(db.from('ajustes_fichador').select('horas_max_turno')),
       fichadasEntre(lunes, sumarDias(lunes, 7)),
+      q<TurnoExtra[]>(db.from('turnos_extra').select('email,dia,extra,creado_por').gte('dia', hoy).order('dia')).catch((e) => {
+        if (sinTabla(e)) return null;
+        throw e;
+      }),
     ]);
     apr = a;
+    hayTurnosExtra = te !== null;
+    turnosExtra = te ?? [];
     caras = cs;
     horarios = hs;
     horasSemana = new Map();
@@ -273,8 +290,16 @@ import ErrorCarga from '../components/ErrorCarga.astro';
   async function accion(p: PromiseLike<{ error: unknown }>, texto = 'No se pudo guardar. Revisá la conexión y probá de nuevo.') {
     const { error } = await p;
     // La base no deja dar de baja ni pasar a empleada a la última admin activa (actualizar-intranet-1.sql).
-    const ultima = /ultima_admin/.test((error as { message?: string } | null)?.message ?? '');
-    if (error) avisar(ultima ? 'Tiene que quedar al menos una admin activa. Primero hacé admin a otra persona.' : texto, { ms: 6000 });
+    const mensaje = (error as { message?: string } | null)?.message ?? '';
+    if (error)
+      avisar(
+        /ultima_admin/.test(mensaje)
+          ? 'Tiene que quedar al menos una admin activa. Primero hacé admin a otra persona.'
+          : /turno_extra_en_uso/.test(mensaje)
+            ? 'Ese día ya usó el turno extra. Para sacarlo, primero anulá en Horarios y fichajes las fichadas de más.'
+            : texto,
+        { ms: 7000 },
+      );
     return !error;
   }
 
@@ -306,7 +331,9 @@ import ErrorCarga from '../components/ErrorCarga.astro';
     sum.append(avatar, quien, chips, flecha);
 
     const cuerpo = el('div', 'px-4 pb-4');
-    cuerpo.append(bloqueAcceso(p), bloqueCara(p, suyas), bloqueHoras(p), bloqueAprendizaje(p));
+    cuerpo.append(bloqueAcceso(p), bloqueCara(p, suyas), bloqueHoras(p));
+    if (hayTurnosExtra) cuerpo.append(bloqueTurnoExtra(p));
+    cuerpo.append(bloqueAprendizaje(p));
     det.append(sum, cuerpo);
     li.append(det);
     return li;
@@ -497,6 +524,49 @@ import ErrorCarga from '../components/ErrorCarga.astro';
       void refrescar();
     });
     b.append(form);
+    return b;
+  }
+
+  function bloqueTurnoExtra(p: Persona) {
+    const b = bloque(
+      'Turno extra',
+      'Cada día se pueden marcar hasta 2 entradas y 2 salidas (horario cortado). Si un día puntual tiene que fichar más veces (es raro), habilitalo antes.',
+    );
+    const lista = el('ul', 'mt-3 flex flex-col gap-2');
+    for (const t of turnosExtra.filter((x) => x.email === p.email)) {
+      const li = el('li', 'flex flex-wrap items-center gap-3 rounded-2xl bg-crema px-3 py-2 text-sm');
+      const cuantos = t.extra === 1 ? '1 turno más' : `${t.extra} turnos más`;
+      const dia = t.dia.slice(0, 10); // "AAAA-MM-DD" (por si llega con hora)
+      li.append(
+        el('span', 'min-w-0 flex-1 font-semibold text-profundo first-letter:uppercase', `${diaLargo(`${dia}T12:00:00-03:00`)}: ${cuantos} (hasta ${2 + t.extra} entradas y ${2 + t.extra} salidas)`),
+        boton('Quitar', 'boton-secundario', async () => {
+          if (await accion(supabase!.rpc('habilitar_turno_extra', { p_email: p.email, p_dia: dia, p_extra: 0 }), 'No se pudo quitar el turno extra.')) void refrescar();
+        }),
+      );
+      lista.append(li);
+    }
+    const form = el('form', 'mt-3 flex flex-wrap items-center gap-2 text-sm');
+    const dia = el('input', 'campo !w-auto');
+    dia.type = 'date';
+    dia.required = true;
+    dia.min = diaClave(new Date());
+    dia.value = diaClave(new Date());
+    dia.setAttribute('aria-label', 'Día del turno extra');
+    const cuantos = el('select', 'campo !w-auto');
+    cuantos.setAttribute('aria-label', 'Cuántos turnos más');
+    cuantos.append(Object.assign(el('option', '', '1 turno más'), { value: '1' }), Object.assign(el('option', '', '2 turnos más'), { value: '2' }));
+    const habilitar = el('button', 'boton boton-secundario tap !py-2 !text-sm', 'Habilitar');
+    habilitar.type = 'submit';
+    form.append(dia, cuantos, habilitar);
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!dia.value) return;
+      const ok = await accion(supabase!.rpc('habilitar_turno_extra', { p_email: p.email, p_dia: dia.value, p_extra: Number(cuantos.value) }), 'No se pudo habilitar el turno extra.');
+      if (!ok) return;
+      avisar(`Listo: ese día ${nombreDe(p)} puede fichar más veces.`);
+      void refrescar();
+    });
+    b.append(lista, form);
     return b;
   }
 

@@ -1,7 +1,7 @@
 ---
 // Fichador del local (en la compu o en el celular del local): la persona mira la cámara (o muestra el
-// código de la app en su celular) y queda registrada su entrada o salida. Se instala como app y queda
-// abierto todo el día. Se adapta a pantalla de compu (acostada) o de celular (parada).
+// código de la app en su celular), elige si es su entrada o su salida y queda registrada. Se instala como
+// app y queda abierto todo el día. Se adapta a pantalla de compu (acostada) o de celular (parada).
 import { Image } from 'astro:assets';
 import Kiosco from '../layouts/Kiosco.astro';
 import Icon from '../components/Icon.astro';
@@ -64,6 +64,28 @@ import logo from '../assets/logo-lola-circulo.png';
       </button>
       <p class="ml-auto text-right text-xs text-texto-2" data-pie></p>
     </footer>
+
+    <!-- Elegir entrada o salida: la sugerida viene marcada y, si nadie toca, se marca sola -->
+    <div class="capa hidden" data-capa="elegir">
+      <div class="tarjeta-grande">
+        <p class="text-3xl font-bold text-profundo sm:text-4xl" data-elegir-titulo></p>
+        <p class="mt-2 text-lg text-texto-2" data-elegir-texto></p>
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <button type="button" class="eleccion" data-elegir="entrada">
+            <Icon name="sign-in" class="size-10" />
+            <span class="text-2xl font-bold">Entrada</span>
+            <span class="eleccion-nota" data-elegir-nota="entrada"></span>
+          </button>
+          <button type="button" class="eleccion" data-elegir="salida">
+            <Icon name="sign-out" class="size-10" />
+            <span class="text-2xl font-bold">Salida</span>
+            <span class="eleccion-nota" data-elegir-nota="salida"></span>
+          </button>
+        </div>
+        <p class="mt-4 min-h-6 font-semibold text-marca-texto tabular-nums" data-elegir-cuenta aria-live="polite"></p>
+        <button type="button" class="boton mt-3 bg-peligro-suave text-peligro hover:bg-peligro hover:text-white" data-elegir-cancelar>No soy yo</button>
+      </div>
+    </div>
 
     <!-- Resultado de la fichada -->
     <div class="capa hidden" data-capa="resultado">
@@ -473,6 +495,61 @@ import logo from '../assets/logo-lola-circulo.png';
     border-radius: 9999px;
     background: var(--color-marca);
     color: #fff;
+  }
+  /* Elegir entrada o salida: dos botones grandes; la sugerida (o la tocada) queda marcada y la barra de
+     abajo muestra cuánto falta para que se marque sola. */
+  .eleccion {
+    position: relative;
+    display: flex;
+    min-height: 150px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    overflow: hidden;
+    border-radius: 24px;
+    background: var(--color-crema);
+    padding: 18px 10px 22px;
+    color: var(--color-profundo);
+    box-shadow: inset 0 0 0 2px rgb(33 76 59 / 0.15);
+    transition:
+      background-color 200ms,
+      color 200ms,
+      box-shadow 200ms,
+      transform 200ms;
+  }
+  .eleccion:hover:not(:disabled) {
+    box-shadow: inset 0 0 0 2px var(--color-marca);
+  }
+  .eleccion:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .eleccion:focus-visible {
+    outline: 3px solid var(--color-marca-texto);
+    outline-offset: 3px;
+  }
+  .eleccion.marcada {
+    background: var(--color-profundo);
+    color: #fff;
+    box-shadow: none;
+  }
+  .eleccion.marcada::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 6px;
+    width: calc(var(--queda, 0) * 100%);
+    background: var(--color-menta);
+  }
+  .eleccion:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .eleccion-nota {
+    min-height: 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
   }
   .campo {
     width: 100%;

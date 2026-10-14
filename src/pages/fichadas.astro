@@ -127,7 +127,11 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
                 <strong>Se ficha solo en el local</strong>, en la compu o en el celular del local (la app <strong>Lola · Fichador</strong>): mirando a la cámara, o mostrándole el código de
                 <strong>Fichar</strong> desde el celular propio. Desde otro lado no se puede.
               </li>
-              <li><strong>Cada día, como mucho 2 entradas y 2 salidas</strong> (para el horario cortado). Si es entrada o salida, lo decide solo.</li>
+              <li>
+                <strong>Al fichar, cada una elige si es su entrada o su salida</strong> (el fichador sugiere una y, si nadie toca, marca esa). Cada día valen
+                <strong>hasta 2 entradas y 2 salidas</strong> (horario cortado); si un día hace falta más, habilitá un <strong>turno extra</strong> en su ficha de Gestión de
+                equipo o en el detalle del día.
+              </li>
               <li>
                 <strong>Una sola vez:</strong> activá los aparatos (acá abajo). La cara, la carga horaria y el horario de cada una se cargan en su ficha, en <strong>Gestión de equipo</strong>.
               </li>
@@ -196,6 +200,10 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       </div>
       <p class="mt-4 hidden rounded-2xl bg-peligro/10 px-4 py-3 text-sm font-semibold text-peligro" role="alert" data-detalle-error></p>
       <ul class="mt-4 flex flex-col gap-3" data-detalle-lista></ul>
+      <!-- Cuántas entradas y salidas valen ese día, y el turno extra -->
+      <div hidden data-detalle-tope-caja>
+        <div class="mt-4 flex flex-wrap items-center gap-3 rounded-2xl px-1 text-sm" data-detalle-tope></div>
+      </div>
       <form class="mt-5 rounded-2xl bg-crema p-4" data-agregar-fichada>
         <p class="font-semibold text-profundo">Agregar una fichada que faltó</p>
         <div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-[auto_auto_1fr_auto]">
@@ -772,6 +780,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     id: number;
     hora: string;
     foto: string | null;
+    /** Lo que eligió la persona en el fichador (si la base ya lo guarda). */
+    tipo?: 'entrada' | 'salida' | null;
   }
   interface Ajustes {
     similitud_min: number;
@@ -827,7 +837,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
 
 
-  const LIMITE_DIA = 'Ese día ya tiene 2 entradas y 2 salidas, que es el máximo (horario cortado). Si una está mal, anulala primero.';
+  const LIMITE_DIA = 'Ese día ya llegó al máximo de entradas y salidas. Si una está mal, anulala primero; si de verdad hizo otro turno, tocá "Permitir un turno más".';
   const esLimite = (error: unknown) => /limite_dia/.test((error as { message?: string } | null)?.message ?? '');
 
   /** Avisa algo que salió mal. Con el detalle abierto va adentro del detalle (el diálogo tapa los avisos de abajo). */
@@ -842,7 +852,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   /** Ejecuta un cambio y avisa si falló (nada falla en silencio). */
   async function accion(p: PromiseLike<{ error: unknown }>, texto = 'No se pudo guardar. Revisá la conexión y probá de nuevo.') {
     const { error } = await p;
-    if (error) avisarError(esLimite(error) ? LIMITE_DIA : texto);
+    const enUso = /turno_extra_en_uso/.test((error as { message?: string } | null)?.message ?? '');
+    if (error)
+      avisarError(esLimite(error) ? LIMITE_DIA : enUso ? 'Ese día ya usó el turno extra. Para sacarlo, primero anulá las fichadas de más.' : texto);
     return !error;
   }
 
@@ -997,7 +1009,8 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
         .order('hora', { ascending: false }),
     );
     const sin = await q<SinReconocer[]>(
-      supabase!.from('fichadas_sin_reconocer').select('id,hora,foto').is('resuelta_el', null).order('hora', { ascending: false }),
+      // Con * entra lo que eligió (tipo) si la base ya lo tiene, sin romper si todavía no.
+      supabase!.from('fichadas_sin_reconocer').select('*').is('resuelta_el', null).order('hora', { ascending: false }),
     );
     $('[data-revisar-seccion]').classList.toggle('hidden', !fs.length && !sin.length);
     $('[data-revisar-cuantas]').textContent = String(fs.length + sin.length);
@@ -1052,6 +1065,10 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
     const tipo = el('select', 'campo !w-auto !py-1.5 !text-sm');
     tipo.setAttribute('aria-label', 'Entrada o salida');
     tipo.append(Object.assign(el('option', '', 'Entrada'), { value: 'entrada' }), Object.assign(el('option', '', 'Salida'), { value: 'salida' }));
+    if (x.tipo) {
+      tipo.value = x.tipo;
+      txt.append(el('p', 'text-xs text-texto-2', `En el fichador eligió: ${x.tipo}`));
+    }
     const asignar = el('button', 'boton boton-principal tap !py-1.5 !px-3 !text-sm', 'Asignar');
     asignar.type = 'submit';
     form.append(
@@ -1360,6 +1377,28 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
   const METODO: Record<string, string> = { cara: 'Con la cara', codigo: 'Con el código del celular', manual: 'Cargada a mano' };
 
+  /** En el detalle: cuántas entradas y salidas valen ese día, con el botón para habilitar un turno extra. */
+  async function pintarTope(email: string, dia: string) {
+    const caja = $('[data-detalle-tope-caja]');
+    const r = await supabase!.from('turnos_extra').select('extra').eq('email', email).eq('dia', dia).maybeSingle();
+    // Mientras tanto se abrió el detalle de otra persona u otro día: esto ya no corresponde.
+    if (detalle?.email !== email || detalle?.dia !== dia) return;
+    // La base todavía no tiene los turnos extra (o no hay conexión): no se muestra.
+    if (r.error) return void (caja.hidden = true);
+    const extra = Number(r.data?.extra ?? 0);
+    const tope = 2 + extra;
+    const cambiar = async (nuevo: number) => {
+      if (await accion(supabase!.rpc('habilitar_turno_extra', { p_email: email, p_dia: dia, p_extra: nuevo }), 'No se pudo cambiar el turno extra.')) await pintarTope(email, dia);
+    };
+    const fila = $('[data-detalle-tope]');
+    fila.replaceChildren(
+      el('span', 'min-w-0 flex-1 text-texto-2', extra ? `Este día tiene turno extra: valen hasta ${tope} entradas y ${tope} salidas.` : 'Este día valen hasta 2 entradas y 2 salidas.'),
+    );
+    if (extra < 3) fila.append(boton('Permitir un turno más', 'boton-secundario', () => void cambiar(extra + 1)));
+    if (extra) fila.append(boton('Quitar el turno extra', 'boton-secundario', () => void cambiar(0)));
+    caja.hidden = false;
+  }
+
   async function abrirDetalle(email: string, dia: string, tipo?: 'entrada' | 'salida') {
     detalle = { email, dia };
     let fs: FichadaCompleta[];
@@ -1442,6 +1481,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       }),
     );
     if (!fs.length) lista.replaceChildren(el('li', 'text-sm text-texto-2', 'Sin fichadas este día.'));
+    await pintarTope(email, dia);
     const form = $<HTMLFormElement>('[data-agregar-fichada]');
     if (tipo) (form.elements.namedItem('tipo') as HTMLSelectElement).value = tipo;
     if (!dialogo.open) dialogo.showModal();

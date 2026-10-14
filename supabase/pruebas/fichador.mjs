@@ -50,7 +50,7 @@ await db.exec(`
 `);
 
 // --- Ejecutar como un rol ---
-const usuarios = { martin: ['00000000-0000-0000-0000-000000000001', 'martinviretti@gmail.com'], ana: ['00000000-0000-0000-0000-000000000003', 'ana@gmail.com'], sofi: ['00000000-0000-0000-0000-000000000004', 'sofi@gmail.com'], lu: ['00000000-0000-0000-0000-000000000005', 'lu@gmail.com'] };
+const usuarios = { martin: ['00000000-0000-0000-0000-000000000001', 'martinviretti@gmail.com'], ana: ['00000000-0000-0000-0000-000000000003', 'ana@gmail.com'], sofi: ['00000000-0000-0000-0000-000000000004', 'sofi@gmail.com'], lu: ['00000000-0000-0000-0000-000000000005', 'lu@gmail.com'], mili: ['00000000-0000-0000-0000-000000000006', 'mili@gmail.com'] };
 /** Conexión de internet desde la que "llega" el pedido (Supabase la pasa en x-forwarded-for). */
 let IP = null;
 async function como(quien, consulta, params = []) {
@@ -280,7 +280,9 @@ const cortado = [await manual('entrada', '08:00'), await manual('salida', '12:00
 ok(cortado.every(Boolean), 'horario cortado: 2 entradas y 2 salidas en el día se cargan bien');
 ok((await falla('martin', `select public.fichada_manual('lu@gmail.com', 'entrada', $1::timestamptz, 'x')`, [ayer('19:00')]))?.includes('limite_dia'), 'una tercera entrada en el día no se puede cargar');
 const quinta = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4)`, [...D, JSON.stringify(toma(LU)), ayer('20:00')]);
-ok(quinta.estado === 'limite_dia' && quinta.nombre === 'Lucía', 'el fichador tampoco deja fichar una quinta vez en el día');
+const filaQuinta = (await db.query(`select revisar from public.fichadas where id = $1`, [quinta.id])).rows[0];
+ok(quinta.estado === 'ok' && filaQuinta.revisar?.includes('tope'), 'una quinta guardada sin internet no se pierde: queda para revisar');
+await como('martin', `select public.anular_fichada($1, 'prueba')`, [quinta.id]);
 await como('martin', `select public.anular_fichada($1, 'error')`, [cortado[2]]);
 ok(!!(await manual('entrada', '19:00')), 'anulando una, se puede cargar otra');
 ok((await falla('martin', `select public.cambiar_tipo($1, 'x')`, [cortado[3]]))?.includes('limite_dia'), 'cambiar una salida por entrada no puede dejar 3 entradas');
@@ -289,6 +291,101 @@ const hoyLu = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, nu
 ok(hoyLu.estado === 'ok' && hoyLu.tipo === 'entrada', 'al día siguiente vuelve a fichar normal');
 ok((await falla('martin', `select public.corregir_fichada($1, $2::timestamptz, 'x')`, [hoyLu.id, ayer('21:00')]))?.includes('limite_dia'), 'corregir la hora a un día completo tampoco');
 ok((await falla('anon', `select public._dia_completo('lu@gmail.com', 'entrada', now())`))?.includes('permission denied'), 'la función del tope no se puede llamar de afuera');
+
+// --- Elegir entrada o salida en el fichador ---
+await db.exec(`insert into public.autorizados (email, nombre, rol) values ('mili@gmail.com', 'Milagros', 'empleada')`);
+const MILI = base();
+const codMili = await uno('martin', `select public.crear_codigo_cara('mili@gmail.com')`);
+ok((await uno('anon', `select public.registrar_cara($1, $2, $3, $4::jsonb, null)`, [...D, codMili, JSON.stringify([toma(MILI), toma(MILI), toma(MILI)])])).estado === 'ok', 'registra la cara de Milagros');
+const identificar = () => uno('anon', `select public.identificar_cara($1, $2, $3::jsonb, $4)`, [...D, JSON.stringify(toma(MILI)), foto]);
+const confirmar = (pase, tipo, d = D) => uno('anon', `select public.confirmar_fichada($1, $2, $3, $4)`, [...d, pase, tipo]);
+const atrasarMili = () => db.exec(`update public.fichadas set hora = hora - interval '20 minutes' where email = 'mili@gmail.com'`);
+const cuantas = async () => (await db.query(`select count(*)::int as n from public.fichadas`)).rows[0].n;
+
+const antesDeElegir = await cuantas();
+const p1 = await identificar();
+ok(p1.estado === 'elegir' && p1.nombre === 'Milagros' && p1.sugerido === 'entrada' && p1.entradas === 0 && p1.tope === 2 && p1.reciente === false,
+  'el fichador la reconoce y sugiere entrada');
+ok((await cuantas()) === antesDeElegir, 'reconocerla todavía no registra nada');
+ok((await falla('anon', `select public.confirmar_fichada($1, 'otro', $2, 'entrada')`, [disp.id, p1.pase]))?.includes('dispositivo_invalido'), 'sin el secreto de la compu no se confirma');
+const otraCompu = await uno('martin', `select public.activar_dispositivo('Celular del local')`);
+ok((await confirmar(p1.pase, 'entrada', [otraCompu.id, otraCompu.secreto])).estado === 'pase_vencido', 'el pase no sirve desde otro aparato');
+ok((await confirmar(p1.pase, 'cualquiera')).estado === 'tipo_invalido', 'solo se puede elegir entrada o salida');
+const c1 = await confirmar(p1.pase, 'salida');
+ok(c1.estado === 'ok' && c1.tipo === 'salida' && c1.nombre === 'Milagros', 'elige salida aunque el fichador sugería entrada: vale lo que eligió');
+ok((await confirmar(p1.pase, 'entrada')).estado === 'pase_vencido', 'el pase sirve una sola vez');
+ok((await db.query(`select count(*)::int as n from public.fotos_fichada where fichada_id = $1`, [c1.id])).rows[0].n === 1, 'la foto queda en la fichada');
+ok((await identificar()).estado === 'repetida', 'si recién fichó, no le vuelve a preguntar');
+await db.exec(`update public.fichadas set hora = hora - interval '5 minutes' where id = ${c1.id}`);
+const p2 = await identificar();
+ok(p2.estado === 'elegir' && p2.reciente === true && p2.ultima?.tipo === 'salida' && p2.sugerido === 'entrada',
+  'a los 5 minutos pregunta otra vez, avisando que fichó hace poco');
+ok((await confirmar(p2.pase, 'entrada')).estado === 'ok', 'confirma una entrada');
+await atrasarMili();
+const p3 = await identificar();
+ok(p3.sugerido === 'salida' && p3.entradas === 1 && p3.salidas === 1, 'después de una entrada sugiere salida');
+ok((await confirmar(p3.pase, 'entrada')).estado === 'ok', 'puede elegir otra entrada (por ejemplo, si se olvidó de la salida)');
+await atrasarMili();
+const p4 = await identificar();
+ok(p4.estado === 'elegir' && p4.entradas === 2 && p4.sugerido === 'salida', 'con 2 entradas, todavía puede marcar la salida');
+const c4 = await confirmar(p4.pase, 'entrada');
+ok(c4.estado === 'limite_dia' && c4.tope === 2, 'una tercera entrada no se deja');
+ok((await confirmar(p4.pase, 'salida')).estado === 'ok', 'con el mismo pase marca la salida');
+await atrasarMili();
+const p5 = await identificar();
+ok(p5.estado === 'limite_dia' && p5.nombre === 'Milagros' && p5.tope === 2, 'con 2 entradas y 2 salidas ya no le pregunta: llegó al tope');
+
+// Turno extra: la admin lo habilita antes, para esa persona y ese día
+const hoyAr = (await db.query(`select public._dia(now())::text as d`)).rows[0].d;
+ok((await falla('mili', `select public.habilitar_turno_extra('mili@gmail.com', $1::date, 1)`, [hoyAr])) !== null, 'una empleada no puede habilitarse un turno extra');
+ok((await falla('anon', `select public.habilitar_turno_extra('mili@gmail.com', $1::date, 1)`, [hoyAr]))?.includes('permission denied'), 'sin sesión tampoco');
+await como('martin', `select public.habilitar_turno_extra('mili@gmail.com', $1::date, 1)`, [hoyAr]);
+const extra = (await como('martin', `select extra, creado_por from public.turnos_extra where email = 'mili@gmail.com'`))[0];
+ok(extra?.extra === 1 && extra.creado_por === 'martinviretti@gmail.com', 'la admin habilita un turno más y queda quién lo hizo');
+const p6 = await identificar();
+ok(p6.estado === 'elegir' && p6.tope === 3 && p6.sugerido === 'entrada', 'con el turno extra le vuelve a preguntar');
+ok((await confirmar(p6.pase, 'entrada')).estado === 'ok', 'y marca la tercera entrada');
+ok((await como('sofi', `select * from public.turnos_extra`)).length === 0, 'una empleada no ve los turnos extra');
+ok((await falla('anon', `select * from public.turnos_extra`))?.includes('permission denied'), 'sin sesión no se leen los turnos extra');
+ok((await falla('martin', `select public.habilitar_turno_extra('mili@gmail.com', $1::date, 0)`, [hoyAr]))?.includes('turno_extra_en_uso'),
+  'un turno extra que ya se usó no se puede sacar (después no se podría corregir nada)');
+const tercera = (await db.query(`select id from public.fichadas where email = 'mili@gmail.com' and tipo = 'entrada' and not anulada order by hora desc limit 1`)).rows[0].id;
+await como('martin', `select public.anular_fichada($1, 'prueba')`, [tercera]);
+await como('martin', `select public.habilitar_turno_extra('mili@gmail.com', $1::date, 0)`, [hoyAr]);
+ok((await db.query(`select count(*)::int as n from public.turnos_extra`)).rows[0].n === 0, 'anulando la de más, con 0 se saca el turno extra');
+ok((await falla('martin', `select public.fichada_manual('mili@gmail.com', 'salida', now(), 'x')`))?.includes('limite_dia'), 'sin el turno extra, una tercera salida ya no entra');
+
+// Con el código del celular: identifica, y el código se gasta recién al confirmar
+await db.exec(`update public.fichadas set hora = hora - interval '1 day' where email = 'sofi@gmail.com'`);
+const qs = await qr('sofi');
+ok((await uno('anon', `select public.identificar_codigo($1, $2, $3, $4::jsonb, null)`, [...D, qs.texto(), JSON.stringify(toma(ANA))])).estado === 'cara_de_otra', 'el código de Sofía con la cara de Ana: rechazado');
+ok((await uno('anon', `select public.identificar_codigo($1, $2, 'cualquier cosa', null, null)`, D)).estado === 'codigo_invalido', 'un QR que no es del fichador');
+ok((await uno('anon', `select public.identificar_codigo($1, $2, $3, null, null)`, [...D, qs.texto(qs.paso - 5)])).estado === 'codigo_vencido', 'una captura vieja del código no sirve');
+const pq1 = await uno('anon', `select public.identificar_codigo($1, $2, $3, $4::jsonb, $5)`, [...D, qs.texto(), JSON.stringify(toma(SOFI)), foto]);
+const pq2 = await uno('anon', `select public.identificar_codigo($1, $2, $3, null, null)`, [...D, qs.texto()]);
+ok(pq1.estado === 'elegir' && pq1.nombre === 'Sofía' && pq1.sugerido === 'entrada' && pq2.estado === 'elegir', 'el código identifica a Sofía y todavía no se gasta');
+const cq1 = await confirmar(pq1.pase, 'entrada');
+const filaQ = (await db.query(`select metodo, similitud from public.fichadas where id = $1`, [cq1.id])).rows[0];
+ok(cq1.estado === 'ok' && filaQ.metodo === 'codigo' && filaQ.similitud > 0.5, 'Sofía confirma la entrada con el código (y su cara a la vista)');
+ok((await confirmar(pq2.pase, 'entrada')).estado === 'codigo_vencido', 'el mismo código no sirve para una segunda fichada');
+ok((await uno('anon', `select public.identificar_codigo($1, $2, $3, null, null)`, [...D, qs.texto()])).estado === 'codigo_vencido', 'y ya no identifica');
+// El celular renueva su código justo mientras la persona elige: el pase que ya se armó sigue valiendo
+await db.exec(`update public.fichadas set hora = hora - interval '1 day' where email = 'sofi@gmail.com'`);
+const qViejo = await qr('sofi');
+const pRenov = await uno('anon', `select public.identificar_codigo($1, $2, $3, null, null)`, [...D, qViejo.texto()]);
+await qr('sofi');
+ok((await uno('anon', `select public.identificar_codigo($1, $2, $3, null, null)`, [...D, qViejo.texto()])).estado === 'codigo_vencido', 'con el código renovado, el anterior ya no identifica');
+ok(pRenov.estado === 'elegir' && (await confirmar(pRenov.pase, 'entrada')).estado === 'ok', 'pero el pase armado antes de renovar se confirma igual');
+
+// Sin internet: también vale lo que eligió
+const off = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4, 'salida')`, [...D, JSON.stringify(toma(ANA)), ayer('23:00')]);
+ok(off.estado === 'ok' && off.tipo === 'salida', 'guardada sin internet: vale lo que eligió');
+const offSr = await uno('anon', `select public.fichar_cara($1, $2, $3::jsonb, null, $4, 'entrada')`, [...D, JSON.stringify(toma(DESCONOCIDA)), new Date(Date.now() - 3600e3).toISOString()]);
+ok(offSr.estado === 'guardada_sin_reconocer' && (await db.query(`select tipo from public.fichadas_sin_reconocer order by id desc limit 1`)).rows[0].tipo === 'entrada',
+  'sin internet y sin reconocer: queda anotado lo que eligió para la admin');
+for (const fn of [`public._pase('mili@gmail.com', 'cara', null, 1, null, null)`, `public._codigo_valido('x')`, `public._tope_dia('mili@gmail.com', now())`, `public._tipo_sugerido('mili@gmail.com', now())`]) {
+  ok((await falla('anon', `select ${fn}`))?.includes('permission denied'), `${fn.split('(')[0]} no se puede llamar de afuera`);
+}
 
 // Dar de baja
 await como('martin', `update public.autorizados set activo = false, baja_el = now() where email = 'ana@gmail.com'`);
@@ -303,7 +400,7 @@ await como('martin', `update public.dispositivos set activo = false where id = $
 ok((await falla('anon', `select public.estado_fichador($1, $2)`, D))?.includes('dispositivo_invalido'), 'la compu desactivada deja de fichar');
 await db.exec(`update public.dispositivos set activo = true`);
 const est = await uno('anon', `select public.estado_fichador($1, $2)`, D);
-ok(est.caras === 3 && est.hoy.length >= 1 && est.hoy.every((x) => x.tipo && x.hora), `estado del fichador: ${est.caras} caras, ${est.hoy.length} fichadas de hoy`);
+ok(est.caras === 4 && est.hoy.length >= 1 && est.hoy.every((x) => x.tipo && x.hora), `estado del fichador: ${est.caras} caras, ${est.hoy.length} fichadas de hoy`);
 
 // Similitud igual a la de Human
 const s = (await db.query(`select public._similitud(0.5) as a, public._similitud(0) as b, public._similitud(1.2) as c`)).rows[0];

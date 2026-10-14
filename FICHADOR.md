@@ -14,7 +14,7 @@ Lo que nadie puede hacer:
 
 Cada fichada guarda una foto chica como prueba.
 
-**Por día, como mucho 2 entradas y 2 salidas** (para el horario cortado). Una quinta fichada en el día se rechaza, y tampoco se puede cargar a mano.
+**Cada una elige si es su entrada o su salida** al fichar. **Por día valen hasta 2 entradas y 2 salidas** (para el horario cortado); si un día puntual hace falta más, la admin habilita antes un **turno extra** para esa persona y ese día (en su ficha de Gestión de equipo o en el detalle del día). Sin turno extra, una tercera entrada o salida se rechaza, y tampoco se puede cargar a mano.
 
 Las admins lo manejan todo desde la intranet, en el **Panel de admin**, que tiene cuatro partes:
 
@@ -96,12 +96,12 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
 
 ## Uso de todos los días
 
-- **Llegar e irse**: mirar la cámara. Si es entrada o salida lo decide solo.
-- **Si dice "Hola" a la persona equivocada**: tocar **No soy yo** (está 8 segundos) y volver a mirar de frente.
+- **Llegar e irse**: mirar la cámara y tocar **Entrada** o **Salida**. La que sugiere el fichador viene marcada y, si nadie toca, se marca sola a los 6 segundos. En la compu también se puede con el teclado: ← o E entrada, → o S salida, Enter confirma, Esc cancela.
+- **Si dice "Hola" a la persona equivocada**: tocar **No soy yo** antes de elegir (no se registra nada) o después, en los 8 segundos del cartel, y volver a mirar de frente.
 - **Con el código del celular**: menú → **Fichar** → acercar la pantalla a la cámara del local, a un palmo, con el brillo al máximo.
-- **Sin internet en el local**: con la cara se guarda y se manda sola cuando vuelve la conexión. Queda marcada "sin internet" para revisar. Con el celular no se puede sin conexión.
-- **Fichar dos veces seguidas** (dentro de los 10 minutos de la entrada) cuenta como la misma fichada: no la convierte en salida.
-- **Horario cortado**: se puede entrar, salir, volver a entrar y volver a salir. Más de 2 entradas y 2 salidas en el día no se aceptan: el fichador avisa "hoy ya fichaste 4 veces".
+- **Sin internet en el local**: con la cara también se elige entrada o salida; se guarda y se manda sola cuando vuelve la conexión. Queda marcada "sin internet" para revisar (y si al mandarla ya pasó el tope del día, no se pierde: queda para revisar). Con el celular no se puede sin conexión.
+- **Fichar dos veces seguidas**: en los 2 minutos siguientes no vuelve a preguntar. Hasta los 10 minutos pregunta, pero avisa "ya marcaste tu entrada a las…" y no marca nada sola (es alguien que se quedó frente a la cámara).
+- **Horario cortado**: se puede entrar, salir, volver a entrar y volver a salir. Con 2 entradas, el botón Entrada aparece apagado ("Ya marcaste 2 hoy"); con 2 y 2, el fichador avisa "pedile a la encargada que te habilite un turno más".
 - **Cada una ve sus horas** en la app, en **Fichar**: cuánto lleva en la semana y, si tiene carga horaria, cuánto le falta.
 
 ## El panel de admin
@@ -174,7 +174,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
   - la compu se identifica con un secreto propio (en la base, solo su hash);
   - el QR del celular se firma con HMAC-SHA256 por paso de 3 segundos;
   - todas las escrituras pasan por funciones `security definer`, con RLS en todas las tablas.
-- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 101 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", entrada y salida del mismo día, sin internet, la conexión del local, los permisos, las bajas y las correcciones. Se corre así:
+- **Probar sin tocar la base real**: `supabase/pruebas/fichador.mjs` tiene 141 pruebas sobre el esquema real, en un Postgres local. Cubren reconocer, el QR, el rechazo de "código de una, cara de otra", entrada y salida del mismo día, elegir entrada o salida, el turno extra, sin internet, la conexión del local, los permisos, las bajas y las correcciones. Se corre así:
   ```
   npm i --no-save @electric-sql/pglite @electric-sql/pglite-pgvector
   node supabase/pruebas/fichador.mjs
