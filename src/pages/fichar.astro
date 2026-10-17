@@ -149,22 +149,31 @@ import Icon from '../components/Icon.astro';
   }
 
   async function pintar() {
-    if (document.visibilityState === 'visible') {
-      const t = Date.now() + desfase;
-      if (!codigo || codigo.vence - t < 20000) await pedir();
-      if (codigo) {
-        const paso = Math.floor(t / 1000 / PASO_QR);
-        if (paso !== ultimoPaso) {
-          ultimoPaso = paso;
-          const texto = await textoQr(codigo.id, codigo.clave, paso);
-          $('[data-qr]').innerHTML = renderSVG(texto, { ecc: 'M', border: 2, pixelSize: 10, blackColor: '#1c3a2e', whiteColor: '#ffffff' });
-          estado('Mostrale este código a la cámara del local');
+    try {
+      if (document.visibilityState === 'visible') {
+        const t = Date.now() + desfase;
+        if (!codigo || codigo.vence - t < 20000) await pedir();
+        if (codigo) {
+          const paso = Math.floor(t / 1000 / PASO_QR);
+          if (paso !== ultimoPaso) {
+            const texto = await textoQr(codigo.id, codigo.clave, paso);
+            $('[data-qr]').innerHTML = renderSVG(texto, { ecc: 'M', border: 2, pixelSize: 10, blackColor: '#1c3a2e', whiteColor: '#ffffff' });
+            ultimoPaso = paso;
+            estado('Mostrale este código a la cámara del local');
+          }
+          const resto = 1 - ((t / 1000) % PASO_QR) / PASO_QR;
+          $('[data-qr-barra]').style.transform = `scaleX(${resto})`;
         }
-        const resto = 1 - ((t / 1000) % PASO_QR) / PASO_QR;
-        $('[data-qr-barra]').style.transform = `scaleX(${resto})`;
       }
+    } catch {
+      // Un corte de red en el medio (o cualquier error raro) no puede dejar el código congelado: se vuelve a
+      // pedir uno nuevo en unos segundos y el bucle sigue.
+      codigo = null;
+      esperarHasta = Date.now() + 5000;
+      estado(navigator.onLine ? 'Se cortó la conexión. Armamos tu código de nuevo en unos segundos…' : 'Necesitás internet para mostrar tu código.');
+    } finally {
+      setTimeout(() => void pintar(), 200);
     }
-    setTimeout(() => void pintar(), 200);
   }
 
   // ---------- Pantalla prendida mientras se muestra el código ----------
@@ -201,15 +210,41 @@ import Icon from '../components/Icon.astro';
     const falta = carga * 3600000 - ms;
     texto.textContent = Math.abs(falta) < 5 * 60000 ? 'Cumpliste tu carga horaria de la semana.' : falta > 0 ? `Te faltan ${duracion(falta)} para tu carga horaria.` : `Hiciste ${duracion(-falta)} de más.`;
   }
+  /** Si nunca se pudieron traer las fichadas, se dice y se ofrece reintentar (después, un error suelto no borra la lista). */
+  let cargadas = false;
+  function errorMias() {
+    if (cargadas) return;
+    const li = Object.assign(document.createElement('li'), { className: 'flex flex-wrap items-center gap-3 text-sm text-texto-2' });
+    li.append(navigator.onLine ? 'No se pudieron cargar tus fichadas.' : 'Sin internet no podemos traer tus fichadas.');
+    const boton = Object.assign(document.createElement('button'), {
+      type: 'button',
+      className: 'tap rounded-full bg-white px-4 font-bold text-profundo ring-1 ring-profundo/15',
+      textContent: 'Reintentar',
+    });
+    boton.addEventListener('click', () => {
+      $('[data-mias]').replaceChildren(Object.assign(document.createElement('li'), { className: 'text-sm text-texto-2', textContent: 'Cargando…' }));
+      void misFichadas();
+    });
+    li.append(boton);
+    $('[data-mias]').replaceChildren(li);
+  }
+
   async function misFichadas() {
     const desde = new Date(Date.now() - 7 * 86400000).toISOString();
-    const { data, error } = await supabase!
-      .from('fichadas')
-      .select('id,email,tipo,hora,metodo,anulada')
-      .eq('email', email)
-      .gte('hora', desde)
-      .order('hora');
-    if (error) return;
+    let respuesta;
+    try {
+      respuesta = await supabase!
+        .from('fichadas')
+        .select('id,email,tipo,hora,metodo,anulada')
+        .eq('email', email)
+        .gte('hora', desde)
+        .order('hora');
+    } catch {
+      return errorMias();
+    }
+    const { data, error } = respuesta;
+    if (error) return errorMias();
+    cargadas = true;
     const lista = data as Fichada[];
 
     // ¿Fichó recién? Se avisa acá también y se pide un código nuevo (el usado ya no sirve).
@@ -265,10 +300,13 @@ import Icon from '../components/Icon.astro';
       return;
     }
     email = acceso.email;
-    const { data: yo } = await supabase.from('autorizados').select('horas_semana').eq('email', email).maybeSingle();
-    carga = yo?.horas_semana ? Number(yo.horas_semana) : null;
+    // El código va primero: la carga horaria es un extra y, si no llega, no frena nada.
     void mantenerPrendida();
     void pintar();
+    try {
+      const { data: yo } = await supabase.from('autorizados').select('horas_semana').eq('email', email).maybeSingle();
+      carga = yo?.horas_semana ? Number(yo.horas_semana) : null;
+    } catch {}
     await misFichadas();
     setInterval(() => document.visibilityState === 'visible' && void misFichadas(), 5000);
   });

@@ -14,6 +14,10 @@ const EXCLUIR = /\.(pdf|map|mp4|webm)$|^(_headers|_redirects|robots\.txt|sw\.js|
 const A_DEMANDA = ['guia/imprimir.html', 'admin.html', 'fichadas.html', 'equipo.html', 'aprendizaje.html', 'fichar.html', 'fichador.html'];
 // De la fuente solo se guarda el alfabeto latino: los otros subsets no se usan en la app.
 const OTRO_ALFABETO = /-(cyrillic|cyrillic-ext|greek|greek-ext|latin-ext|vietnamese)-[^/]*\.woff2$/;
+// El reconocimiento facial (public/face-api/<versión>, ~8 MB) solo lo usa el fichador del local: no entra en la
+// lista de nadie. Se guarda aparte la primera vez que el fichador lo pide y no se vuelve a bajar en cada versión
+// de la app (la carpeta lleva la versión de la librería: lo que hay adentro no cambia nunca).
+const CARAS = /^face-api\/([^/]+)\//;
 
 async function listar(dir, base = dir) {
   const salida = [];
@@ -76,6 +80,8 @@ const A_DEMANDA = ${JSON.stringify(datos.aDemanda)};
 // Si la red no contesta en este tiempo, se muestra la copia guardada (señal "colgada" en el local).
 const TOPE_RED = 4000;
 const SIN_CONEXION = ${JSON.stringify(datos.sinConexion)};
+// Reconocimiento facial del fichador: caché propio que sobrevive a las versiones de la app.
+const CACHE_CARAS = ${JSON.stringify(datos.cacheCaras)};
 
 const esperar = (ms) => new Promise((ok) => setTimeout(() => ok(null), ms));
 const esEsencial = (u) => u === INICIO || u.includes('/_astro/');
@@ -112,7 +118,11 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil((async () => {
     const claves = await caches.keys();
-    await Promise.all(claves.filter((k) => k.startsWith('lola-') && k !== CACHE).map((k) => caches.delete(k)));
+    await Promise.all(
+      claves
+        .filter((k) => (k.startsWith('lola-') && k !== CACHE) || (k.startsWith('caras-') && k !== CACHE_CARAS))
+        .map((k) => caches.delete(k)),
+    );
     await self.clients.claim();
   })());
 });
@@ -147,6 +157,19 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET' || url.origin !== self.location.origin || !(url.pathname + '/').startsWith(INICIO)) return;
   // Los videos van siempre a la red (pedidos por partes): no se guardan para usar sin internet.
   if (/\\.(mp4|webm)$/.test(url.pathname)) return;
+
+  // Reconocimiento facial: lo guardado primero, siempre (el archivo de una versión no cambia).
+  if (url.pathname.startsWith(INICIO + 'face-api/')) {
+    e.respondWith((async () => {
+      const cache = await caches.open(CACHE_CARAS);
+      const guardado = await cache.match(req.url);
+      if (guardado) return guardado;
+      const res = await fetch(req);
+      if (res.ok) e.waitUntil(cache.put(req.url, res.clone()));
+      return res;
+    })());
+    return;
+  }
 
   // Páginas: primero la red, para ver lo último. Si no contesta en 4 segundos o no hay conexión, lo guardado.
   if (req.mode === 'navigate') {
@@ -229,7 +252,9 @@ export default function serviceWorker() {
       },
       'astro:build:done': async ({ dir, logger }) => {
         const raiz = fileURLToPath(dir);
-        const archivos = (await listar(raiz)).filter((f) => !EXCLUIR.test(path.posix.basename(f)));
+        const todos = await listar(raiz);
+        const versionCaras = todos.map((f) => f.match(CARAS)?.[1]).find(Boolean) ?? 'ninguna';
+        const archivos = todos.filter((f) => !EXCLUIR.test(path.posix.basename(f)) && !CARAS.test(f));
         const refs = await referencias(raiz, archivos);
 
         // Lo que usan las páginas de todos los días se guarda de entrada; lo que solo usan las páginas a demanda, no.
@@ -262,6 +287,7 @@ export default function serviceWorker() {
           precache: precache.map(aUrl),
           aDemanda,
           sinConexion: sinConexion(`${BASE}/`, fuente && aUrl(fuente)),
+          cacheCaras: `caras-${versionCaras}`,
         };
         hash.update(codigo(datos));
         datos.version = hash.digest('hex').slice(0, 12);

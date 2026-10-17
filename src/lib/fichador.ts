@@ -1,8 +1,13 @@
 // Fichador: lo que comparten la compu del local (/fichador), el celular (/fichar) y el panel (/fichadas).
+import { url } from './url';
 
-/** Librería de reconocimiento facial face-api (MIT). Se carga desde jsDelivr con la versión fija: no ocupa lugar en el repo. */
+/**
+ * Librería de reconocimiento facial face-api (MIT), servida desde el propio sitio (public/face-api/<versión>):
+ * así nadie de afuera puede cambiarle el código al fichador. Para actualizarla, copiar dist/face-api.esm.js y
+ * los 3 modelos que usamos del paquete npm a una carpeta nueva con la versión y cambiar este número.
+ */
 export const FACEAPI_VERSION = '1.7.15';
-export const FACEAPI_CDN = `https://cdn.jsdelivr.net/npm/@vladmandic/face-api@${FACEAPI_VERSION}`;
+export const FACEAPI_BASE = url(`/face-api/${FACEAPI_VERSION}`);
 
 /** Cada cuántos segundos cambia el QR del celular (tiene que coincidir con la base). */
 export const PASO_QR = 3;

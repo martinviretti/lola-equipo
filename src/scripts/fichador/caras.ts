@@ -2,9 +2,9 @@
 // del aparato; a la base solo viaja la huella numérica de la cara y una foto chica).
 // Se eligió face-api (red de reconocimiento estilo dlib) porque en las pruebas distinguía mejor a
 // personas parecidas que el modelo que trae Human.
-import { FACEAPI_CDN } from '../../lib/fichador';
+import { FACEAPI_BASE } from '../../lib/fichador';
 
-/* Lo poco que usamos de face-api (se carga desde el CDN, sin tipos). */
+/* Lo poco que usamos de face-api (se carga aparte, sin tipos). */
 interface Punto {
   x: number;
   y: number;
@@ -44,8 +44,8 @@ let opciones: unknown;
 
 export async function cargarCaras(): Promise<void> {
   if (api) return;
-  const f: FaceApi = await import(/* @vite-ignore */ `${FACEAPI_CDN}/dist/face-api.esm.js`);
-  const modelos = `${FACEAPI_CDN}/model/`;
+  const f: FaceApi = await import(/* @vite-ignore */ `${FACEAPI_BASE}/face-api.esm.js`);
+  const modelos = `${FACEAPI_BASE}/model/`;
   await Promise.all([f.nets.tinyFaceDetector.loadFromUri(modelos), f.nets.faceLandmark68Net.loadFromUri(modelos), f.nets.faceRecognitionNet.loadFromUri(modelos)]);
   opciones = new f.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 });
   // La primera pasada tarda (prepara la placa de video): se hace ahora y no con la primera persona.

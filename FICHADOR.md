@@ -49,7 +49,7 @@ Se puede volver a correr sin romper nada. Prende solo las extensiones que necesi
 6. **Que abra sola al prender la compu**: apretá `Windows + R`, escribí `shell:startup`, Enter, y arrastrá a esa carpeta el acceso directo **Lola · Fichador** del escritorio o del menú Inicio.
 7. En Windows, **Configuración → Sistema → Energía**: que la pantalla y la compu **no** se apaguen ni se suspendan.
 
-La primera vez baja el reconocimiento facial (unos 8 MB, desde jsDelivr). Después queda guardado en la compu.
+La primera vez baja el reconocimiento facial (unos 8 MB, desde la misma página). Después queda guardado en la compu y no se vuelve a bajar con cada actualización.
 
 ### 2 bis. Preparar el celular del local
 
@@ -167,7 +167,7 @@ Abrí `https://martinviretti.github.io/lola-equipo/fichador?calibrar`. Abajo a l
   - `cola.ts`: fichadas sin internet;
   - `capas.ts`: pantallas encima de la cámara.
 - **Comunes**: `src/lib/fichador.ts` (QR con HMAC, fechas, tramos entrada→salida) y `src/lib/csv.ts`.
-- **Reconocimiento**: [`@vladmandic/face-api`](https://github.com/vladmandic/face-api) **1.7.15** (MIT), con detector tiny, 68 puntos y red de reconocimiento. Se carga desde jsDelivr con la versión fija: no hay modelos en el repo.
+- **Reconocimiento**: [`@vladmandic/face-api`](https://github.com/vladmandic/face-api) **1.7.15** (MIT), con detector tiny, 68 puntos y red de reconocimiento. Se sirve desde el propio sitio (`public/face-api/1.7.15`: la librería y los 3 modelos, copiados del paquete npm e idénticos a los de jsDelivr), así nadie de afuera le puede cambiar el código. El service worker lo guarda aparte (`caras-<versión>`) y no lo mete en la lista sin conexión del resto del equipo.
   - Se probó también Human, del mismo autor. Con fotos de muestra confundía a personas parecidas (parecido 0,72 entre dos mujeres distintas), así que se descartó.
 - **La base** (`supabase/schema.sql`, sección *Fichador*):
   - la comparación de caras es en el servidor (pgvector, distancia entre huellas), así que la compu nunca baja las caras de nadie;

@@ -218,6 +218,19 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
       </form>
     </div>
   </dialog>
+
+  <!-- Motivo de una corrección o anulación (queda registrado). Se abre encima del detalle. -->
+  <dialog class="detalle motivo" data-motivo>
+    <form class="detalle-caja" method="dialog" data-motivo-form>
+      <p class="text-lg font-bold text-profundo" data-motivo-pregunta></p>
+      <p class="mt-1 text-sm text-texto-2">Contá por qué. Queda registrado junto a la fichada.</p>
+      <textarea class="campo mt-3 min-h-24 w-full" name="motivo" required minlength="3" maxlength="300" placeholder="Ej.: se olvidó de fichar la salida" aria-label="Motivo"></textarea>
+      <div class="mt-4 flex flex-wrap justify-end gap-2">
+        <button type="button" class="boton boton-secundario tap" data-motivo-cancelar>Cancelar</button>
+        <button type="submit" class="boton boton-principal tap" data-motivo-ok>Confirmar</button>
+      </div>
+    </form>
+  </dialog>
 </Manual>
 
 <style>
@@ -314,6 +327,9 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
   .detalle-caja {
     padding: 22px;
+  }
+  .motivo {
+    width: min(460px, calc(100% - 24px));
   }
   :global(.marca) {
     display: inline-flex;
@@ -1377,6 +1393,30 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
 
   const METODO: Record<string, string> = { cara: 'Con la cara', codigo: 'Con el código del celular', manual: 'Cargada a mano' };
 
+  // ---------- Motivo de una corrección (en lugar del prompt() del navegador) ----------
+  const dialogoMotivo = $<HTMLDialogElement>('[data-motivo]');
+  const formMotivo = $<HTMLFormElement>('[data-motivo-form]');
+  const campoMotivo = formMotivo.elements.namedItem('motivo') as HTMLTextAreaElement;
+  $('[data-motivo-cancelar]').addEventListener('click', () => dialogoMotivo.close(''));
+  dialogoMotivo.addEventListener('click', (e) => e.target === dialogoMotivo && dialogoMotivo.close(''));
+  formMotivo.addEventListener('submit', (e) => {
+    e.preventDefault();
+    dialogoMotivo.close('ok');
+  });
+
+  /** Pregunta el motivo. Devuelve el texto, o null si se canceló. */
+  function pedirMotivo(pregunta: string, confirmar = 'Confirmar'): Promise<string | null> {
+    $('[data-motivo-pregunta]').textContent = pregunta;
+    $('[data-motivo-ok]').textContent = confirmar;
+    formMotivo.reset();
+    dialogoMotivo.returnValue = '';
+    dialogoMotivo.showModal();
+    campoMotivo.focus();
+    return new Promise((listo) =>
+      dialogoMotivo.addEventListener('close', () => listo(dialogoMotivo.returnValue === 'ok' ? campoMotivo.value.trim() : null), { once: true }),
+    );
+  }
+
   /** En el detalle: cuántas entradas y salidas valen ese día, con el botón para habilitar un turno extra. */
   async function pintarTope(email: string, dia: string) {
     const caja = $('[data-detalle-tope-caja]');
@@ -1447,7 +1487,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           corregir.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!input.value || input.value === hora(f.hora)) return;
-            const motivo = prompt('¿Por qué se corrige? (queda registrado)');
+            const motivo = await pedirMotivo(`¿Corregir la ${f.tipo} de las ${hora(f.hora)} a las ${input.value}?`, 'Corregir hora');
             if (motivo === null) return;
             if (!(await accion(supabase!.rpc('corregir_fichada', { p_id: f.id, p_hora: new Date(`${dia}T${input.value}:00-03:00`).toISOString(), p_motivo: motivo })))) return;
             await refrescar();
@@ -1457,7 +1497,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
           acciones.append(
             corregir,
             boton(`Es ${otro}`, 'boton-secundario', async () => {
-              const motivo = prompt(`¿Cambiar esta ${f.tipo} por ${otro}? Contá por qué (queda registrado):`);
+              const motivo = await pedirMotivo(`¿Cambiar esta ${f.tipo} de las ${hora(f.hora)} por ${otro}?`, `Pasar a ${otro}`);
               if (motivo === null) return;
               if (!(await accion(supabase!.rpc('cambiar_tipo', { p_id: f.id, p_motivo: motivo })))) return;
               await refrescar();
@@ -1489,7 +1529,7 @@ const linkFichador = `https://martinviretti.github.io${url('/fichador')}`;
   }
 
   async function anular(f: Fichada, reabrir = false) {
-    const motivo = prompt(`¿Anular la ${f.tipo} de ${nombreDe(f.email)} de las ${hora(f.hora)}? Contá por qué (queda registrado):`);
+    const motivo = await pedirMotivo(`¿Anular la ${f.tipo} de ${nombreDe(f.email)} de las ${hora(f.hora)}?`, 'Anular');
     if (motivo === null) return;
     if (!(await accion(supabase!.rpc('anular_fichada', { p_id: f.id, p_motivo: motivo })))) return;
     await refrescar();
